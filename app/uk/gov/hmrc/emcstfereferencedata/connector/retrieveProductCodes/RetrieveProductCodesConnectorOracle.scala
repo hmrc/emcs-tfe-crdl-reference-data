@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.emcstfereferencedata.connector.retrieveProductCodes
 
-
 import cats.instances.either._
 import cats.syntax.traverse._
 import play.api.db.Database
@@ -37,7 +36,7 @@ class RetrieveProductCodesConnectorOracle @Inject()(db: Database) extends Retrie
 
       logger.info(s"[RetrieveProductCodesConnectorOracle][retrieveProductCodes] retrieving CN Code information for items: ${cnInformationRequest.items}")
 
-      db.withConnection {
+      val maps: Seq[Either[ErrorResponse, Map[String, CnCodeInformation]]] = db.withConnection {
         connection =>
           cnInformationRequest.items.map {
             case item@CnInformationItem(productCode, cnCode) =>
@@ -75,18 +74,14 @@ class RetrieveProductCodesConnectorOracle @Inject()(db: Database) extends Retrie
 
               storedProcedure.close()
 
-              if (result.isEmpty) {
-                logger.warn(s"[RetrieveProductCodesConnectorOracle][retrieveProductCodes] No ProductCodes found for item: $item")
-                Left(ErrorResponse.NoDataReturnedFromDatabaseError)
-              } else {
-                Right(result)
-              }
+              Right(result)
           }
-      }.sequence.map {
+      }
+
+      maps.sequence.map {
         value =>
           if (value.isEmpty) Map.empty else value.reduce(_ ++ _)
       }
-
     }
 
 }
