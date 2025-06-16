@@ -190,8 +190,8 @@ class RetrieveCnCodeInformationControllerWithOracleIntegrationSpec extends Integ
             }
           }
 
-          "return Internal Server Error" when {
-            "there is no data in the database" in new Test {
+          "successfully handle missing data" when {
+            "a requested item has a code that isn't in the database" in new Test {
               override def setupStubs(): StubMapping = {
                 AuthStub.authorised()
               }
@@ -200,8 +200,8 @@ class RetrieveCnCodeInformationControllerWithOracleIntegrationSpec extends Integ
                 Json.obj(
                   "items" -> Json.arr(
                     Json.obj(
-                      "productCode" -> "testProductCode1",
-                      "cnCode" -> "testCnCode1"
+                      "productCode" -> "a-non-existent-product-code",
+                      "cnCode" -> "a-non-existent-cn-code"
                     ),
                     Json.obj(
                       "productCode" -> testProductCode2,
@@ -210,11 +210,22 @@ class RetrieveCnCodeInformationControllerWithOracleIntegrationSpec extends Integ
                   )
                 )
 
+              val testResponseJson: JsObject =
+                Json.obj(
+                  "10000000" -> Json.obj(
+                    "cnCode" -> "10000000",
+                    "cnCodeDescription" -> "Other products containing ethyl alcohol",
+                    "exciseProductCode" -> "S500",
+                    "exciseProductCodeDescription" -> "Other products containing ethyl alcohol",
+                    "unitOfMeasureCode" -> 3
+                  )
+                )
+
               val response: WSResponse = Await.result(request().post(testRequestJson), 1.minutes)
 
-              response.status shouldBe Status.INTERNAL_SERVER_ERROR
+              response.status shouldBe Status.OK
               response.header("Content-Type") shouldBe Some("application/json")
-              response.body should include(NoDataReturnedFromDatabaseError.message)
+              response.json shouldBe testResponseJson
             }
           }
       }
