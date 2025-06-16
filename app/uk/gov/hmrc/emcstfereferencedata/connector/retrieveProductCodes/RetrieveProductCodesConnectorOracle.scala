@@ -74,6 +74,10 @@ class RetrieveProductCodesConnectorOracle @Inject()(db: Database) extends Retrie
 
               storedProcedure.close()
 
+              if (result.isEmpty) {
+                logger.warn(s"[RetrieveProductCodesConnectorOracle][retrieveProductCodes] No ProductCodes found for item: $item")
+              }
+
               Right(result)
           }
       }

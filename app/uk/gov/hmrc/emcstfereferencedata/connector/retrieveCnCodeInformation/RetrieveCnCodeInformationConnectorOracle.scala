@@ -71,6 +71,10 @@ class RetrieveCnCodeInformationConnectorOracle @Inject()(db: Database) extends R
 
               storedProcedure.close()
 
+              if (result.isEmpty) {
+                logger.warn(s"[RetrieveCnCodeInformationConnectorOracle][retrieveCnCodeInformation] No CN Code found for item: $item")
+              }
+
               Right(result)
           }
       }
