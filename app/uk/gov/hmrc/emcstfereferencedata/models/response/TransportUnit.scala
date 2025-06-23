@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.emcstfereferencedata.models.response
 
-import play.api.libs.json._
+import play.api.libs.json.{Json, OWrites}
 
 case class TransportUnit(code: String, description: String)
 
 object TransportUnit {
-  implicit val format: Format[TransportUnit] = Json.format[TransportUnit]
+  given OWrites[TransportUnit] = Json.writes[TransportUnit]
 
   def apply(transportUnits: Map[String, String]): Seq[TransportUnit] = transportUnits.map {
     case (code, description) => TransportUnit(code, description)
