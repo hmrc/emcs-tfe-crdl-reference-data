@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.Status
 import play.api.http.Status.{BAD_REQUEST, OK}
 import play.api.libs.json.{JsNull, JsObject, JsValue, Json}
-import play.api.libs.ws.{WSRequest, WSResponse}
+import play.api.libs.ws.{WSRequest, WSResponse, writeableOf_JsValue}
 import test.uk.gov.hmrc.emcstfereferencedata.stubs.{AuthStub, DownstreamStub}
 import test.uk.gov.hmrc.emcstfereferencedata.support.IntegrationBaseSpec
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures

@@ -32,7 +32,7 @@ class RetrieveWineOperationsController @Inject()(cc: ControllerComponents,
                                                 )(implicit ec: ExecutionContext) extends BackendController(cc) with AuthActionHelper {
 
 
-  def showAllWineOperations(): Action[AnyContent] = authorisedUserGetRequest {
+  def showAllWineOperations: Action[AnyContent] = authorisedUserGetRequest {
     implicit request =>
       service.retrieveWineOperations().map {
         case Right(response) =>

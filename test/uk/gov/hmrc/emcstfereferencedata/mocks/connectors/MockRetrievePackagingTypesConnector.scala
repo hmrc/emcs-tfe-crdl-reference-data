@@ -18,13 +18,14 @@ package uk.gov.hmrc.emcstfereferencedata.mocks.connectors
 
 import org.scalamock.handlers.CallHandler2
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import uk.gov.hmrc.emcstfereferencedata.connector.retrievePackagingTypes.RetrievePackagingTypesConnector
 import uk.gov.hmrc.emcstfereferencedata.models.response.{ErrorResponse, PackagingType}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait MockRetrievePackagingTypesConnector extends MockFactory {
+trait MockRetrievePackagingTypesConnector extends MockFactory { this: TestSuite =>
   lazy val mockConnector: RetrievePackagingTypesConnector = mock[RetrievePackagingTypesConnector]
 
   object MockConnector {

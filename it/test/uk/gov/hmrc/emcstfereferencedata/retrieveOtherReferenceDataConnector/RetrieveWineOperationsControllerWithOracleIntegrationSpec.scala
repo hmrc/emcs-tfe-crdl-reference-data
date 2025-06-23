@@ -19,7 +19,8 @@ package test.uk.gov.hmrc.emcstfereferencedata.retrieveOtherReferenceDataConnecto
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.Status
 import play.api.libs.json.{JsArray, JsObject, JsValue, Json}
-import play.api.libs.ws.{WSRequest, WSResponse}
+import play.api.libs.ws.WSBodyReadables.*
+import play.api.libs.ws.{WSRequest, WSResponse, writeableOf_JsValue}
 import test.uk.gov.hmrc.emcstfereferencedata.stubs.AuthStub
 import test.uk.gov.hmrc.emcstfereferencedata.support.{IntegrationBaseSpec, TestDatabase}
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
@@ -67,7 +68,7 @@ class RetrieveWineOperationsControllerWithOracleIntegrationSpec extends Integrat
 
               response.status shouldBe Status.OK
               response.header("Content-Type") shouldBe Some("application/json")
-              response.body should include(testResponseJson.toString())
+              response.body[String] should include(testResponseJson.toString())
             }
           }
 
@@ -97,7 +98,7 @@ class RetrieveWineOperationsControllerWithOracleIntegrationSpec extends Integrat
 
               response.status shouldBe Status.INTERNAL_SERVER_ERROR
               response.header("Content-Type") shouldBe Some("application/json")
-              response.body should include(NoDataReturnedFromDatabaseError.message)
+              response.body[String] should include(NoDataReturnedFromDatabaseError.message)
             }
           }
       }

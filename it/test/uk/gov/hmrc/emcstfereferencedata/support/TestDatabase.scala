@@ -16,6 +16,8 @@
 
 package test.uk.gov.hmrc.emcstfereferencedata.support
 
+import play.api.libs.ws.writeableOf_String
+
 import java.net.ConnectException
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt

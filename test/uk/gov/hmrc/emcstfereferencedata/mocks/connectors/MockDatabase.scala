@@ -18,15 +18,16 @@ package uk.gov.hmrc.emcstfereferencedata.mocks.connectors
 
 
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import play.api.db.Database
 
 import java.sql.{Connection, ResultSet, ResultSetMetaData, Statement}
 
-trait MockDatabase extends MockFactory {
+trait MockDatabase extends MockFactory { this: TestSuite =>
 
   val mockDatabase: Database = mock[Database]
 
-  object MockedDatabase extends MockFactory {
+  object MockedDatabase {
     def mockADatabaseAndResultSet(columnNames: Seq[String], rowValues: Option[Seq[String]]): Unit = {
       val mockConnection = mock[Connection]
       val mockStatement = mock[Statement]

@@ -1,15 +1,15 @@
-import play.sbt.PlayImport._
-import sbt._
+import play.sbt.PlayImport.*
+import sbt.*
 
 object AppDependencies {
 
   val playSuffix        = "-play-30"
 
-  val hmrcBootstrapVersion   = "9.11.0"
-  val scalamockVersion  = "5.2.0"
-  val catsCoreVersion   = "2.13.0"
-  val oraVersion        = "19.3.0.0"
-  val jsoupVersion      = "1.18.1"
+  val hmrcBootstrapVersion = "9.13.0"
+  val scalamockVersion     = "7.3.2"
+  val catsCoreVersion      = "2.13.0"
+  val oraVersion           = "19.3.0.0"
+  val jsoupVersion         = "1.20.1"
 
   private val compile = Seq(
     "uk.gov.hmrc"               %% s"bootstrap-backend$playSuffix"    % hmrcBootstrapVersion,
@@ -22,7 +22,7 @@ object AppDependencies {
 
   private val test = Seq(
     "uk.gov.hmrc"               %% s"bootstrap-test$playSuffix"       % hmrcBootstrapVersion,
-    "org.scalamock"             %% "scalamock"                        % "5.2.0",
+    "org.scalamock"             %% "scalamock"                        % scalamockVersion,
     "org.jsoup"                 % "jsoup"                             % jsoupVersion,
   ).map(_ % Test)
 

@@ -18,13 +18,14 @@ package uk.gov.hmrc.emcstfereferencedata.mocks.services
 
 import org.scalamock.handlers.{CallHandler2, CallHandler3}
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
 import uk.gov.hmrc.emcstfereferencedata.services.RetrieveWineOperationsService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait MockRetrieveWineOperationsService extends MockFactory {
+trait MockRetrieveWineOperationsService extends MockFactory { this: TestSuite =>
   lazy val mockService: RetrieveWineOperationsService = mock[RetrieveWineOperationsService]
 
   object MockService {
