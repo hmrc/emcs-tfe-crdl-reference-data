@@ -19,10 +19,9 @@ package test.uk.gov.hmrc.emcstfereferencedata.retrieveCnCodeInformation
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.Status
 import play.api.libs.json.{JsObject, Json}
-import play.api.libs.ws.{WSRequest, WSResponse}
+import play.api.libs.ws.{WSRequest, WSResponse, writeableOf_JsValue}
 import test.uk.gov.hmrc.emcstfereferencedata.stubs.AuthStub
 import test.uk.gov.hmrc.emcstfereferencedata.support.{IntegrationBaseSpec, TestDatabase}
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.NoDataReturnedFromDatabaseError
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt

@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.emcstfereferencedata.models.response
 
-import play.api.libs.json._
+import play.api.libs.json.{Json, OWrites}
 
 case class Country(countryCode: String, country: String)
 
 object Country {
-  implicit val format: Format[Country] = Json.format[Country]
+  given OWrites[Country] = Json.writes[Country]
 
   def apply(countries: Map[String, String]): Seq[Country] = countries.map {
     case (code, country) => Country(code, country)

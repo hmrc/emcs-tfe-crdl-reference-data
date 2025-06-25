@@ -33,7 +33,7 @@ class RetrieveCnCodeInformationController @Inject()(cc: ControllerComponents,
                                                    )(implicit ec: ExecutionContext) extends BackendController(cc) with AuthActionHelper {
 
 
-  def show: Action[CnInformationRequest] = authorisedUserPostRequest(CnInformationRequest.format) {
+  def show: Action[CnInformationRequest] = authorisedUserPostRequest(CnInformationRequest.reads) {
     implicit request =>
       service.retrieveCnCodeInformation(request.body).map {
         case Right(response) =>

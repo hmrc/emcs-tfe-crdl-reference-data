@@ -18,6 +18,7 @@ package uk.gov.hmrc.emcstfereferencedata.mocks.connectors
 
 import org.scalamock.handlers.CallHandler3
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import uk.gov.hmrc.emcstfereferencedata.connector.retrieveCnCodeInformation.RetrieveCnCodeInformationConnector
 import uk.gov.hmrc.emcstfereferencedata.models.request.CnInformationRequest
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ErrorResponse}
@@ -25,7 +26,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait MockRetrieveCnCodeInformationConnector extends MockFactory {
+trait MockRetrieveCnCodeInformationConnector extends MockFactory { this: TestSuite =>
   lazy val mockCnCodeInformationConnector: RetrieveCnCodeInformationConnector = mock[RetrieveCnCodeInformationConnector]
 
   object MockCnCodeInformationConnector {

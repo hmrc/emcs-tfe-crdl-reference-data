@@ -19,6 +19,7 @@ package test.uk.gov.hmrc.emcstfereferencedata.retrieveTraderKnownFacts
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.Status
 import play.api.libs.json.{JsObject, Json}
+import play.api.libs.ws.WSBodyReadables.*
 import play.api.libs.ws.{WSRequest, WSResponse}
 import test.uk.gov.hmrc.emcstfereferencedata.stubs.AuthStub
 import test.uk.gov.hmrc.emcstfereferencedata.support.{IntegrationBaseSpec, TestDatabase}
@@ -69,7 +70,7 @@ class RetrieveTraderKnownFactsControllerWithOracleIntegrationSpec extends Integr
 
               response.status shouldBe Status.OK
               response.header("Content-Type") shouldBe Some("application/json")
-              response.body should include(testResponseJson.toString())
+              response.body[String] should include(testResponseJson.toString())
             }
           }
 

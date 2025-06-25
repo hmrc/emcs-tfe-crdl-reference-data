@@ -18,9 +18,10 @@ package uk.gov.hmrc.emcstfereferencedata.mocks.config
 
 import org.scalamock.handlers.CallHandler
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import uk.gov.hmrc.emcstfereferencedata.config.AppConfig
 
-trait MockAppConfig extends MockFactory {
+trait MockAppConfig extends MockFactory { this: TestSuite =>
   val mockAppConfig: AppConfig = mock[AppConfig]
 
   object MockedAppConfig {

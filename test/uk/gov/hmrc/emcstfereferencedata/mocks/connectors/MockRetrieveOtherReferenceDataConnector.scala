@@ -18,13 +18,14 @@ package uk.gov.hmrc.emcstfereferencedata.mocks.connectors
 
 import org.scalamock.handlers.CallHandler2
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import uk.gov.hmrc.emcstfereferencedata.connector.retrieveOtherReferenceData.RetrieveOtherReferenceDataConnector
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait MockRetrieveOtherReferenceDataConnector extends MockFactory {
+trait MockRetrieveOtherReferenceDataConnector extends MockFactory { this: TestSuite =>
   lazy val mockConnector: RetrieveOtherReferenceDataConnector = mock[RetrieveOtherReferenceDataConnector]
 
   object MockConnector {

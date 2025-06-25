@@ -18,6 +18,7 @@ package uk.gov.hmrc.emcstfereferencedata.mocks.services
 
 import org.scalamock.handlers.CallHandler3
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import uk.gov.hmrc.emcstfereferencedata.models.request.CnInformationRequest
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ErrorResponse}
 import uk.gov.hmrc.emcstfereferencedata.services.RetrieveCnCodeInformationService
@@ -25,7 +26,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait MockRetrieveCnCodeInformationService extends MockFactory {
+trait MockRetrieveCnCodeInformationService extends MockFactory { this: TestSuite =>
   lazy val mockService: RetrieveCnCodeInformationService = mock[RetrieveCnCodeInformationService]
 
   object MockService {
