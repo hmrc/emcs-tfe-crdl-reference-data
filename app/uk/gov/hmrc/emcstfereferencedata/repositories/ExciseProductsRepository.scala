@@ -58,6 +58,18 @@ class ExciseProductsRepository @Inject() (val mongoComponent: MongoComponent)(us
           throw MongoError.NotAcknowledged
       }
 
+  def saveExciseProducts(
+    session: ClientSession,
+    exciseProducts: List[ExciseProductCode]
+  ): Future[Unit] =
+    for {
+      _ <- deleteExciseProducts(session)
+      _ <- collection.insertMany(session, exciseProducts).toFuture().map { result =>
+        if (!result.wasAcknowledged())
+          throw MongoError.NotAcknowledged
+      }
+    } yield ()
+
   def fetchExciseProductsForCategory(categoryCode: String): Future[Seq[ExciseProductCode]] =
     collection
       .find(equal("category", categoryCode))

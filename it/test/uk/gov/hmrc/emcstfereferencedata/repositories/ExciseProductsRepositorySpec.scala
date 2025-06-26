@@ -21,7 +21,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
-import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ExciseProductCode}
+import uk.gov.hmrc.emcstfereferencedata.models.response.ExciseProductCode
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
 
@@ -64,6 +64,89 @@ class ExciseProductsRepositorySpec
       withSessionAndTransaction(repository.deleteExciseProducts).futureValue
       repository.fetchExciseProductsForCategory("S").futureValue shouldBe empty
       repository.fetchExciseProductsForCategory("T").futureValue shouldBe empty
+    }
+  }
+
+  "ExciseProductsRepository.saveExciseProducts" should {
+    "save new excise products" in {
+      val exciseProducts = List(
+        ExciseProductCode(
+          "B000",
+          "Beer",
+          "B",
+          "Beer"
+        ),
+        ExciseProductCode(
+          "E300",
+          "Mineral oils Products falling within CN codes 2707 10, 2707 20, 2707 30 and 2707 50 (Article 20(1)(b))",
+          "E",
+          "Energy Products"
+        ),
+        ExciseProductCode(
+          "E460",
+          "Kerosene, marked falling within CN code 2710 19 25 (Article 20(1)(c) of Directive 2003/96/EC)",
+          "E",
+          "Energy Products"
+        )
+      )
+
+      withSessionAndTransaction { repository.saveExciseProducts(_, exciseProducts) }.futureValue
+
+      val insertedEntries = repository.collection.find().toFuture().futureValue
+
+      insertedEntries should contain theSameElementsAs exciseProducts
+    }
+
+    "remove existing excise products when new excise products are saved" in {
+      val existingProducts = List(
+        ExciseProductCode(
+          "B000",
+          "Beer",
+          "B",
+          "Beer"
+        ),
+        ExciseProductCode(
+          "E300",
+          "Mineral oils Products falling within CN codes 2707 10, 2707 20, 2707 30 and 2707 50 (Article 20(1)(b))",
+          "E",
+          "Energy Products"
+        ),
+        ExciseProductCode(
+          "E460",
+          "Kerosene, marked falling within CN code 2710 19 25 (Article 20(1)(c) of Directive 2003/96/EC)",
+          "E",
+          "Energy Products"
+        )
+      )
+
+      repository.collection.insertMany(existingProducts).toFuture().futureValue
+
+      val newProducts = List(
+        ExciseProductCode(
+          "S200",
+          "Spirituous beverages",
+          "S",
+          "Ethyl alcohol and spirits"
+        ),
+        ExciseProductCode(
+          "E910",
+          "Fatty-acid mono-alkyl esters, containing by weight 96,5 % or more of esters (FAMAE) falling within CN code 3826 00 10 (Article 20(1)(h) of Directive 2003/96/EC)",
+          "E",
+          "Energy Products"
+        ),
+        ExciseProductCode(
+          "T300",
+          "Cigars & cigarillos",
+          "T",
+          "Manufactured tobacco products"
+        )
+      )
+
+      withSessionAndTransaction { repository.saveExciseProducts(_, newProducts) }.futureValue
+
+      val insertedEntries = findAll().futureValue
+
+      insertedEntries should contain theSameElementsAs newProducts
     }
   }
 }

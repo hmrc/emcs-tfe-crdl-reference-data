@@ -25,7 +25,6 @@ import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.CrdlCodeListEntry
 import uk.gov.hmrc.emcstfereferencedata.models.mongo.{CodeListCode, CodeListEntry}
 import uk.gov.hmrc.emcstfereferencedata.models.response.ExciseProductCode
-import uk.gov.hmrc.mongo.MongoUtils
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
 
@@ -45,31 +44,6 @@ class CodeListsRepositorySpec
   override protected val repository: CodeListsRepository =
     new CodeListsRepository(mongoComponent)
 
-  private val productsRepository: ExciseProductsRepository =
-    new ExciseProductsRepository(mongoComponent)
-
-  override protected def ensureIndexes(): Seq[String] = {
-    MongoUtils.ensureIndexes(repository.collection, indexes, replaceIndexes = false).futureValue
-
-    MongoUtils
-      .ensureIndexes(
-        productsRepository.collection,
-        productsRepository.indexes,
-        replaceIndexes = false
-      )
-      .futureValue
-  }
-
-  override protected def ensureSchemas(): Unit = {
-    MongoUtils.ensureSchema(mongoComponent, repository.collection, optSchema).futureValue
-    MongoUtils.ensureSchema(mongoComponent, productsRepository.collection, productsRepository.optSchema).futureValue
-  }
-
-  override protected def prepareDatabase(): Unit = {
-    productsRepository.initialised.futureValue
-    super.prepareDatabase()
-  }
-
   "CodeListsRepository" should {
     "save entries from the countries codelist" in {
       val codeListCode = CodeListCode("BC08")
@@ -85,7 +59,7 @@ class CodeListsRepositorySpec
       val expectedEntries = crdlEntries.map(CodeListEntry.fromCrdlEntry(codeListCode, _))
       val insertedEntries = repository.collection.find().toFuture().futureValue
 
-      insertedEntries should contain allElementsOf expectedEntries
+      insertedEntries should contain theSameElementsAs expectedEntries
     }
 
     "remove previous entries when a new list of entries is saved" in {
@@ -128,7 +102,7 @@ class CodeListsRepositorySpec
       val expectedEntries = newCrdlEntries.map(CodeListEntry.fromCrdlEntry(codeListCode, _))
       val insertedEntries = repository.collection.find().toFuture().futureValue
 
-      insertedEntries should contain allElementsOf expectedEntries
+      insertedEntries should contain theSameElementsAs expectedEntries
     }
 
     "combine together entries of the excise products and product categories codelists" in {

@@ -25,6 +25,7 @@ import org.mongodb.scala.model.Projections.*
 import org.mongodb.scala.model.{IndexModel, IndexOptions, Indexes}
 import play.api.libs.json.*
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.CrdlCodeListEntry
+import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
 import uk.gov.hmrc.emcstfereferencedata.models.mongo.{CodeListCode, CodeListEntry}
 import uk.gov.hmrc.emcstfereferencedata.models.response.ExciseProductCode
 import uk.gov.hmrc.mongo.MongoComponent
@@ -121,14 +122,37 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
       .toFuture()
   }
 
+  // TODO: Make public when implementing test-only endpoints
+  private def deleteCodeListEntries(
+    session: ClientSession,
+    codeListCode: Option[CodeListCode]
+  ): Future[Unit] =
+    collection
+      .deleteMany(
+        session,
+        codeListCode
+          .map(code => equal("codeListCode", code.value))
+          .getOrElse(empty())
+      )
+      .toFuture()
+      .map { result =>
+        if (!result.wasAcknowledged())
+          throw MongoError.NotAcknowledged
+      }
+
   def saveCodeListEntries(
     session: ClientSession,
     codeListCode: CodeListCode,
     crdlEntries: List[CrdlCodeListEntry]
   ): Future[Unit] =
     for {
-      _ <- collection.deleteMany(session, equal("codeListCode", codeListCode.value)).toFuture()
+      _ <- deleteCodeListEntries(session, Some(codeListCode))
+
       entries = crdlEntries.map(CodeListEntry.fromCrdlEntry(codeListCode, _))
-      _ <- collection.insertMany(session, entries).toFuture()
+
+      _ <- collection.insertMany(session, entries).toFuture().map { result =>
+        if (!result.wasAcknowledged())
+          throw MongoError.NotAcknowledged
+      }
     } yield ()
 }
