@@ -18,45 +18,49 @@ package uk.gov.hmrc.emcstfereferencedata.repositories
 
 import org.mongodb.scala.*
 import org.mongodb.scala.model.Filters.*
+import org.mongodb.scala.model.Sorts.*
 import org.mongodb.scala.model.{IndexModel, IndexOptions, Indexes}
-import play.api.libs.json.{Format, JsBoolean, JsValue, Reads, Writes}
-import uk.gov.hmrc.emcstfereferencedata.models.crdl.CrdlCodeListEntry
-import uk.gov.hmrc.emcstfereferencedata.models.mongo.{CodeListCode, CodeListEntry}
+import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
+import uk.gov.hmrc.emcstfereferencedata.models.response.CnCodeInformation
 import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.transaction.Transactions
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using ec: ExecutionContext)
-  extends PlayMongoRepository[CodeListEntry](
+class CnCodesRepository @Inject() (val mongoComponent: MongoComponent)(using
+  ec: ExecutionContext
+) extends PlayMongoRepository[CnCodeInformation](
     mongoComponent,
-    collectionName = "codelists",
-    domainFormat = CodeListEntry.format,
-    extraCodecs =
-      Codecs.playFormatSumCodecs[JsValue](Format(Reads.JsValueReads, Writes.jsValueWrites)) ++
-        Codecs.playFormatSumCodecs[JsBoolean](Format(Reads.JsBooleanReads, Writes.jsValueWrites)),
+    collectionName = "cnCodes",
+    domainFormat = CnCodeInformation.mongoFormat,
     indexes = Seq(
       IndexModel(
-        Indexes.ascending("codeListCode", "key"),
+        Indexes.ascending("cnCode"),
         IndexOptions().unique(true)
-      )
+      ),
+      IndexModel(Indexes.ascending("exciseProductCode"))
     )
-  ) with Transactions {
+  )
+  with Transactions {
 
   // This collection's entries are cleared every time new codelists are imported
   override lazy val requiresTtlIndex: Boolean = false
 
-  def saveCodeListEntries(
-    session: ClientSession,
-    codeListCode: CodeListCode,
-    crdlEntries: List[CrdlCodeListEntry]
-  ): Future[Unit] =
-    for {
-      _ <- collection.deleteMany(session, equal("codeListCode", codeListCode.value)).toFuture()
-      entries = crdlEntries.map(CodeListEntry.fromCrdlEntry(codeListCode, _))
-      _ <- collection.insertMany(session, entries).toFuture()
-    } yield ()
+  def deleteCnCodes(session: ClientSession): Future[Unit] =
+    collection
+      .deleteMany(session, empty())
+      .toFuture()
+      .map { result =>
+        if (!result.wasAcknowledged())
+          throw MongoError.NotAcknowledged
+      }
+
+  def fetchCnCodesForProduct(exciseProductCode: String): Future[Seq[CnCodeInformation]] =
+    collection
+      .find(equal("exciseProductCode", exciseProductCode))
+      .sort(ascending("cnCode"))
+      .toFuture()
 }

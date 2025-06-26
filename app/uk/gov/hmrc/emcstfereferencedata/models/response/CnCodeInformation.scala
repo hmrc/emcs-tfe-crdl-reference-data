@@ -32,6 +32,8 @@ object CnCodeInformation {
     "unitOfMeasureCode" -> o.unitOfMeasureCode
   )
 
+  val mongoFormat: OFormat[CnCodeInformation] = Json.format[CnCodeInformation]
+
   implicit val mapReads: Reads[Map[String, CnCodeInformation]] = {
     case JsObject(underlying) => JsSuccess(underlying.map {
       case (k, v) => k -> v.as[CnCodeInformation]
