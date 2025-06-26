@@ -17,7 +17,7 @@
 package uk.gov.hmrc.emcstfereferencedata.fixtures
 
 import uk.gov.hmrc.emcstfereferencedata.models.request.{CnInformationItem, CnInformationRequest}
-import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, Country, TraderKnownFacts}
+import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, Country, ExciseProductCode, TraderKnownFacts}
 
 trait BaseFixtures {
 
@@ -44,6 +44,18 @@ trait BaseFixtures {
     exciseProductCode = "S500",
     exciseProductCodeDescription = "Other products containing ethyl alcohol",
     unitOfMeasureCode = 3
+  )
+  val testExciseProduct1: ExciseProductCode = ExciseProductCode(
+    code = "S500",
+    description = "Other products containing ethyl alcohol",
+    category = "S",
+    categoryDescription = "Ethyl alcohol and spirits"
+  )
+  val testExciseProduct2: ExciseProductCode = ExciseProductCode(
+    code = "T400",
+    description = "Fine-cut tobacco for the rolling of cigarettes",
+    category = "T",
+    categoryDescription = "Manufactured tobacco products"
   )
   val testWineOperations: Seq[String] = Seq(
     "4",

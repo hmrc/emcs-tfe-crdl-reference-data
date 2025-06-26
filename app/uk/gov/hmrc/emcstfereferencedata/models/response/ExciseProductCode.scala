@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.emcstfereferencedata.models.response
 
-import play.api.libs.json.{Json, Reads, OWrites}
+import play.api.libs.json.{Json, OFormat, OWrites, Reads}
 import uk.gov.hmrc.emcstfereferencedata.utils.StringUtils
 
 case class ExciseProductCode(code: String, description: String, category: String, categoryDescription: String)
@@ -31,4 +31,6 @@ object ExciseProductCode {
     "category" -> o.category,
     "categoryDescription" -> StringUtils.removeHtmlEscapedCharactersAndAddSmartQuotes(o.categoryDescription)
   )
+
+  val mongoFormat: OFormat[ExciseProductCode] = Json.format[ExciseProductCode]
 }

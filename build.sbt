@@ -12,6 +12,8 @@ lazy val microservice = (project in file("."))
     name := appName,
     libraryDependencies ++= AppDependencies(),
     PlayKeys.playDefaultPort := 8312,
+    // Change classloader layering to avert classloading issues
+    Compile / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat,
     // https://www.scala-lang.org/2021/01/12/configuring-and-suppressing-warnings.html
     // suppress warnings in generated routes files
     scalacOptions ++= Seq(
@@ -25,7 +27,11 @@ lazy val it = project
   .enablePlugins(PlayScala)
   .dependsOn(microservice % "test->test") // the "test->test" allows reusing test code and test dependencies
   .settings(DefaultBuildSettings.itSettings())
-  .settings(libraryDependencies ++= AppDependencies.it)
-  // Uncomment to disable Oracle tests
-  //.settings(Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-l", "uk.gov.hmrc.emcstfereferencedata.support.OracleDb"))
+  .settings(
+    libraryDependencies ++= AppDependencies.it,
+    // Change classloader layering to avert classloading issues
+    Compile / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat,
+    // Uncomment to disable Oracle tests
+    // Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-l", "uk.gov.hmrc.emcstfereferencedata.support.OracleDb")
+  )
 
