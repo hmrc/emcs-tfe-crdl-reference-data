@@ -16,12 +16,17 @@
 
 package uk.gov.hmrc.emcstfereferencedata.repositories
 
+import com.mongodb.client.model.Variable
 import org.mongodb.scala.*
+import org.mongodb.scala.bson.{BsonArray, BsonDocument}
+import org.mongodb.scala.model.Aggregates.*
 import org.mongodb.scala.model.Filters.*
+import org.mongodb.scala.model.Projections.*
 import org.mongodb.scala.model.{IndexModel, IndexOptions, Indexes}
-import play.api.libs.json.{Format, JsBoolean, JsValue, Reads, Writes}
+import play.api.libs.json.*
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.CrdlCodeListEntry
 import uk.gov.hmrc.emcstfereferencedata.models.mongo.{CodeListCode, CodeListEntry}
+import uk.gov.hmrc.emcstfereferencedata.models.response.ExciseProductCode
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.mongo.transaction.Transactions
@@ -33,21 +38,88 @@ import scala.concurrent.{ExecutionContext, Future}
 class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using ec: ExecutionContext)
   extends PlayMongoRepository[CodeListEntry](
     mongoComponent,
-    collectionName = "codelists",
+    collectionName = "codeLists",
     domainFormat = CodeListEntry.format,
     extraCodecs =
       Codecs.playFormatSumCodecs[JsValue](Format(Reads.JsValueReads, Writes.jsValueWrites)) ++
-        Codecs.playFormatSumCodecs[JsBoolean](Format(Reads.JsBooleanReads, Writes.jsValueWrites)),
+        Codecs.playFormatSumCodecs[JsBoolean](Format(Reads.JsBooleanReads, Writes.jsValueWrites)) :+
+        Codecs.playFormatCodec(ExciseProductCode.mongoFormat),
     indexes = Seq(
       IndexModel(
         Indexes.ascending("codeListCode", "key"),
         IndexOptions().unique(true)
-      )
+      ),
+      IndexModel(Indexes.ascending("codeListCode"))
     )
-  ) with Transactions {
+  )
+  with Transactions {
 
   // This collection's entries are cleared every time new codelists are imported
   override lazy val requiresTtlIndex: Boolean = false
+
+  private val ExciseProducts    = "BC36"
+  private val ProductCategories = "BC66"
+
+  def buildExciseProducts(session: ClientSession): Future[Seq[ExciseProductCode]] = {
+    collection
+      .aggregate[ExciseProductCode](
+        session,
+        List(
+          // Find the excise products
+          filter(equal("codeListCode", ExciseProducts)),
+          lookup(
+            from = "codeLists",
+            // Alias the excise product category to "category"
+            let = Seq(Variable("category", "$properties.exciseProductsCategoryCode")),
+            pipeline = Seq(
+              filter(
+                expr(
+                  BsonDocument(
+                    "$and" -> BsonArray(
+                      // Find the product categories
+                      BsonDocument("$eq" -> BsonArray("$codeListCode", ProductCategories)),
+                      // Find the one where the category is equal to the outer document's category
+                      BsonDocument("$eq" -> BsonArray("$key", "$$category"))
+                    )
+                  )
+                )
+              )
+            ),
+            // Project the result as productCategory
+            as = "productCategory"
+          ),
+          project(
+            fields(
+              // Include the excise product key as "code"
+              computed("code", "$key"),
+              // Include the excise product value as "description"
+              computed("description", "$value"),
+              computed(
+                // Get the "category" from the nested "productCategory" doc's key
+                "category",
+                BsonDocument(
+                  "$getField" -> BsonDocument(
+                    "field" -> "key",
+                    "input" -> BsonDocument("$first" -> "$productCategory")
+                  )
+                )
+              ),
+              computed(
+                // Get the "categoryDescription" from the nested "productCategory" doc's value
+                "categoryDescription",
+                BsonDocument(
+                  "$getField" -> BsonDocument(
+                    "field" -> "value",
+                    "input" -> BsonDocument("$first" -> "$productCategory")
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+      .toFuture()
+  }
 
   def saveCodeListEntries(
     session: ClientSession,

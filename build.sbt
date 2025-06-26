@@ -31,6 +31,8 @@ lazy val it = project
     libraryDependencies ++= AppDependencies.it,
     // Change classloader layering to avert classloading issues
     Compile / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat,
+    // Disable duplicate compiler option warning as it's caused by our sbt plugins
+    scalacOptions += "-Wconf:msg=Flag.*repeatedly:s",
     // Uncomment to disable Oracle tests
     // Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-l", "uk.gov.hmrc.emcstfereferencedata.support.OracleDb")
   )
