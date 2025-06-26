@@ -26,4 +26,6 @@ lazy val it = project
   .dependsOn(microservice % "test->test") // the "test->test" allows reusing test code and test dependencies
   .settings(DefaultBuildSettings.itSettings())
   .settings(libraryDependencies ++= AppDependencies.it)
+  // Uncomment to disable Oracle tests
+  //.settings(Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-l", "uk.gov.hmrc.emcstfereferencedata.support.OracleDb"))
 

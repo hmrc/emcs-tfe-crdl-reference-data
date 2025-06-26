@@ -17,12 +17,14 @@
 package test.uk.gov.hmrc.emcstfereferencedata.support
 
 import play.api.libs.ws.writeableOf_String
+import uk.gov.hmrc.emcstfereferencedata.support.OracleDb
 
 import java.net.ConnectException
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 import scala.util.Try
 
+@OracleDb
 trait TestDatabase {
   this: IntegrationBaseSpec =>
 
