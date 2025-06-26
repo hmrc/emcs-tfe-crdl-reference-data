@@ -1,0 +1,92 @@
+package uk.gov.hmrc.emcstfereferencedata.repositories
+
+import org.mongodb.scala.*
+import org.scalatest.OptionValues
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import play.api.libs.json.Json
+import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
+import uk.gov.hmrc.emcstfereferencedata.models.crdl.CrdlCodeListEntry
+import uk.gov.hmrc.emcstfereferencedata.models.mongo.{CodeListCode, CodeListEntry}
+import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
+import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
+
+import scala.concurrent.ExecutionContext
+
+class CodeListsRepositorySpec
+  extends AnyWordSpec
+  with DefaultPlayMongoRepositorySupport[CodeListEntry]
+  with Matchers
+  with ScalaFutures
+  with BaseFixtures
+  with Transactions {
+
+  given TransactionConfiguration = TransactionConfiguration.strict
+  given ec: ExecutionContext     = ExecutionContext.global
+
+  override protected val repository: CodeListsRepository =
+    new CodeListsRepository(mongoComponent)
+
+  "CodeListsRepository" should {
+    "save entries from the countries codelist" in {
+      val codeListCode = CodeListCode("BC08")
+
+      val crdlEntries = countriesResult.map { case (key, value) =>
+        CrdlCodeListEntry(key, value, Json.obj())
+      }.toList
+
+      withSessionAndTransaction {
+        repository.saveCodeListEntries(_, codeListCode, crdlEntries)
+      }.futureValue
+
+      val expectedEntries = crdlEntries.map(CodeListEntry.fromCrdlEntry(codeListCode, _))
+      val insertedEntries = repository.collection.find().toFuture().futureValue
+
+      insertedEntries should contain allElementsOf expectedEntries
+    }
+
+    "remove previous entries when a new list of entries is saved" in {
+      val codeListCode = CodeListCode("BC66")
+
+      val existingEntries = List(
+        CodeListEntry(
+          codeListCode,
+          "B",
+          "Beer",
+          Json.obj("actionIdentification" -> "1084")
+        ),
+        CodeListEntry(
+          codeListCode,
+          "E",
+          "Energy Products",
+          Json.obj("actionIdentification" -> "1085")
+        )
+      )
+
+      repository.collection.insertMany(existingEntries).toFuture().futureValue
+
+      val newCrdlEntries = List(
+        CrdlCodeListEntry(
+          "S",
+          "Ethyl alcohol and spirits",
+          Json.obj("actionIdentification" -> "1087")
+        ),
+        CrdlCodeListEntry(
+          "T",
+          "Manufactured tobacco products",
+          Json.obj("actionIdentification" -> "1088")
+        )
+      )
+
+      withSessionAndTransaction {
+        repository.saveCodeListEntries(_, codeListCode, newCrdlEntries)
+      }.futureValue
+
+      val expectedEntries = newCrdlEntries.map(CodeListEntry.fromCrdlEntry(codeListCode, _))
+      val insertedEntries = repository.collection.find().toFuture().futureValue
+
+      insertedEntries should contain allElementsOf expectedEntries
+    }
+  }
+}

@@ -1,6 +1,7 @@
 package uk.gov.hmrc.emcstfereferencedata.models.mongo
 
 import play.api.libs.json.{JsObject, Json, OFormat}
+import uk.gov.hmrc.emcstfereferencedata.models.crdl.CrdlCodeListEntry
 
 case class CodeListEntry(
   codeListCode: CodeListCode,
@@ -10,5 +11,8 @@ case class CodeListEntry(
 )
 
 object CodeListEntry {
-  given OFormat[CodeListEntry] = Json.format[CodeListEntry]
+  given format: OFormat[CodeListEntry] = Json.format[CodeListEntry]
+
+  def fromCrdlEntry(codeListCode: CodeListCode, entry: CrdlCodeListEntry): CodeListEntry =
+    CodeListEntry(codeListCode, entry.key, entry.value, entry.properties)
 }
