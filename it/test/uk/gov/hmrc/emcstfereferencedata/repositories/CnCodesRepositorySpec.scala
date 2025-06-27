@@ -41,7 +41,14 @@ class CnCodesRepositorySpec
   override protected val repository: CnCodesRepository =
     new CnCodesRepository(mongoComponent)
 
-  private val testCnCodes = List(testCnCodeInformation1, testCnCodeInformation2)
+  private val testCnCodes = List(
+    testCnCodeInformation1,
+    testCnCodeInformation2,
+    testCnCodeInformation3,
+    testCnCodeInformation4,
+    testCnCodeInformation5,
+    testCnCodeInformation6
+  )
 
   "CnCodesRepository.fetchCnCodesForProduct" should {
     "return matching CN codes for a given excise product code" in {
@@ -54,6 +61,20 @@ class CnCodesRepositorySpec
       repository
         .fetchCnCodesForProduct("S500")
         .futureValue should contain only testCnCodeInformation2
+
+      repository
+        .fetchCnCodesForProduct("E430")
+        .futureValue should contain theSameElementsAs List(
+        testCnCodeInformation3,
+        testCnCodeInformation5
+      )
+
+      repository
+        .fetchCnCodesForProduct("E440")
+        .futureValue should contain theSameElementsAs List(
+        testCnCodeInformation4,
+        testCnCodeInformation6
+      )
     }
   }
 

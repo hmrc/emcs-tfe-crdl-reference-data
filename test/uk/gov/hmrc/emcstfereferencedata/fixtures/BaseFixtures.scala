@@ -45,6 +45,34 @@ trait BaseFixtures {
     exciseProductCodeDescription = "Other products containing ethyl alcohol",
     unitOfMeasureCode = 3
   )
+  val testCnCodeInformation3: CnCodeInformation = CnCodeInformation(
+    cnCode = "27101944",
+    cnCodeDescription = "Other heavy gas oils for other purposes with a sulphur content not exceeding 0,001% by weight.",
+    exciseProductCode = "E430",
+    exciseProductCodeDescription = "Gasoil, unmarked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
+    unitOfMeasureCode = 2
+  )
+  val testCnCodeInformation4: CnCodeInformation = CnCodeInformation(
+    cnCode = "27101944",
+    cnCodeDescription = "Other heavy gas oils for other purposes with a sulphur content not exceeding 0,001% by weight.",
+    exciseProductCode = "E440",
+    exciseProductCodeDescription = "Gasoil, marked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
+    unitOfMeasureCode = 2
+  )
+  val testCnCodeInformation5: CnCodeInformation = CnCodeInformation(
+    cnCode = "27102019",
+    cnCodeDescription = "Gas oil with a sulphur content exceeding 0.1% by weight, containing biodiesel",
+    exciseProductCode = "E430",
+    exciseProductCodeDescription = "Gasoil, unmarked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
+    unitOfMeasureCode = 2
+  )
+  val testCnCodeInformation6: CnCodeInformation = CnCodeInformation(
+    cnCode = "27102019",
+    cnCodeDescription = "Gas oil with a sulphur content exceeding 0.1% by weight, containing biodiesel",
+    exciseProductCode = "E440",
+    exciseProductCodeDescription = "Gasoil, marked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
+    unitOfMeasureCode = 2
+  )
   val testExciseProduct1: ExciseProductCode = ExciseProductCode(
     code = "S500",
     description = "Other products containing ethyl alcohol",

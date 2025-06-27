@@ -38,10 +38,11 @@ class CnCodesRepository @Inject() (val mongoComponent: MongoComponent)(using
     domainFormat = CnCodeInformation.mongoFormat,
     indexes = Seq(
       IndexModel(
-        Indexes.ascending("cnCode"),
+        // A CN code can belong to multiple excise products,
+        // and an excise product can be associated with multiple CN codes.
+        Indexes.ascending("exciseProductCode", "cnCode"),
         IndexOptions().unique(true)
-      ),
-      IndexModel(Indexes.ascending("exciseProductCode"))
+      )
     )
   )
   with Transactions {
