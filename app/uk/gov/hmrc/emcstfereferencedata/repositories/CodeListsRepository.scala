@@ -123,7 +123,7 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
   }
 
   // TODO: Make public when implementing test-only endpoints
-  private def deleteCodeListEntries(
+  def deleteCodeListEntries(
     session: ClientSession,
     codeListCode: Option[CodeListCode]
   ): Future[Unit] =

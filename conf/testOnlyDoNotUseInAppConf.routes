@@ -12,6 +12,6 @@
 # Add all the application routes to the prod.routes file
 ->        /        prod.Routes
 
-DELETE        /emcstfereferencedata/test-only/codelists                      uk.gov.hmrc.emcstfereferencedata.controllers.testonly.TestOnlyController.deleteCodeLists()
-DELETE        /emcstfereferencedata/test-only/deleteexciseproducts           uk.gov.hmrc.emcstfereferencedata.controllers.testonly.TestOnlyController.deleteExciseProducts()
-DELETE        /emcstfereferencedata/test-only/deletecncodes                  uk.gov.hmrc.emcstfereferencedata.controllers.testonly.TestOnlyController.deleteCnCodes()
+DELETE        /emcstfereferencedata/test-only/deletecodelists               uk.gov.hmrc.emcstfereferencedata.controllers.testonly.TestOnlyController.deleteCodeLists()
+DELETE        /emcstfereferencedata/test-only/deleteexciseproducts          uk.gov.hmrc.emcstfereferencedata.controllers.testonly.TestOnlyController.deleteExciseProducts()
+DELETE        /emcstfereferencedata/test-only/deletecncodes                 uk.gov.hmrc.emcstfereferencedata.controllers.testonly.TestOnlyController.deleteCnCodes()

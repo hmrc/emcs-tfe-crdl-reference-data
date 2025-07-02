@@ -16,43 +16,63 @@
 
 package uk.gov.hmrc.emcstfereferencedata.controllers.testonly
 
-import org.mongodb.scala.*
-import org.mongodb.scala.model.Filters
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.emcstfereferencedata.repositories.{CnCodesRepository, ExciseProductsRepository, CodeListsRepository}
+import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
+import uk.gov.hmrc.emcstfereferencedata.repositories.{
+  CnCodesRepository,
+  CodeListsRepository,
+  ExciseProductsRepository
+}
+import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import uk.gov.hmrc.mongo.MongoComponent
+
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
+@Singleton
+class TestOnlyController @Inject() (
+  cc: ControllerComponents,
+  codeListsRepository: CodeListsRepository,
+  exciseProductsRepository: ExciseProductsRepository,
+  cnCodesRepository: CnCodesRepository,
+  val mongoComponent: MongoComponent
+)(using ec: ExecutionContext)
+  extends BackendController(cc)
+  with Transactions {
 
-  @Singleton
-  class TestOnlyController @Inject() (
-    cc: ControllerComponents,
-    codeListsRepository: CodeListsRepository,
-    exciseProductsRepository: ExciseProductsRepository,
-    cnCodesRepository: CnCodesRepository
-  )(using ec: ExecutionContext)
-    extends BackendController(cc) {
+  given tc: TransactionConfiguration = TransactionConfiguration.strict
 
-    def deleteCodeLists(): Action[AnyContent] = Action.async {
-      codeListsRepository.collection.deleteMany(Filters.empty()).toFuture().map {
-        case result if result.wasAcknowledged() => Ok
-        case _                                  => InternalServerError
-      }
-    }
-    
-    def deleteExciseProducts(): Action[AnyContent] = Action.async {
-      exciseProductsRepository.collection.deleteMany(Filters.empty()).toFuture().map {
-        case result if result.wasAcknowledged() => Ok
-        case _                                  => InternalServerError
-      }
-    }
-    
-    def deleteCnCodes(): Action[AnyContent] = Action.async {
-      cnCodesRepository.collection.deleteMany(Filters.empty()).toFuture().map {
-        case result if result.wasAcknowledged() => Ok
-        case _                                  => InternalServerError
-      }
+  def deleteCodeLists(): Action[AnyContent] = Action.async {
+    withClientSession { session =>
+      codeListsRepository
+        .deleteCodeListEntries(session, None)
+        .map { _ =>
+          Ok
+        }
+        .recover { case error: MongoError => InternalServerError }
     }
   }
 
+  def deleteExciseProducts(): Action[AnyContent] = Action.async {
+    withClientSession { session =>
+      exciseProductsRepository
+        .deleteExciseProducts(session)
+        .map { _ =>
+          Ok
+        }
+        .recover { case error: MongoError => InternalServerError }
+    }
+  }
+
+  def deleteCnCodes(): Action[AnyContent] = Action.async {
+    withClientSession { session =>
+      cnCodesRepository
+        .deleteCnCodes(session)
+        .map { _ =>
+          Ok
+        }
+        .recover { case error: MongoError => InternalServerError }
+    }
+  }
+}
