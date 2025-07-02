@@ -34,6 +34,6 @@ lazy val it = project
     // Disable duplicate compiler option warning as it's caused by our sbt plugins
     scalacOptions += "-Wconf:msg=Flag.*repeatedly:s",
     // Uncomment to disable Oracle tests
-    // Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-l", "uk.gov.hmrc.emcstfereferencedata.support.OracleDb")
+    Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-l", "uk.gov.hmrc.emcstfereferencedata.support.OracleDb")
   )
 
