@@ -121,8 +121,6 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
       )
       .toFuture()
   }
-
-  // TODO: Make public when implementing test-only endpoints
   def deleteCodeListEntries(
     session: ClientSession,
     codeListCode: Option[CodeListCode]
