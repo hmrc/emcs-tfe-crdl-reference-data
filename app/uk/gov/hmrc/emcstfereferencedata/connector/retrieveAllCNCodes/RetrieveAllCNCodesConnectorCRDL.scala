@@ -37,6 +37,9 @@ class RetrieveAllCNCodesConnectorCRDL @Inject() (
     repository
       .fetchCnCodesForProduct(exciseProductCode)
       .map(Right(_))
+      .recover { case ex =>
+        Left(ErrorResponse.UnexpectedDownstreamResponseError)
+      }
   }
 
 }

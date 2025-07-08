@@ -22,9 +22,10 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
-import uk.gov.hmrc.emcstfereferencedata.models.response.CnCodeInformation
+import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ErrorResponse}
 import uk.gov.hmrc.emcstfereferencedata.repositories.CnCodesRepository
 import uk.gov.hmrc.http.HeaderCarrier
+
 import scala.concurrent.Future
 
 class RetrieveAllCNCodesConnectorCRDLSpec
@@ -55,6 +56,16 @@ class RetrieveAllCNCodesConnectorCRDLSpec
 
         connector.retrieveAllCnCodes("doesn't exist").map(_ shouldBe Right(Seq.empty))
 
+      }
+    }
+    "return an Error Response" when {
+      "there is a error fetching data" in {
+        when(repository.fetchCnCodesForProduct(any()))
+          .thenReturn(Future.failed(new RuntimeException("Simulated failure")))
+
+        connector
+          .retrieveAllCnCodes(testCnCode1)
+          .map(_ shouldBe Left(ErrorResponse.UnexpectedDownstreamResponseError))
       }
     }
   }
