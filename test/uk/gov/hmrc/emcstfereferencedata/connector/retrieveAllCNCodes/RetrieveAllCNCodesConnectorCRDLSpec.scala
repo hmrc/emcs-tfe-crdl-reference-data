@@ -22,6 +22,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
+import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
 import uk.gov.hmrc.emcstfereferencedata.repositories.CnCodesRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -57,8 +58,8 @@ class RetrieveAllCNCodesConnectorCRDLSpec
 
       }
     }
-    "return an Error Response" when {
-      "there is a error fetching data" in {
+    "when there is an error fetching data" should {
+      "return an error response" in {
         when(repository.fetchCnCodesForProduct(any()))
           .thenReturn(Future.failed(new RuntimeException("Simulated failure")))
 
