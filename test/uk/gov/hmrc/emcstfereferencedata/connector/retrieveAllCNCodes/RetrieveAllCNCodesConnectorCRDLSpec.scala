@@ -22,7 +22,6 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
-import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ErrorResponse}
 import uk.gov.hmrc.emcstfereferencedata.repositories.CnCodesRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
