@@ -24,9 +24,9 @@ import org.mongodb.scala.model.Filters.*
 import org.mongodb.scala.model.Projections.*
 import org.mongodb.scala.model.{IndexModel, IndexOptions, Indexes}
 import play.api.libs.json.*
-import uk.gov.hmrc.emcstfereferencedata.models.crdl.CrdlCodeListEntry
+import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListEntry}
 import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
-import uk.gov.hmrc.emcstfereferencedata.models.mongo.{CodeListCode, CodeListEntry}
+import uk.gov.hmrc.emcstfereferencedata.models.mongo.CodeListEntry
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ExciseProductCode}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
@@ -189,6 +189,7 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
       )
       .toFuture()
   }
+
   def deleteCodeListEntries(
     session: ClientSession,
     codeListCode: Option[CodeListCode]

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.emcstfereferencedata.models.mongo
 
 import play.api.libs.json.{JsObject, Json, OFormat}
-import uk.gov.hmrc.emcstfereferencedata.models.crdl.CrdlCodeListEntry
+import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListEntry}
 
 case class CodeListEntry(
   codeListCode: CodeListCode,

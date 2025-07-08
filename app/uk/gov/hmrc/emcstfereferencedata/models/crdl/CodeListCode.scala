@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.models.mongo
+package uk.gov.hmrc.emcstfereferencedata.models.crdl
 
 import play.api.libs.json.{Format, Json}
 
@@ -22,4 +22,8 @@ case class CodeListCode(value: String) extends AnyVal
 
 object CodeListCode {
   given Format[CodeListCode] = Json.valueFormat[CodeListCode]
+  val BC36 = CodeListCode("BC36")
+  val BC37 = CodeListCode("BC37")
+  val BC66 = CodeListCode("BC66")
+  val E200 = CodeListCode("E200")
 }
