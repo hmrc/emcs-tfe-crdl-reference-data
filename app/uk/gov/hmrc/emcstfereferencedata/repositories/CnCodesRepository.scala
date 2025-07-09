@@ -16,11 +16,13 @@
 
 package uk.gov.hmrc.emcstfereferencedata.repositories
 
-import org.mongodb.scala.*
+import org.mongodb.scala.{model, *}
+import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Filters.*
 import org.mongodb.scala.model.Sorts.*
-import org.mongodb.scala.model.{IndexModel, IndexOptions, Indexes}
+import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, Indexes}
 import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
+import uk.gov.hmrc.emcstfereferencedata.models.request.CnInformationRequest
 import uk.gov.hmrc.emcstfereferencedata.models.response.CnCodeInformation
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
@@ -64,4 +66,20 @@ class CnCodesRepository @Inject() (val mongoComponent: MongoComponent)(using
       .find(equal("exciseProductCode", exciseProductCode))
       .sort(ascending("cnCode"))
       .toFuture()
+
+  def fetchCnCodeInformation(
+    cnInformationRequest: CnInformationRequest
+  ): Future[Map[String, CnCodeInformation]] = {
+    val filters: Seq[Bson] = cnInformationRequest.items.map { item =>
+      and(
+        equal("exciseProductCode", item.productCode),
+        equal("cnCode", item.cnCode)
+      )
+    }
+    collection
+      .find(or(filters*))
+      .toFuture()
+      .map(seq => seq.map(item => item.cnCode -> item).toMap)
+  }
+
 }
