@@ -21,6 +21,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
+import uk.gov.hmrc.emcstfereferencedata.models.request.{CnInformationItem, CnInformationRequest}
 import uk.gov.hmrc.emcstfereferencedata.models.response.CnCodeInformation
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
@@ -36,7 +37,8 @@ class CnCodesRepositorySpec
   with Transactions {
 
   given TransactionConfiguration = TransactionConfiguration.strict
-  given ec: ExecutionContext     = ExecutionContext.global
+
+  given ec: ExecutionContext = ExecutionContext.global
 
   override protected val repository: CnCodesRepository =
     new CnCodesRepository(mongoComponent)
@@ -48,6 +50,12 @@ class CnCodesRepositorySpec
     testCnCodeInformation4,
     testCnCodeInformation5,
     testCnCodeInformation6
+  )
+
+  private val cnCodeInformationItem3 = CnInformationItem(productCode = "W200", cnCode = "22042223")
+
+  private val cnCodeInformationRequest2 = CnInformationRequest(items =
+    Seq(testCnCodeInformationItem1, testCnCodeInformationItem2, cnCodeInformationItem3)
   )
 
   "CnCodesRepository.fetchCnCodesForProduct" should {
@@ -99,19 +107,15 @@ class CnCodesRepositorySpec
         testCnCode2 -> testCnCodeInformation2
       )
     }
-
-    "return all the objects that are requested" in {
+    "return no details for unknown cnCodes" in {
       repository.collection.insertMany(testCnCodes).toFuture().futureValue
-      
-      val requestItems: Int = testCnCodeInformationRequest.items.length
-      val resultSize: Int =
-        repository
-          .fetchCnCodeInformation(testCnCodeInformationRequest)
-          .futureValue
-          .size
 
-      requestItems shouldBe resultSize
+      repository
+        .fetchCnCodeInformation(cnCodeInformationRequest2)
+        .futureValue shouldBe Map(
+        testCnCode1 -> testCnCodeInformation1,
+        testCnCode2 -> testCnCodeInformation2
+      )
     }
-
   }
 }
