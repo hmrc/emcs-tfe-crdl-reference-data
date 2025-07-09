@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.emcstfereferencedata.connector.retrieveAllCNCodes
 
+import play.api.Logger
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ErrorResponse}
 import uk.gov.hmrc.emcstfereferencedata.repositories.CnCodesRepository
 import uk.gov.hmrc.http.HeaderCarrier
-
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class RetrieveAllCNCodesConnectorCRDL @Inject() (
   repository: CnCodesRepository
 ) extends RetrieveAllCNCodesConnector {
+
+  lazy val logger: Logger = Logger(this.getClass)
 
   override def retrieveAllCnCodes(
     exciseProductCode: String
@@ -37,8 +39,14 @@ class RetrieveAllCNCodesConnectorCRDL @Inject() (
     repository
       .fetchCnCodesForProduct(exciseProductCode)
       .map(Right(_))
-      .recover { case ex =>
-        Left(ErrorResponse.UnexpectedDownstreamResponseError)
+      .recover {
+        case ex => {
+          logger.warn(
+            "[RetrieveAllCnCodesConnectorCRDL][retrieveAllCnCodes] Unexpected Error fetching data from repository",
+            ex
+          )
+          Left(ErrorResponse.UnexpectedDownstreamResponseError)
+        }
       }
   }
 
