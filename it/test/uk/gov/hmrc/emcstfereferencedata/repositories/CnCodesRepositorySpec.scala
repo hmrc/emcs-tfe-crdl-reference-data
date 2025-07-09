@@ -87,4 +87,17 @@ class CnCodesRepositorySpec
       repository.fetchCnCodesForProduct("S500").futureValue shouldBe empty
     }
   }
+
+  "CnCodesRepository.fetchCnCodeInformation" should {
+    "return a Map of CnCode to CnCodeInformation that corresponds to the provided request" in {
+      repository.collection.insertMany(testCnCodes).toFuture().futureValue
+
+      repository
+        .fetchCnCodeInformation(testCnCodeInformationRequest)
+        .futureValue should contain only Map(
+        testCnCode1 -> testCnCodeInformationItem1,
+        testCnCode2 -> testCnCodeInformation2
+      )
+    }
+  }
 }

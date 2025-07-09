@@ -57,7 +57,7 @@ class RetrieveCnCodeInformationConnectorCRDL @Inject() (
       .recover {
         case exception: Exception => {
           logger.warn(
-            s"[RetrieveCnCodeInformationConnectorCRDL][retrieveCnCodeInformation] Unexpected Error fetching data from repository"
+            s"[RetrieveCnCodeInformationConnectorCRDL][retrieveCnCodeInformation] Unexpected Error fetching data from repository,", exception
           )
           Left(ErrorResponse.UnexpectedDownstreamResponseError)
         }
