@@ -94,10 +94,24 @@ class CnCodesRepositorySpec
 
       repository
         .fetchCnCodeInformation(testCnCodeInformationRequest)
-        .futureValue should contain only Map(
-        testCnCode1 -> testCnCodeInformationItem1,
+        .futureValue shouldBe Map(
+        testCnCode1 -> testCnCodeInformation1,
         testCnCode2 -> testCnCodeInformation2
       )
     }
+
+    "return all the objects that are requested" in {
+      repository.collection.insertMany(testCnCodes).toFuture().futureValue
+      
+      val requestItems: Int = testCnCodeInformationRequest.items.length
+      val resultSize: Int =
+        repository
+          .fetchCnCodeInformation(testCnCodeInformationRequest)
+          .futureValue
+          .size
+
+      requestItems shouldBe resultSize
+    }
+
   }
 }
