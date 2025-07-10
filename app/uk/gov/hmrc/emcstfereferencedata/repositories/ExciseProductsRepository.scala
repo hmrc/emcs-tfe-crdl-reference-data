@@ -76,7 +76,9 @@ class ExciseProductsRepository @Inject() (val mongoComponent: MongoComponent)(us
       .sort(ascending("code"))
       .toFuture()
 
-  def fetchAllEPCCodes(): Future[Seq[ExciseProductCode]] = ???
-
-
+  def fetchAllEPCCodes(): Future[Seq[ExciseProductCode]] =
+    collection
+      .find()
+      .sort(ascending("code"))
+      .toFuture()
 }
