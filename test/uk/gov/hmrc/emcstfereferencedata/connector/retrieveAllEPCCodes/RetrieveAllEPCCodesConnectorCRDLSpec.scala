@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.emcstfereferencedata.connector.retrieveAllEPCCodes
 
-import org.mockito.ArgumentMatchers.any
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 import org.mockito.Mockito.when
@@ -39,7 +38,7 @@ class RetrieveAllEPCCodesConnectorCRDLSpec
 
   given HeaderCarrier = HeaderCarrier()
 
-  val exciseItemsList = Seq(
+  val exciseProductsList: Seq[ExciseProductCode] = Seq(
     ExciseProductCode(
       code = "W200",
       description = "Still wine and still fermented beverages other than wine and beer",
@@ -63,22 +62,22 @@ class RetrieveAllEPCCodesConnectorCRDLSpec
       code = "E300",
       description =
         "Mineral oils Products falling within CN codes 2707 10, 2707 20, 2707 30 and 2707 50 (Article 20(1)(b))",
-      category = "W" +
-        "E",
+      category = "E",
       categoryDescription = "Energy Products"
     )
   )
 
   "RetrieveAllEPCCodesConnectorCRDL.retrieveAllEPCCodes" should {
-    "Return a Map of Cncode to CnCodeInformation " in {
+    "Return a Sequence of all excise products" in {
       when(repository.fetchAllEPCCodes())
         .thenReturn(
-          Future.successful(exciseItemsList)
+          Future.successful(exciseProductsList)
         )
 
-      connector.retrieveAllEPCCodes()
+      connector
+        .retrieveAllEPCCodes()
         .map(
-          _ shouldBe Right(exciseItemsList)
+          _ shouldBe Right(exciseProductsList)
         )
     }
 
@@ -87,7 +86,8 @@ class RetrieveAllEPCCodesConnectorCRDLSpec
         when(repository.fetchAllEPCCodes())
           .thenReturn(Future.successful(Seq.empty))
 
-        connector.retrieveAllEPCCodes()
+        connector
+          .retrieveAllEPCCodes()
           .map(_ shouldBe Right(Seq.empty))
 
       }
@@ -97,7 +97,8 @@ class RetrieveAllEPCCodesConnectorCRDLSpec
         when(repository.fetchAllEPCCodes())
           .thenReturn(Future.failed(new RuntimeException("Simulated failure")))
 
-        connector.retrieveAllEPCCodes()
+        connector
+          .retrieveAllEPCCodes()
           .map(_ shouldBe Left(ErrorResponse.UnexpectedDownstreamResponseError))
       }
     }
