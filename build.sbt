@@ -1,6 +1,6 @@
 import uk.gov.hmrc.DefaultBuildSettings
 
-val appName = "emcs-tfe-reference-data"
+val appName = "emcs-tfe-crdl-reference-data"
 
 ThisBuild / scalaVersion := "3.3.6"
 ThisBuild / majorVersion := 1
