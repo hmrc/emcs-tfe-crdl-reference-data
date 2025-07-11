@@ -1,8 +1,12 @@
-# emcs-tfe-reference-data
+# emcs-tfe-crdl-reference-data
 
-Retrieve CN Code information, packaging types or wine operations from the CandE Oracle database
+This service is a fork of the [emcs-tfe-reference-data](https://github.com/hmrc/emcs-tfe-reference-data) service.
 
-This microservice allows you to switch between using Oracle and the reference-data stub based on a [feature switch in application.conf](conf/application.conf#L127-L129).
+It reworks the service to use reference data from the Central Reference Data Library via the [crdl-cache](https://github.com/hmrc/crdl-cache/) service.
+
+The purpose of this service is to act as an adapter for EMCS TFE services like [emcs-tfe-frontend](https://github.com/hmrc/emcs-tfe-frontend/) which previously used data produced by stored procedures in the CandE Oracle database.
+
+It translates the flat key-value codelists of the [crdl-cache](https://github.com/hmrc/crdl-cache/) service into the composite domain objects used by the TFE frontends.
 
 ## API endpoints
 
