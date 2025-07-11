@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.config
+package uk.gov.hmrc.emcstfereferencedata.support;
 
-import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import org.scalatest.TagAnnotation;
 
-import javax.inject.{Inject, Singleton}
+import java.lang.annotation.*;
 
-@Singleton
-class AppConfig @Inject() (val config: Configuration, servicesConfig: ServicesConfig) {
-
-  lazy val crdlCacheUrl: String  = servicesConfig.baseUrl("crdl-cache")
-  lazy val crdlCachePath: String = config.get[String]("microservice.services.crdl-cache.path")
-
-  def stubUrl(): String = servicesConfig.baseUrl("emcs-tfe-reference-data-stub")
-
+@TagAnnotation
+@Inherited
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD, ElementType.TYPE})
+public @interface OracleDb {
 }

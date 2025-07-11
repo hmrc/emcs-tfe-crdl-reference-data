@@ -59,7 +59,7 @@ trait IntegrationBaseSpec extends UnitSpec with WireMockHelper with GuiceOneServ
   }
 
   def buildRequest(path: String): WSRequest = client
-    .url(s"http://localhost:$port/emcs-tfe-reference-data$path")
+    .url(s"http://localhost:$port/emcs-tfe-crdl-reference-data$path")
     .withHttpHeaders(HeaderNames.AUTHORIZATION -> "auth1234")
     .withFollowRedirects(false)
 
