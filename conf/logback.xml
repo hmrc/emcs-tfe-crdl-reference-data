@@ -21,22 +21,17 @@
         </encoder>
     </appender>
 
-    <logger name="connectorlog" level="OFF" additivity="false">
-        <appender-ref ref="CONNECTOR_LOG_FILE" />
-    </logger>
-
     <logger name="com.google.inject" level="INFO"/>
 
     <logger name="uk.gov" level="INFO"/>
 
     <logger name="application" level="DEBUG"/>
-    <logger name="uk.gov.hmrc.emcstfereferencedata" level="DEBUG"/>
 
-    <logger name="connector" level="TRACE">
+    <logger name="connector" level="TRACE" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
 
-    <root level="ERROR">
+    <root level="INFO">
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT"/>
     </root>

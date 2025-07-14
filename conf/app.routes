@@ -16,8 +16,6 @@ GET         /oracle/transport-units                    uk.gov.hmrc.emcstferefere
 
 GET         /oracle/type-of-document                   uk.gov.hmrc.emcstfereferencedata.controllers.RetrieveTypeOfDocumentController.show
 
-GET         /oracle/trader-known-facts                 uk.gov.hmrc.emcstfereferencedata.controllers.RetrieveTraderKnownFactsController.show(exciseRegistrationId: String)
-
 GET         /oracle/cn-codes/:exciseProductCode        uk.gov.hmrc.emcstfereferencedata.controllers.RetrieveAllCNCodesController.get(exciseProductCode: String)
 
 GET         /oracle/epc-codes                          uk.gov.hmrc.emcstfereferencedata.controllers.RetrieveAllEPCCodesController.get

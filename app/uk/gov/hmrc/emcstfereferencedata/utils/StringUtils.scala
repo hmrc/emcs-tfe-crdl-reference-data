@@ -16,12 +16,9 @@
 
 package uk.gov.hmrc.emcstfereferencedata.utils
 
-import org.jsoup.Jsoup
-
 object StringUtils {
-  def removeHtmlEscapedCharactersAndAddSmartQuotes(input: String): String = {
-    Jsoup.parse(input)
-      .text()
+  def addSmartQuotes(input: String): String = {
+    input
       // single quotes followed by a space, or the end of the String, or following a letter/number
       .replaceAll("(')(?=\\s|$)|(?<=[A-Za-z0-9])(')", "’")
       // leftover '

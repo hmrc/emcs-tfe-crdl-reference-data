@@ -49,10 +49,10 @@ class ExciseProductCodeSpec extends UnitSpec {
       )
     }
 
-    "replace &lsquo;, &rsquo; and ' with smart quotes" in {
+    "replace ' with smart quotes" in {
       Json.toJson(wineExciseProductCode.copy(
-        description = "This is a &lsquo;test', it's a good 'test&rsquo; and it will be 'tested'",
-        categoryDescription = "bacon &amp; eggs"
+        description = "This is a 'test', it's a good 'test' and it will be 'tested'",
+        categoryDescription = "bacon & eggs"
       )) shouldBe Json.obj(
         "code" -> "W200",
         "description" -> "This is a ‘test’, it’s a good ‘test’ and it will be ‘tested’",

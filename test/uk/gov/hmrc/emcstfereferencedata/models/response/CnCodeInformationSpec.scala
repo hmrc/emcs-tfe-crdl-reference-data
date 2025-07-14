@@ -39,10 +39,8 @@ class CnCodeInformationSpec extends UnitSpec {
         "unitOfMeasureCode" -> 1
       ).as[CnCodeInformation] shouldBe testCommodityCodeTobacco
     }
-  }
 
-  "mapReads" should {
-    "read JSON to a model" in {
+    "read JSON to a model from a map structure" in {
       Json.obj(
         "24029000" -> Json.obj(
           "cnCode" -> "24029000",
@@ -66,10 +64,10 @@ class CnCodeInformationSpec extends UnitSpec {
       )
     }
 
-    "replace &lsquo;, &rsquo; and ' with smart quotes" in {
+    "replace ' with smart quotes" in {
       Json.toJson(testCommodityCodeTobacco.copy(
-        exciseProductCodeDescription = "bacon &amp; eggs",
-        cnCodeDescription = "This is a &lsquo;test', it's a good 'test&rsquo; and it will be 'tested'"
+        exciseProductCodeDescription = "bacon & eggs",
+        cnCodeDescription = "This is a 'test', it's a good 'test' and it will be 'tested'"
       )) shouldBe Json.obj(
         "cnCode" -> "24029000",
         "cnCodeDescription" -> "This is a ‘test’, it’s a good ‘test’ and it will be ‘tested’",

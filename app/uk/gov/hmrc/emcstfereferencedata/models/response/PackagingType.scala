@@ -16,17 +16,10 @@
 
 package uk.gov.hmrc.emcstfereferencedata.models.response
 
-import play.api.libs.json.{Format, JsError, JsObject, JsSuccess, Json, Reads}
+import play.api.libs.json.{Json, OFormat}
 
 case class PackagingType(code: String, description: String, isCountable: Boolean)
 
 object PackagingType {
-  implicit val format: Format[PackagingType] = Json.format[PackagingType]
-
-  implicit val mapReads: Reads[Map[String, PackagingType]] = {
-    case JsObject(underlying) => JsSuccess(underlying.map {
-      case (k, v) => k -> v.as[PackagingType]
-    }.toMap)
-    case other => JsError(s"Cannot parse JSON as Map[String, PackagingType]: $other")
-  }
+  given OFormat[PackagingType] = Json.format[PackagingType]
 }

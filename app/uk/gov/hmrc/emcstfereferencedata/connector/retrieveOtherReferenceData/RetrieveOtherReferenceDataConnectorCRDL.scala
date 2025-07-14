@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.support;
+package uk.gov.hmrc.emcstfereferencedata.connector.retrieveOtherReferenceData
 
-import org.scalatest.TagAnnotation;
+import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
+import uk.gov.hmrc.http.HeaderCarrier
 
-import java.lang.annotation.*;
+import scala.concurrent.{ExecutionContext, Future}
 
-@TagAnnotation
-@Inherited
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.TYPE})
-public @interface OracleDb {
+class RetrieveOtherReferenceDataConnectorCRDL extends RetrieveOtherReferenceDataConnector {
+  // TODO: To be implemented in CRDL-334
+  override def retrieveOtherReferenceData(typeName: TypeName)(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[Either[ErrorResponse, Map[String, String]]] = ???
 }
