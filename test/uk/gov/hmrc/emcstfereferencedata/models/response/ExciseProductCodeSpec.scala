@@ -40,7 +40,7 @@ class ExciseProductCodeSpec extends UnitSpec {
   }
 
   "writes" should {
-    "read JSON to a model" in {
+    "write JSON to a model" in {
       Json.toJson(wineExciseProductCode) shouldBe Json.obj(
         "code" -> "W200",
         "description" -> "Still wine and still fermented beverages other than wine and beer",

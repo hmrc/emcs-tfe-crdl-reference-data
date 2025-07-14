@@ -16,10 +16,4 @@
 
 package uk.gov.hmrc.emcstfereferencedata.models.response
 
-import play.api.libs.json.{Json, OFormat}
-
 case class PackagingType(code: String, description: String, isCountable: Boolean)
-
-object PackagingType {
-  given OFormat[PackagingType] = Json.format[PackagingType]
-}

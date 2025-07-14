@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.controllers.predicates
+package uk.gov.hmrc.emcstfereferencedata.controllers
 
+import org.scalatest.TestSuite
+import play.api.mvc.*
 import play.api.mvc.Results.Forbidden
-import play.api.mvc._
 import play.api.test.StubBodyParserFactory
+import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.AuthAction
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
 import uk.gov.hmrc.emcstfereferencedata.models.auth.UserRequest
-import uk.gov.hmrc.emcstfereferencedata.support.UnitSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait FakeAuthAction extends StubBodyParserFactory with BaseFixtures { this: UnitSpec =>
+trait FakeAuthAction extends StubBodyParserFactory with BaseFixtures { this: TestSuite =>
 
   object FakeSuccessAuthAction extends AuthAction {
     override def apply(ern: Option[String]): ActionBuilder[UserRequest, AnyContent] with ActionFunction[Request, UserRequest] =
       new ActionBuilder[UserRequest, AnyContent] with ActionFunction[Request, UserRequest] {
 
-        override implicit protected def executionContext: ExecutionContext = ec
+        override implicit protected def executionContext: ExecutionContext = ExecutionContext.global
 
         override def parser: BodyParser[AnyContent] = stubBodyParser()
 
@@ -44,7 +45,7 @@ trait FakeAuthAction extends StubBodyParserFactory with BaseFixtures { this: Uni
     override def apply(ern: Option[String]): ActionBuilder[UserRequest, AnyContent] with ActionFunction[Request, UserRequest] =
       new ActionBuilder[UserRequest, AnyContent] with ActionFunction[Request, UserRequest] {
 
-        override implicit protected def executionContext: ExecutionContext = ec
+        override implicit protected def executionContext: ExecutionContext = ExecutionContext.global
 
         override def parser: BodyParser[AnyContent] = stubBodyParser()
 

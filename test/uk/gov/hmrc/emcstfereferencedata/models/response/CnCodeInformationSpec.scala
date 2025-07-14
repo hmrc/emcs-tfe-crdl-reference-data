@@ -54,7 +54,7 @@ class CnCodeInformationSpec extends UnitSpec {
   }
 
   "writes" should {
-    "read JSON to a model" in {
+    "write JSON to a model" in {
       Json.toJson(testCommodityCodeTobacco) shouldBe Json.obj(
         "cnCode" -> "24029000",
         "cnCodeDescription" -> "Cigarettes containing tobacco / other",
