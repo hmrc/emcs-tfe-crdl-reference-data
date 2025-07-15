@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.emcstfereferencedata.config
 
-import com.google.inject.{AbstractModule, Inject, Singleton}
-import play.api.{Configuration, Environment}
+import com.google.inject.{AbstractModule, Singleton}
 import uk.gov.hmrc.emcstfereferencedata.connector.retrieveAllCNCodes.{
   RetrieveAllCNCodesConnector,
   RetrieveAllCNCodesConnectorCRDL
@@ -42,8 +41,7 @@ import uk.gov.hmrc.emcstfereferencedata.connector.retrieveProductCodes.{
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.{AuthAction, AuthActionImpl}
 
 @Singleton
-class Module @Inject() (environment: Environment, config: Configuration) extends AbstractModule {
-
+class Module extends AbstractModule {
   override def configure(): Unit = {
     bind(classOf[AppConfig]).asEagerSingleton()
     bind(classOf[AuthAction]).to(classOf[AuthActionImpl])
