@@ -17,7 +17,7 @@
 package uk.gov.hmrc.emcstfereferencedata.fixtures
 
 import uk.gov.hmrc.emcstfereferencedata.models.request.{CnInformationItem, CnInformationRequest}
-import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, Country, TraderKnownFacts}
+import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, Country, ExciseProductCode}
 
 trait BaseFixtures {
 
@@ -45,6 +45,46 @@ trait BaseFixtures {
     exciseProductCodeDescription = "Other products containing ethyl alcohol",
     unitOfMeasureCode = 3
   )
+  val testCnCodeInformation3: CnCodeInformation = CnCodeInformation(
+    cnCode = "27101944",
+    cnCodeDescription = "Other heavy gas oils for other purposes with a sulphur content not exceeding 0,001% by weight.",
+    exciseProductCode = "E430",
+    exciseProductCodeDescription = "Gasoil, unmarked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
+    unitOfMeasureCode = 2
+  )
+  val testCnCodeInformation4: CnCodeInformation = CnCodeInformation(
+    cnCode = "27101944",
+    cnCodeDescription = "Other heavy gas oils for other purposes with a sulphur content not exceeding 0,001% by weight.",
+    exciseProductCode = "E440",
+    exciseProductCodeDescription = "Gasoil, marked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
+    unitOfMeasureCode = 2
+  )
+  val testCnCodeInformation5: CnCodeInformation = CnCodeInformation(
+    cnCode = "27102019",
+    cnCodeDescription = "Gas oil with a sulphur content exceeding 0.1% by weight, containing biodiesel",
+    exciseProductCode = "E430",
+    exciseProductCodeDescription = "Gasoil, unmarked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
+    unitOfMeasureCode = 2
+  )
+  val testCnCodeInformation6: CnCodeInformation = CnCodeInformation(
+    cnCode = "27102019",
+    cnCodeDescription = "Gas oil with a sulphur content exceeding 0.1% by weight, containing biodiesel",
+    exciseProductCode = "E440",
+    exciseProductCodeDescription = "Gasoil, marked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
+    unitOfMeasureCode = 2
+  )
+  val testExciseProduct1: ExciseProductCode = ExciseProductCode(
+    code = "S500",
+    description = "Other products containing ethyl alcohol",
+    category = "S",
+    categoryDescription = "Ethyl alcohol and spirits"
+  )
+  val testExciseProduct2: ExciseProductCode = ExciseProductCode(
+    code = "T400",
+    description = "Fine-cut tobacco for the rolling of cigarettes",
+    category = "T",
+    categoryDescription = "Manufactured tobacco products"
+  )
   val testWineOperations: Seq[String] = Seq(
     "4",
     "11",
@@ -54,15 +94,6 @@ trait BaseFixtures {
     "4" -> "The product has been sweetened",
     "11" -> "The product has been partially dealcoholised",
     "9" -> "The product has been made using oak chips"
-  )
-  val testTraderKnownFactsResult: TraderKnownFacts = TraderKnownFacts(
-    traderName = "SEED TRADER 1629",
-    addressLine1 = Some("629 High Street"),
-    addressLine2 = Some("Any Suburb"),
-    addressLine3 = Some("Any Town"),
-    addressLine4 = Some("Any County"),
-    addressLine5 = Some("UK"),
-    postcode = Some("SS1 99AA")
   )
   val memberStatesResult: Map[String, String] = Map(
     "AT" -> "Austria",
@@ -123,7 +154,7 @@ trait BaseFixtures {
     "RU" -> "Russian Federation",
     "NI" -> "Nicaragua",
     "BZ" -> "Belize",
-    "KP" -> "Korea, Democratic People's Republ",
+    "KP" -> "Korea, Democratic People's Republic of",
     "VE" -> "Venezuela",
     "IL" -> "Israel",
     "GD" -> "Grenada",
@@ -143,13 +174,13 @@ trait BaseFixtures {
     "AZ" -> "Azerbaijan",
     "MR" -> "Mauritania",
     "SM" -> "San Marino",
-    "BL" -> "Saint Barth&eacute;lemy",
+    "BL" -> "Saint Barthélemy",
     "PK" -> "Pakistan",
     "NZ" -> "New Zealand",
     "GP" -> "Guadeloupe",
     "NA" -> "Namibia",
     "JM" -> "Jamaica",
-    "AX" -> "&Aring;LAND ISLANDS",
+    "AX" -> "ÅLAND ISLANDS",
     "XL" -> "Melilla",
     "CM" -> "Cameroon",
     "US" -> "United States",
@@ -157,7 +188,7 @@ trait BaseFixtures {
     "SB" -> "Solomon Islands",
     "MV" -> "Maldives",
     "SI" -> "Slovenia",
-    "CW" -> "Cura&ccedil;ao",
+    "CW" -> "Curaçao",
     "BH" -> "Bahrain",
     "VG" -> "British Virgin Islands",
     "HK" -> "Hong Kong",
@@ -170,7 +201,7 @@ trait BaseFixtures {
     "GL" -> "Greenland",
     "BW" -> "Botswana",
     "CF" -> "Central African Republic",
-    "CI" -> "C&ocirc;te d'Ivoire",
+    "CI" -> "Côte d'Ivoire",
     "KG" -> "Kyrgyz, Republic",
     "BV" -> "Bouvet Island",
     "KY" -> "Cayman Islands",
@@ -290,7 +321,7 @@ trait BaseFixtures {
     "YE" -> "Yemen",
     "HN" -> "Honduras",
     "IT" -> "Italy",
-    "RE" -> "R&eacute;union",
+    "RE" -> "Réunion",
     "DO" -> "Dominican Republic",
     "IO" -> "British Indian Ocean Territory",
     "GR" -> "Greece",
@@ -464,7 +495,7 @@ trait BaseFixtures {
     Country("KZ", "Kazakhstan"),
     Country("KE", "Kenya"),
     Country("KI", "Kiribati"),
-    Country("KP", "Korea, Democratic People’s Republ"),
+    Country("KP", "Korea, Democratic People’s Republic of"),
     Country("KR", "Korea, Republic of"),
     Country("XK", "Kosovo"),
     Country("KW", "Kuwait"),
@@ -749,7 +780,7 @@ trait BaseFixtures {
     Country("KZ", "Kazakhstan"),
     Country("KE", "Kenya"),
     Country("KI", "Kiribati"),
-    Country("KP", "Korea, Democratic People’s Republ"),
+    Country("KP", "Korea, Democratic People’s Republic of"),
     Country("KR", "Korea, Republic of"),
     Country("XK", "Kosovo"),
     Country("KW", "Kuwait"),

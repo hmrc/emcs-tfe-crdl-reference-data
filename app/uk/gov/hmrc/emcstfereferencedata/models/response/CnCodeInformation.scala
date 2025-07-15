@@ -16,26 +16,27 @@
 
 package uk.gov.hmrc.emcstfereferencedata.models.response
 
-import play.api.libs.json._
+import play.api.libs.json.*
 import uk.gov.hmrc.emcstfereferencedata.utils.StringUtils
 
-case class CnCodeInformation(cnCode: String, cnCodeDescription: String, exciseProductCode: String, exciseProductCodeDescription: String, unitOfMeasureCode: Int)
+case class CnCodeInformation(
+  cnCode: String,
+  cnCodeDescription: String,
+  exciseProductCode: String,
+  exciseProductCodeDescription: String,
+  unitOfMeasureCode: Int
+)
 
 object CnCodeInformation {
-  implicit val reads: Reads[CnCodeInformation] = Json.reads[CnCodeInformation]
+  given Reads[CnCodeInformation] = Json.reads[CnCodeInformation]
 
-  implicit val writes: OWrites[CnCodeInformation] = (o: CnCodeInformation) => Json.obj(
+  given OWrites[CnCodeInformation] = (o: CnCodeInformation) => Json.obj(
     "cnCode" -> o.cnCode,
-    "cnCodeDescription" -> StringUtils.removeHtmlEscapedCharactersAndAddSmartQuotes(o.cnCodeDescription),
+    "cnCodeDescription" -> StringUtils.addSmartQuotes(o.cnCodeDescription),
     "exciseProductCode" -> o.exciseProductCode,
-    "exciseProductCodeDescription" -> StringUtils.removeHtmlEscapedCharactersAndAddSmartQuotes(o.exciseProductCodeDescription),
+    "exciseProductCodeDescription" -> StringUtils.addSmartQuotes(o.exciseProductCodeDescription),
     "unitOfMeasureCode" -> o.unitOfMeasureCode
   )
 
-  implicit val mapReads: Reads[Map[String, CnCodeInformation]] = {
-    case JsObject(underlying) => JsSuccess(underlying.map {
-      case (k, v) => k -> v.as[CnCodeInformation]
-    }.toMap)
-    case other => JsError(s"Cannot parse JSON as Map[String, CnCodeInformation]: $other")
-  }
+  val mongoFormat: OFormat[CnCodeInformation] = Json.format[CnCodeInformation]
 }

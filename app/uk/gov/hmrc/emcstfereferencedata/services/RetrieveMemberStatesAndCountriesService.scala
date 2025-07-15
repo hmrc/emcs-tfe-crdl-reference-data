@@ -36,7 +36,7 @@ class RetrieveMemberStatesAndCountriesService @Inject()(connector: RetrieveOther
     } yield {
       val memberStatesAndCountries: Map[String, String] = memberStates ++ countries
       memberStatesAndCountries.map {
-        case (k, v) => (k, StringUtils.removeHtmlEscapedCharactersAndAddSmartQuotes(v))
+        case (k, v) => (k, StringUtils.addSmartQuotes(v))
       }
     }).value
 
