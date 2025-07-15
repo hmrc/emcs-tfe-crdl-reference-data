@@ -29,4 +29,5 @@ object PackagingType {
     }.toMap)
     case other => JsError(s"Cannot parse JSON as Map[String, PackagingType]: $other")
   }
+
 }

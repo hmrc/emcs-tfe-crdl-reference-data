@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.emcstfereferencedata.models.crdl
 
-import play.api.libs.json.{JsObject, Json, Reads}
+import play.api.libs.json.{JsObject, Json, Reads, Writes}
 
 case class CrdlCodeListEntry(
   key: String,
@@ -27,3 +27,4 @@ case class CrdlCodeListEntry(
 object CrdlCodeListEntry {
   given Reads[CrdlCodeListEntry] = Json.reads[CrdlCodeListEntry]
 }
+
