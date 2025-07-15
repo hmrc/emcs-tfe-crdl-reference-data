@@ -68,7 +68,7 @@ class RetrieveAllEPCCodesControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/epc-codes")
+            .get(url"$baseUrl/oracle/epc-codes")
             .execute[HttpResponse]
             .futureValue
 
@@ -85,7 +85,7 @@ class RetrieveAllEPCCodesControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/epc-codes")
+            .get(url"$baseUrl/oracle/epc-codes")
             .execute[HttpResponse]
             .futureValue
 
@@ -99,7 +99,7 @@ class RetrieveAllEPCCodesControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/epc-codes")
+            .get(url"$baseUrl/oracle/epc-codes")
             .execute[HttpResponse]
             .futureValue
 
@@ -115,7 +115,7 @@ class RetrieveAllEPCCodesControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/epc-codes")
+            .get(url"$baseUrl/oracle/epc-codes")
             .execute[HttpResponse]
             .futureValue
 
@@ -129,7 +129,7 @@ class RetrieveAllEPCCodesControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/epc-codes")
+            .get(url"$baseUrl/oracle/epc-codes")
             .execute[HttpResponse]
             .futureValue
 

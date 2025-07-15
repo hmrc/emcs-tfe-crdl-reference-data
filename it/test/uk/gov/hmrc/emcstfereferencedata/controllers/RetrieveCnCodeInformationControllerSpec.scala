@@ -87,9 +87,7 @@ class RetrieveCnCodeInformationControllerSpec extends ControllerIntegrationSpec 
 
         val response =
           httpClientV2
-            .post(
-              url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/cn-code-information"
-            )
+            .post(url"$baseUrl/oracle/cn-code-information")
             .withBody(cnCodeInformationRequest)
             .execute[HttpResponse]
             .futureValue
@@ -107,7 +105,7 @@ class RetrieveCnCodeInformationControllerSpec extends ControllerIntegrationSpec 
         val response =
           httpClientV2
             .post(
-              url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/cn-code-information"
+              url"$baseUrl/oracle/cn-code-information"
             )
             .withBody(cnCodeInformationRequest)
             .execute[HttpResponse]
@@ -125,9 +123,7 @@ class RetrieveCnCodeInformationControllerSpec extends ControllerIntegrationSpec 
 
         val response =
           httpClientV2
-            .post(
-              url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/cn-code-information"
-            )
+            .post(url"$baseUrl/oracle/cn-code-information")
             .withBody(cnCodeInformationRequest)
             .execute[HttpResponse]
             .futureValue
@@ -142,9 +138,7 @@ class RetrieveCnCodeInformationControllerSpec extends ControllerIntegrationSpec 
 
         val response =
           httpClientV2
-            .post(
-              url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/cn-code-information"
-            )
+            .post(url"$baseUrl/oracle/cn-code-information")
             .withBody(cnCodeInformationRequest)
             .execute[HttpResponse]
             .futureValue
@@ -159,9 +153,7 @@ class RetrieveCnCodeInformationControllerSpec extends ControllerIntegrationSpec 
 
         val response =
           httpClientV2
-            .post(
-              url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/cn-code-information"
-            )
+            .post(url"$baseUrl/oracle/cn-code-information")
             .withBody(cnCodeInformationRequest)
             .execute[HttpResponse]
             .futureValue

@@ -63,7 +63,7 @@ class RetrieveTransportUnitsControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/transport-units")
+            .get(url"$baseUrl/oracle/transport-units")
             .execute[HttpResponse]
             .futureValue
 
@@ -81,7 +81,7 @@ class RetrieveTransportUnitsControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/transport-units")
+            .get(url"$baseUrl/oracle/transport-units")
             .execute[HttpResponse]
             .futureValue
 
@@ -98,7 +98,7 @@ class RetrieveTransportUnitsControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/transport-units")
+            .get(url"$baseUrl/oracle/transport-units")
             .execute[HttpResponse]
             .futureValue
 
@@ -112,7 +112,7 @@ class RetrieveTransportUnitsControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/transport-units")
+            .get(url"$baseUrl/oracle/transport-units")
             .execute[HttpResponse]
             .futureValue
 
@@ -126,7 +126,7 @@ class RetrieveTransportUnitsControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/transport-units")
+            .get(url"$baseUrl/oracle/transport-units")
             .execute[HttpResponse]
             .futureValue
 

@@ -63,7 +63,7 @@ class RetrieveTypeOfDocumentControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/type-of-document")
+            .get(url"$baseUrl/oracle/type-of-document")
             .execute[HttpResponse]
             .futureValue
 
@@ -81,7 +81,7 @@ class RetrieveTypeOfDocumentControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/type-of-document")
+            .get(url"$baseUrl/oracle/type-of-document")
             .execute[HttpResponse]
             .futureValue
 
@@ -98,7 +98,7 @@ class RetrieveTypeOfDocumentControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/type-of-document")
+            .get(url"$baseUrl/oracle/type-of-document")
             .execute[HttpResponse]
             .futureValue
 
@@ -112,7 +112,7 @@ class RetrieveTypeOfDocumentControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/type-of-document")
+            .get(url"$baseUrl/oracle/type-of-document")
             .execute[HttpResponse]
             .futureValue
 
@@ -126,7 +126,7 @@ class RetrieveTypeOfDocumentControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/type-of-document")
+            .get(url"$baseUrl/oracle/type-of-document")
             .execute[HttpResponse]
             .futureValue
 

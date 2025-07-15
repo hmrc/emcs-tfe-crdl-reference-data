@@ -71,9 +71,7 @@ class RetrievePackagingTypesControllerSpec
 
         val response =
           httpClientV2
-            .get(
-              url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/packaging-types?isCountable=true"
-            )
+            .get(url"$baseUrl/oracle/packaging-types?isCountable=true")
             .execute[HttpResponse]
             .futureValue
 
@@ -94,9 +92,7 @@ class RetrievePackagingTypesControllerSpec
 
         val response =
           httpClientV2
-            .get(
-              url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/packaging-types?isCountable=false"
-            )
+            .get(url"$baseUrl/oracle/packaging-types?isCountable=false")
             .execute[HttpResponse]
             .futureValue
 
@@ -117,7 +113,7 @@ class RetrievePackagingTypesControllerSpec
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/packaging-types")
+            .get(url"$baseUrl/oracle/packaging-types")
             .execute[HttpResponse]
             .futureValue
 
@@ -132,7 +128,7 @@ class RetrievePackagingTypesControllerSpec
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/packaging-types")
+            .get(url"$baseUrl/oracle/packaging-types")
             .execute[HttpResponse]
             .futureValue
 
@@ -148,7 +144,7 @@ class RetrievePackagingTypesControllerSpec
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/packaging-types")
+            .get(url"$baseUrl/oracle/packaging-types")
             .execute[HttpResponse]
             .futureValue
 
@@ -162,7 +158,7 @@ class RetrievePackagingTypesControllerSpec
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/packaging-types")
+            .get(url"$baseUrl/oracle/packaging-types")
             .execute[HttpResponse]
             .futureValue
 
@@ -176,7 +172,7 @@ class RetrievePackagingTypesControllerSpec
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/packaging-types")
+            .get(url"$baseUrl/oracle/packaging-types")
             .execute[HttpResponse]
             .futureValue
 
@@ -200,7 +196,7 @@ class RetrievePackagingTypesControllerSpec
 
         val response =
           httpClientV2
-            .post(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/packaging-types")
+            .post(url"$baseUrl/oracle/packaging-types")
             .withBody(Json.toJson(testPackagingTypes))
             .execute[HttpResponse]
             .futureValue
@@ -217,7 +213,7 @@ class RetrievePackagingTypesControllerSpec
 
         val response =
           httpClientV2
-            .post(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/packaging-types")
+            .post(url"$baseUrl/oracle/packaging-types")
             .withBody(Json.toJson(testPackagingTypes))
             .execute[HttpResponse]
             .futureValue
@@ -240,7 +236,7 @@ class RetrievePackagingTypesControllerSpec
 
         val response =
           httpClientV2
-            .post(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/packaging-types")
+            .post(url"$baseUrl/oracle/packaging-types")
             .withBody(Json.toJson(testPackagingTypes))
             .execute[HttpResponse]
             .futureValue
@@ -261,7 +257,7 @@ class RetrievePackagingTypesControllerSpec
 
         val response =
           httpClientV2
-            .post(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/packaging-types")
+            .post(url"$baseUrl/oracle/packaging-types")
             .withBody(Json.toJson(testPackagingTypes))
             .execute[HttpResponse]
             .futureValue
@@ -282,7 +278,7 @@ class RetrievePackagingTypesControllerSpec
 
         val response =
           httpClientV2
-            .post(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/packaging-types")
+            .post(url"$baseUrl/oracle/packaging-types")
             .withBody(Json.toJson(testPackagingTypes))
             .execute[HttpResponse]
             .futureValue

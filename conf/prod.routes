@@ -1,3 +1,4 @@
 # Add all the application routes to the app.routes file
-->         /emcs-tfe-crdl-reference-data   app.Routes
-->         /                               health.Routes
+# FIXME: We are maintaining the context path of the old emcs-tfe-reference-data service because it is hardcoded into the TFE frontends
+->         /emcs-tfe-reference-data   app.Routes
+->         /                          health.Routes

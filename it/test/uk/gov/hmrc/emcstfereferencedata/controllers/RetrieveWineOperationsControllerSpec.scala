@@ -63,7 +63,7 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/wine-operations")
+            .get(url"$baseUrl/oracle/wine-operations")
             .execute[HttpResponse]
             .futureValue
 
@@ -78,7 +78,7 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/wine-operations")
+            .get(url"$baseUrl/oracle/wine-operations")
             .execute[HttpResponse]
             .futureValue
 
@@ -94,7 +94,7 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/wine-operations")
+            .get(url"$baseUrl/oracle/wine-operations")
             .execute[HttpResponse]
             .futureValue
 
@@ -108,7 +108,7 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/wine-operations")
+            .get(url"$baseUrl/oracle/wine-operations")
             .execute[HttpResponse]
             .futureValue
 
@@ -122,7 +122,7 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/wine-operations")
+            .get(url"$baseUrl/oracle/wine-operations")
             .execute[HttpResponse]
             .futureValue
 
@@ -141,7 +141,7 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .post(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/wine-operations")
+            .post(url"$baseUrl/oracle/wine-operations")
             .withBody(Json.toJson(testWineOperations))
             .execute[HttpResponse]
             .futureValue
@@ -157,7 +157,7 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .post(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/wine-operations")
+            .post(url"$baseUrl/oracle/wine-operations")
             .withBody(Json.toJson(testWineOperations))
             .execute[HttpResponse]
             .futureValue
@@ -175,7 +175,7 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .post(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/wine-operations")
+            .post(url"$baseUrl/oracle/wine-operations")
             .withBody(Json.toJson(testWineOperations))
             .execute[HttpResponse]
             .futureValue
@@ -191,7 +191,7 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .post(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/wine-operations")
+            .post(url"$baseUrl/oracle/wine-operations")
             .withBody(Json.toJson(testWineOperations))
             .execute[HttpResponse]
             .futureValue
@@ -207,7 +207,7 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .post(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/wine-operations")
+            .post(url"$baseUrl/oracle/wine-operations")
             .withBody(Json.toJson(testWineOperations))
             .execute[HttpResponse]
             .futureValue

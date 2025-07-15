@@ -68,7 +68,7 @@ class RetrieveAllCNCodesControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/cn-codes/E440")
+            .get(url"$baseUrl/oracle/cn-codes/E440")
             .execute[HttpResponse]
             .futureValue
 
@@ -83,7 +83,7 @@ class RetrieveAllCNCodesControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/cn-codes/E440")
+            .get(url"$baseUrl/oracle/cn-codes/E440")
             .execute[HttpResponse]
             .futureValue
 
@@ -98,7 +98,7 @@ class RetrieveAllCNCodesControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/cn-codes/E440")
+            .get(url"$baseUrl/oracle/cn-codes/E440")
             .execute[HttpResponse]
             .futureValue
 
@@ -114,7 +114,7 @@ class RetrieveAllCNCodesControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/cn-codes/E440")
+            .get(url"$baseUrl/oracle/cn-codes/E440")
             .execute[HttpResponse]
             .futureValue
 
@@ -128,7 +128,7 @@ class RetrieveAllCNCodesControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/cn-codes/E440")
+            .get(url"$baseUrl/oracle/cn-codes/E440")
             .execute[HttpResponse]
             .futureValue
 

@@ -63,7 +63,7 @@ class RetrieveMemberStatesControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/member-states")
+            .get(url"$baseUrl/oracle/member-states")
             .execute[HttpResponse]
             .futureValue
 
@@ -79,7 +79,7 @@ class RetrieveMemberStatesControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/member-states")
+            .get(url"$baseUrl/oracle/member-states")
             .execute[HttpResponse]
             .futureValue
 
@@ -95,7 +95,7 @@ class RetrieveMemberStatesControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/member-states")
+            .get(url"$baseUrl/oracle/member-states")
             .execute[HttpResponse]
             .futureValue
 
@@ -109,7 +109,7 @@ class RetrieveMemberStatesControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/member-states")
+            .get(url"$baseUrl/oracle/member-states")
             .execute[HttpResponse]
             .futureValue
 
@@ -123,7 +123,7 @@ class RetrieveMemberStatesControllerSpec extends ControllerIntegrationSpec {
 
         val response =
           httpClientV2
-            .get(url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/member-states")
+            .get(url"$baseUrl/oracle/member-states")
             .execute[HttpResponse]
             .futureValue
 

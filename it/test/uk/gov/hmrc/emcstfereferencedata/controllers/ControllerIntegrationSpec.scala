@@ -25,6 +25,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.ws.JsonBodyWritables
 import uk.gov.hmrc.http.test.HttpClientV2Support
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances}
+import uk.gov.hmrc.http.StringContextOps
 
 import scala.concurrent.ExecutionContext
 
@@ -42,5 +43,8 @@ trait ControllerIntegrationSpec
   with JsonBodyWritables {
 
   given ExecutionContext = ExecutionContext.global
-  given HeaderCarrier = HeaderCarrier()
+  given HeaderCarrier    = HeaderCarrier()
+
+  // FIXME: We are maintaining the context path of the old emcs-tfe-reference-data service because it is hardcoded into the TFE frontends
+  protected def baseUrl = url"http://localhost:$port/emcs-tfe-reference-data"
 }

@@ -63,9 +63,7 @@ class RetrieveMemberStatesAndCountriesControllerSpec extends ControllerIntegrati
 
         val response =
           httpClientV2
-            .get(
-              url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/member-states-and-countries"
-            )
+            .get(url"$baseUrl/oracle/member-states-and-countries")
             .execute[HttpResponse]
             .futureValue
 
@@ -81,9 +79,7 @@ class RetrieveMemberStatesAndCountriesControllerSpec extends ControllerIntegrati
 
         val response =
           httpClientV2
-            .get(
-              url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/member-states-and-countries"
-            )
+            .get(url"$baseUrl/oracle/member-states-and-countries")
             .execute[HttpResponse]
             .futureValue
 
@@ -99,9 +95,7 @@ class RetrieveMemberStatesAndCountriesControllerSpec extends ControllerIntegrati
 
         val response =
           httpClientV2
-            .get(
-              url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/member-states-and-countries"
-            )
+            .get(url"$baseUrl/oracle/member-states-and-countries")
             .execute[HttpResponse]
             .futureValue
 
@@ -115,9 +109,7 @@ class RetrieveMemberStatesAndCountriesControllerSpec extends ControllerIntegrati
 
         val response =
           httpClientV2
-            .get(
-              url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/member-states-and-countries"
-            )
+            .get(url"$baseUrl/oracle/member-states-and-countries")
             .execute[HttpResponse]
             .futureValue
 
@@ -131,9 +123,7 @@ class RetrieveMemberStatesAndCountriesControllerSpec extends ControllerIntegrati
 
         val response =
           httpClientV2
-            .get(
-              url"http://localhost:$port/emcs-tfe-crdl-reference-data/oracle/member-states-and-countries"
-            )
+            .get(url"$baseUrl/oracle/member-states-and-countries")
             .execute[HttpResponse]
             .futureValue
 
