@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.emcstfereferencedata.controllers.testonly
 
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
 import uk.gov.hmrc.emcstfereferencedata.repositories.{
@@ -23,9 +24,10 @@ import uk.gov.hmrc.emcstfereferencedata.repositories.{
   CodeListsRepository,
   ExciseProductsRepository
 }
+import uk.gov.hmrc.emcstfereferencedata.scheduler.JobScheduler
+import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.mongo.MongoComponent
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
@@ -36,12 +38,22 @@ class TestOnlyController @Inject() (
   codeListsRepository: CodeListsRepository,
   exciseProductsRepository: ExciseProductsRepository,
   cnCodesRepository: CnCodesRepository,
+  jobScheduler: JobScheduler,
   val mongoComponent: MongoComponent
 )(using ec: ExecutionContext)
   extends BackendController(cc)
   with Transactions {
 
   given tc: TransactionConfiguration = TransactionConfiguration.strict
+
+  def importReferenceData(): Action[AnyContent] = Action {
+    jobScheduler.startReferenceDataImport()
+    Accepted
+  }
+
+  def referenceDataImportStatus(): Action[AnyContent] = Action {
+    Ok(Json.toJson(jobScheduler.referenceDataImportStatus()))
+  }
 
   def deleteCodeLists(): Action[AnyContent] = Action.async {
     withClientSession { session =>

@@ -22,7 +22,10 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.JsonBodyWritables
+import uk.gov.hmrc.emcstfereferencedata.config.SchedulerModule
 import uk.gov.hmrc.http.test.HttpClientV2Support
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances}
 import uk.gov.hmrc.http.StringContextOps
@@ -47,4 +50,11 @@ trait ControllerIntegrationSpec
 
   // FIXME: We are maintaining the context path of the old emcs-tfe-reference-data service because it is hardcoded into the TFE frontends
   protected def baseUrl = url"http://localhost:$port/emcs-tfe-reference-data"
+
+  override def fakeApplication(): Application = {
+    GuiceApplicationBuilder()
+      // Stop Quartz from complaining about being instantiated multiple times
+      .disable(classOf[SchedulerModule])
+      .build()
+  }
 }

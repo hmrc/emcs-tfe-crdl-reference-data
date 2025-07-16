@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.models.crdl
+package uk.gov.hmrc.emcstfereferencedata.scheduler
 
-import play.api.libs.json.{Format, Json}
+import org.quartz
+import org.quartz.Job
+import org.quartz.spi.{JobFactory, TriggerFiredBundle}
+import play.api.inject.Injector
 
-case class CodeListCode(value: String) extends AnyVal
+import javax.inject.{Inject, Singleton}
 
-object CodeListCode {
-  given Format[CodeListCode] = Json.valueFormat[CodeListCode]
-  val BC36: CodeListCode = CodeListCode("BC36")
-  val BC37: CodeListCode = CodeListCode("BC37")
-  val BC66: CodeListCode = CodeListCode("BC66")
-  val E200: CodeListCode = CodeListCode("E200")
+@Singleton
+class ScheduledJobFactory @Inject()(injector: Injector) extends JobFactory {
+  override def newJob(bundle: TriggerFiredBundle, scheduler: quartz.Scheduler): Job =
+    injector.instanceOf(bundle.getJobDetail.getJobClass)
 }
