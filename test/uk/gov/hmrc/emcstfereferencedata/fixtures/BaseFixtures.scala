@@ -17,7 +17,7 @@
 package uk.gov.hmrc.emcstfereferencedata.fixtures
 
 import uk.gov.hmrc.emcstfereferencedata.models.request.{CnInformationItem, CnInformationRequest}
-import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, Country, ExciseProductCode, TraderKnownFacts}
+import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, Country, ExciseProductCode}
 
 trait BaseFixtures {
 
@@ -95,15 +95,6 @@ trait BaseFixtures {
     "11" -> "The product has been partially dealcoholised",
     "9" -> "The product has been made using oak chips"
   )
-  val testTraderKnownFactsResult: TraderKnownFacts = TraderKnownFacts(
-    traderName = "SEED TRADER 1629",
-    addressLine1 = Some("629 High Street"),
-    addressLine2 = Some("Any Suburb"),
-    addressLine3 = Some("Any Town"),
-    addressLine4 = Some("Any County"),
-    addressLine5 = Some("UK"),
-    postcode = Some("SS1 99AA")
-  )
   val memberStatesResult: Map[String, String] = Map(
     "AT" -> "Austria",
     "BE" -> "Belgium",
@@ -163,7 +154,7 @@ trait BaseFixtures {
     "RU" -> "Russian Federation",
     "NI" -> "Nicaragua",
     "BZ" -> "Belize",
-    "KP" -> "Korea, Democratic People's Republ",
+    "KP" -> "Korea, Democratic People's Republic of",
     "VE" -> "Venezuela",
     "IL" -> "Israel",
     "GD" -> "Grenada",
@@ -183,13 +174,13 @@ trait BaseFixtures {
     "AZ" -> "Azerbaijan",
     "MR" -> "Mauritania",
     "SM" -> "San Marino",
-    "BL" -> "Saint Barth&eacute;lemy",
+    "BL" -> "Saint Barthélemy",
     "PK" -> "Pakistan",
     "NZ" -> "New Zealand",
     "GP" -> "Guadeloupe",
     "NA" -> "Namibia",
     "JM" -> "Jamaica",
-    "AX" -> "&Aring;LAND ISLANDS",
+    "AX" -> "ÅLAND ISLANDS",
     "XL" -> "Melilla",
     "CM" -> "Cameroon",
     "US" -> "United States",
@@ -197,7 +188,7 @@ trait BaseFixtures {
     "SB" -> "Solomon Islands",
     "MV" -> "Maldives",
     "SI" -> "Slovenia",
-    "CW" -> "Cura&ccedil;ao",
+    "CW" -> "Curaçao",
     "BH" -> "Bahrain",
     "VG" -> "British Virgin Islands",
     "HK" -> "Hong Kong",
@@ -210,7 +201,7 @@ trait BaseFixtures {
     "GL" -> "Greenland",
     "BW" -> "Botswana",
     "CF" -> "Central African Republic",
-    "CI" -> "C&ocirc;te d'Ivoire",
+    "CI" -> "Côte d'Ivoire",
     "KG" -> "Kyrgyz, Republic",
     "BV" -> "Bouvet Island",
     "KY" -> "Cayman Islands",
@@ -330,7 +321,7 @@ trait BaseFixtures {
     "YE" -> "Yemen",
     "HN" -> "Honduras",
     "IT" -> "Italy",
-    "RE" -> "R&eacute;union",
+    "RE" -> "Réunion",
     "DO" -> "Dominican Republic",
     "IO" -> "British Indian Ocean Territory",
     "GR" -> "Greece",
@@ -504,7 +495,7 @@ trait BaseFixtures {
     Country("KZ", "Kazakhstan"),
     Country("KE", "Kenya"),
     Country("KI", "Kiribati"),
-    Country("KP", "Korea, Democratic People’s Republ"),
+    Country("KP", "Korea, Democratic People’s Republic of"),
     Country("KR", "Korea, Republic of"),
     Country("XK", "Kosovo"),
     Country("KW", "Kuwait"),
@@ -789,7 +780,7 @@ trait BaseFixtures {
     Country("KZ", "Kazakhstan"),
     Country("KE", "Kenya"),
     Country("KI", "Kiribati"),
-    Country("KP", "Korea, Democratic People’s Republ"),
+    Country("KP", "Korea, Democratic People’s Republic of"),
     Country("KR", "Korea, Republic of"),
     Country("XK", "Kosovo"),
     Country("KW", "Kuwait"),

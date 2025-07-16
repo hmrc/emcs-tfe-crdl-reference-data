@@ -32,7 +32,6 @@ import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListE
 import uk.gov.hmrc.emcstfereferencedata.models.response.{ErrorResponse, PackagingType}
 import play.api.libs.json.Json
 import uk.gov.hmrc.emcstfereferencedata.connector.crdl.CrdlConnector
-import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode.BC17
 
 class RetrievePackagingTypesConnectorCRDLSpec
   extends AnyWordSpec

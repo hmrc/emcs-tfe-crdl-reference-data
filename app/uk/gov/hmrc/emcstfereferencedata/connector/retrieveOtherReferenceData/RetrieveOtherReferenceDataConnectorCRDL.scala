@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.models.crdl
+package uk.gov.hmrc.emcstfereferencedata.connector.retrieveOtherReferenceData
 
-import play.api.libs.json.{JsObject, Json, Reads}
+import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
+import uk.gov.hmrc.http.HeaderCarrier
 
-case class CrdlCodeListEntry(
-  key: String,
-  value: String,
-  properties: JsObject
-)
+import scala.concurrent.{ExecutionContext, Future}
 
-object CrdlCodeListEntry {
-  given Reads[CrdlCodeListEntry] = Json.reads[CrdlCodeListEntry]
+class RetrieveOtherReferenceDataConnectorCRDL extends RetrieveOtherReferenceDataConnector {
+  // TODO: To be implemented in CRDL-334
+  override def retrieveOtherReferenceData(typeName: TypeName)(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[Either[ErrorResponse, Map[String, String]]] = ???
 }

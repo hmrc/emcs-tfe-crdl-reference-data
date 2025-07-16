@@ -20,16 +20,9 @@ import uk.gov.hmrc.emcstfereferencedata.support.UnitSpec
 
 class StringUtilsSpec extends UnitSpec {
   "removeHtmlEscapedCharactersAndAddSmartQuotes" should {
-    "convert a String with HTML escaped characters" in {
-      StringUtils.removeHtmlEscapedCharactersAndAddSmartQuotes("bacon &amp; eggs") shouldBe "bacon & eggs"
-    }
-
     "convert a String with single quotes" in {
-      StringUtils.removeHtmlEscapedCharactersAndAddSmartQuotes("it's time for 'beans'") shouldBe "it’s time for ‘beans’"
-    }
-
-    "convert a String with both HTML escaped characters and single quotes" in {
-      StringUtils.removeHtmlEscapedCharactersAndAddSmartQuotes("This is a &lsquo;test', it's a good 'test&rsquo; and it will be 'tested'") shouldBe
+      StringUtils.addSmartQuotes("it's time for 'beans'") shouldBe "it’s time for ‘beans’"
+      StringUtils.addSmartQuotes("This is a 'test', it's a good 'test' and it will be 'tested'") shouldBe
         "This is a ‘test’, it’s a good ‘test’ and it will be ‘tested’"
     }
   }

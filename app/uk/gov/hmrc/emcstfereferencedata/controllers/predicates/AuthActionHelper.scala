@@ -25,9 +25,6 @@ import scala.concurrent.Future
 trait AuthActionHelper extends BaseControllerHelpers {
   val auth: AuthAction
 
-  def authorisedUserGetRequestWithErn(ern: String)(block: UserRequest[_] => Future[Result]): Action[AnyContent] =
-    auth(Some(ern)).async(block)
-
   def authorisedUserGetRequest(block: UserRequest[_] => Future[Result]): Action[AnyContent] =
     auth(None).async(block)
 

@@ -16,42 +16,40 @@
 
 package uk.gov.hmrc.emcstfereferencedata.config
 
-import com.google.inject.{AbstractModule, Inject, Singleton}
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveAllCNCodes.{RetrieveAllCNCodesConnector, RetrieveAllCNCodesConnectorOracle, RetrieveAllCNCodesConnectorStub}
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveAllEPCCodes.{RetrieveAllEPCCodesConnector, RetrieveAllEPCCodesConnectorOracle, RetrieveAllEPCCodesConnectorStub}
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveCnCodeInformation._
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveOtherReferenceData._
-import uk.gov.hmrc.emcstfereferencedata.connector.retrievePackagingTypes._
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveProductCodes._
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveTraderKnownFacts._
+import com.google.inject.{AbstractModule, Singleton}
+import uk.gov.hmrc.emcstfereferencedata.connector.retrieveAllCNCodes.{
+  RetrieveAllCNCodesConnector,
+  RetrieveAllCNCodesConnectorCRDL
+}
+import uk.gov.hmrc.emcstfereferencedata.connector.retrieveAllEPCCodes.{
+  RetrieveAllEPCCodesConnector,
+  RetrieveAllEPCCodesConnectorCRDL
+}
+import uk.gov.hmrc.emcstfereferencedata.connector.retrieveCnCodeInformation.*
+import uk.gov.hmrc.emcstfereferencedata.connector.retrieveOtherReferenceData.{
+  RetrieveOtherReferenceDataConnector,
+  RetrieveOtherReferenceDataConnectorCRDL
+}
+import uk.gov.hmrc.emcstfereferencedata.connector.retrievePackagingTypes.{
+  RetrievePackagingTypesConnector,
+  RetrievePackagingTypesConnectorCRDL
+}
+import uk.gov.hmrc.emcstfereferencedata.connector.retrieveProductCodes.{
+  RetrieveProductCodesConnector,
+  RetrieveProductCodesConnectorCRDL
+}
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.{AuthAction, AuthActionImpl}
 
 @Singleton
-class Module @Inject()(environment: Environment, config: Configuration) extends AbstractModule {
-
+class Module extends AbstractModule {
   override def configure(): Unit = {
-
     bind(classOf[AppConfig]).asEagerSingleton()
     bind(classOf[AuthAction]).to(classOf[AuthActionImpl])
-
-    if (config.get[Boolean]("feature-switch.use-oracle")) {
-      bind(classOf[RetrieveCnCodeInformationConnector]).to(classOf[RetrieveCnCodeInformationConnectorOracle])
-      bind(classOf[RetrieveProductCodesConnector]).to(classOf[RetrieveProductCodesConnectorOracle])
-      bind(classOf[RetrievePackagingTypesConnector]).to(classOf[RetrievePackagingTypesConnectorOracle])
-      bind(classOf[RetrieveOtherReferenceDataConnector]).to(classOf[RetrieveOtherReferenceDataConnectorOracle])
-      bind(classOf[RetrieveTraderKnownFactsConnector]).to(classOf[RetrieveTraderKnownFactsConnectorOracle])
-      bind(classOf[RetrieveAllCNCodesConnector]).to(classOf[RetrieveAllCNCodesConnectorOracle])
-      bind(classOf[RetrieveAllEPCCodesConnector]).to(classOf[RetrieveAllEPCCodesConnectorOracle])
-    } else {
-      bind(classOf[RetrieveCnCodeInformationConnector]).to(classOf[RetrieveCnCodeInformationConnectorStub])
-      bind(classOf[RetrieveProductCodesConnector]).to(classOf[RetrieveProductCodesConnectorStub])
-      bind(classOf[RetrievePackagingTypesConnector]).to(classOf[RetrievePackagingTypesConnectorStub])
-      bind(classOf[RetrieveOtherReferenceDataConnector]).to(classOf[RetrieveOtherReferenceDataConnectorStub])
-      bind(classOf[RetrieveTraderKnownFactsConnector]).to(classOf[RetrieveTraderKnownFactsConnectorStub])
-      bind(classOf[RetrieveAllCNCodesConnector]).to(classOf[RetrieveAllCNCodesConnectorStub])
-      bind(classOf[RetrieveAllEPCCodesConnector]).to(classOf[RetrieveAllEPCCodesConnectorStub])
-    }
-
+    bind(classOf[RetrieveAllCNCodesConnector]).to(classOf[RetrieveAllCNCodesConnectorCRDL])
+    bind(classOf[RetrieveAllEPCCodesConnector]).to(classOf[RetrieveAllEPCCodesConnectorCRDL])
+    bind(classOf[RetrieveCnCodeInformationConnector]).to(classOf[RetrieveCnCodeInformationConnectorCRDL])
+    bind(classOf[RetrieveOtherReferenceDataConnector]).to(classOf[RetrieveOtherReferenceDataConnectorCRDL])
+    bind(classOf[RetrievePackagingTypesConnector]).to(classOf[RetrievePackagingTypesConnectorCRDL])
+    bind(classOf[RetrieveProductCodesConnector]).to(classOf[RetrieveProductCodesConnectorCRDL])
   }
 }

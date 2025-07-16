@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.emcstfereferencedata.models.response
 
-import play.api.libs.json.{Json, OWrites}
+import play.api.libs.json.{Json, OFormat}
 
 case class TypeOfDocument(code: String, description: String)
 
 object TypeOfDocument {
-  given OWrites[TypeOfDocument] = Json.writes[TypeOfDocument]
+  given OFormat[TypeOfDocument] = Json.format[TypeOfDocument]
 
   def apply(typesOfDocument: Map[String, String]): Seq[TypeOfDocument] = typesOfDocument.map {
     case (code, description) => TypeOfDocument(code, description)

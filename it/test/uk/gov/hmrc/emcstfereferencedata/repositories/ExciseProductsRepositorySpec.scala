@@ -43,6 +43,47 @@ class ExciseProductsRepositorySpec
 
   private val testProducts = List(testExciseProduct1, testExciseProduct2)
 
+
+  private val testExciseProduct3 = ExciseProductCode(
+    code = "B000",
+    description = "Beer",
+    category = "B",
+    categoryDescription = "Beer"
+  )
+
+  private val testExciseProduct4 = ExciseProductCode(
+    code = "E200",
+    description =
+      "Vegetable and animal oils Products falling within CN codes 1507 to 1518, if these are intended for use as heating fuel or motor fuel (Article 20(1)(a))",
+    category = "E",
+    categoryDescription = "Energy Products"
+  )
+
+  private val testExciseProduct5 = ExciseProductCode(
+    code = "E300",
+    description =
+      "Mineral oils Products falling within CN codes 2707 10, 2707 20, 2707 30 and 2707 50 (Article 20(1)(b))",
+    category = "E",
+    categoryDescription = "Energy Products"
+  )
+
+  private val testExciseProduct6 = ExciseProductCode(
+    code = "W200",
+    description = "Still wine and still fermented beverages other than wine and beer",
+    category = "W",
+    categoryDescription = "Wine and fermented beverages other than wine and beer"
+  )
+
+
+  val exciseProductsListSorted: Seq[ExciseProductCode] = Seq(
+    testExciseProduct3,
+    testExciseProduct4,
+    testExciseProduct5,
+    testExciseProduct1,
+    testExciseProduct2,
+    testExciseProduct6
+  )
+
   "ExciseProductsRepository.fetchExciseProductsForCategory" should {
     "return matching excise products for a given excise product category code" in {
       repository.collection.insertMany(testProducts).toFuture().futureValue
@@ -147,6 +188,16 @@ class ExciseProductsRepositorySpec
       val insertedEntries = findAll().futureValue
 
       insertedEntries should contain theSameElementsAs newProducts
+    }
+  }
+  "ExciseProductsRepository.fetchAllEPCCodes" should {
+    "return all excise products in the database" in {
+      repository.collection.insertMany(exciseProductsListSorted).toFuture().futureValue
+
+      repository
+        .fetchAllEPCCodes()
+        .futureValue should contain theSameElementsInOrderAs exciseProductsListSorted
+
     }
   }
 }
