@@ -25,4 +25,5 @@ import javax.inject.{Inject, Singleton}
 class AppConfig @Inject() (val config: Configuration, servicesConfig: ServicesConfig) {
   lazy val crdlCacheUrl: String  = servicesConfig.baseUrl("crdl-cache")
   lazy val crdlCachePath: String = config.get[String]("microservice.services.crdl-cache.path")
+  lazy val importRefDataSchedule: String = config.get[String]("import-reference-data.schedule")
 }
