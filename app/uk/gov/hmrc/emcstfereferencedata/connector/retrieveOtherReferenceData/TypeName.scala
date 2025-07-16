@@ -16,32 +16,41 @@
 
 package uk.gov.hmrc.emcstfereferencedata.connector.retrieveOtherReferenceData
 
+import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode
+import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode.{BC08, BC106, BC11, BC35, BC41}
+
 sealed trait TypeName {
   val oracleParameter: String
   val stubUrl: String
+  val codeListCode: CodeListCode
 }
 
 object WineOperations extends TypeName {
   override val oracleParameter: String = "WineOperation"
   override val stubUrl: String = "/wine-operations"
+  override val codeListCode: CodeListCode = BC41
 }
 
 object MemberStates extends TypeName {
   override val oracleParameter: String = "MemberState"
   override val stubUrl: String = "/member-states"
+  override val codeListCode: CodeListCode = BC11
 }
 
 object Countries extends TypeName {
   override val oracleParameter: String = "Country"
   override val stubUrl: String = "/countries"
+  override val codeListCode: CodeListCode = BC08
 }
 
 object TransportUnits extends TypeName {
   override val oracleParameter: String = "TransportUnit"
   override val stubUrl: String = "/transport-units"
+  override val codeListCode: CodeListCode = BC35
 }
 
 object TypeOfDocument extends TypeName {
   override val oracleParameter: String = "TypeOfDocument"
   override val stubUrl: String = "/type-of-document"
+  override val codeListCode: CodeListCode = BC106
 }

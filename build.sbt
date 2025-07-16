@@ -45,3 +45,4 @@ lazy val it = project
     )
   )
 
+addCommandAlias("runAllChecks", ";clean;compile;coverage;test;it/test;coverageReport")

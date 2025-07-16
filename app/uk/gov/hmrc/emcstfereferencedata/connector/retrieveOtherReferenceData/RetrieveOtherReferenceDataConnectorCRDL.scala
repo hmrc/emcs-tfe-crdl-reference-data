@@ -16,15 +16,36 @@
 
 package uk.gov.hmrc.emcstfereferencedata.connector.retrieveOtherReferenceData
 
+import play.api.Logger
+import uk.gov.hmrc.emcstfereferencedata.connector.crdl.CrdlConnector
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
 import uk.gov.hmrc.http.HeaderCarrier
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class RetrieveOtherReferenceDataConnectorCRDL extends RetrieveOtherReferenceDataConnector {
-  // TODO: To be implemented in CRDL-334
+class RetrieveOtherReferenceDataConnectorCRDL @Inject()(
+                                                         connector: CrdlConnector
+                                                       ) extends RetrieveOtherReferenceDataConnector {
+  lazy val logger: Logger = Logger(this.getClass)
+
   override def retrieveOtherReferenceData(typeName: TypeName)(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext
-  ): Future[Either[ErrorResponse, Map[String, String]]] = ???
+                                                              hc: HeaderCarrier,
+                                                              ec: ExecutionContext
+  ): Future[Either[ErrorResponse, Map[String, String]]] =
+    connector.fetchCodeList(typeName.codeListCode)
+      .map {
+        codeListEntries =>
+          val mappedEntries: Map[String, String] = codeListEntries.map(entry => entry.key -> entry.value).toMap
+          Right(mappedEntries)
+      }
+      .recover {
+        case exception: Exception =>
+          logger.warn(
+            s"[RetrieveOtherReferenceDataConnectorCRDL][retrieveOtherReferenceData] Unexpected Error fetching data", exception
+          )
+          Left(ErrorResponse.UnexpectedDownstreamResponseError)
+      }
+
+
 }
