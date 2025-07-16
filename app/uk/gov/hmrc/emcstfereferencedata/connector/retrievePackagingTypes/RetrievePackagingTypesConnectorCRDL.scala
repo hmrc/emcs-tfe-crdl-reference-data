@@ -47,11 +47,11 @@ class RetrievePackagingTypesConnectorCRDL @Inject() (
       val results: List[Either[ErrorResponse, (String, PackagingType)]] = entries.map { entry =>
         (entry.properties \ "countableFlag").validate[Boolean] match {
           case JsSuccess(flag, _) =>
-            val packagingType = PackagingType(entry.key, entry.value, flag)
+            val packagingType = (PackagingType(entry.key, entry.value, flag))
             Right(entry.key -> packagingType)
           case JsError(errors) => {
             logger.warn(
-              s"[RetrievePackagingTypesConnectorCRDL][retrievePackagingTypes] Failed to Parse PackagingType from object ${entry.properties}, errors: ${errors}"
+              s"[RetrievePackagingTypesConnectorCRDL][retrievePackagingTypes] Failed to Parse PackagingType ${entry.value} with property object ${entry.properties}, errors: ${errors}"
             )
             Left(ErrorResponse.JsonValidationError)
           }
@@ -67,6 +67,11 @@ class RetrievePackagingTypesConnectorCRDL @Inject() (
         Right(successes.toMap)
       }
     }
+  }.recover { case ex: Exception =>
+    logger.warn(
+      s"[RetrievePackagingTypesConnectorCRDL][retrievePackagingTypes] Failed response from crdl-cache",
+      ex
+    )
+    Left(ErrorResponse.UnexpectedDownstreamResponseError)
   }
 }
-
