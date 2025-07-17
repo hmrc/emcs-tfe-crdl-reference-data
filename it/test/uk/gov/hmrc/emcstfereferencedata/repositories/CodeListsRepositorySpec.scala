@@ -415,19 +415,22 @@ class CodeListsRepositorySpec
           "B000",
           "Beer",
           "B",
-          "Beer"
+          "Beer",
+          3
         ),
         ExciseProductCode(
           "E300",
           "Mineral oils Products falling within CN codes 2707 10, 2707 20, 2707 30 and 2707 50 (Article 20(1)(b))",
           "E",
-          "Energy Products"
+          "Energy Products",
+          2
         ),
         ExciseProductCode(
           "E460",
           "Kerosene, marked falling within CN code 2710 19 25 (Article 20(1)(c) of Directive 2003/96/EC)",
           "E",
-          "Energy Products"
+          "Energy Products",
+          2
         )
       )
 

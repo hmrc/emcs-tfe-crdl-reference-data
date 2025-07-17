@@ -25,39 +25,47 @@ class ExciseProductCodeSpec extends UnitSpec {
     code = "W200",
     description = "Still wine and still fermented beverages other than wine and beer",
     category = "W",
-    categoryDescription = "Wine and fermented beverages other than wine and beer"
+    categoryDescription = "Wine and fermented beverages other than wine and beer",
+    unitOfMeasureCode = 3
   )
 
   "reads" should {
     "read JSON to a model" in {
-      Json.obj(
-        "code" -> "W200",
-        "description" -> "Still wine and still fermented beverages other than wine and beer",
-        "category" -> "W",
-        "categoryDescription" -> "Wine and fermented beverages other than wine and beer"
-      ).as[ExciseProductCode] shouldBe wineExciseProductCode
+      Json
+        .obj(
+          "code"        -> "W200",
+          "description" -> "Still wine and still fermented beverages other than wine and beer",
+          "category"    -> "W",
+          "categoryDescription" -> "Wine and fermented beverages other than wine and beer",
+          "unitOfMeasureCode"   -> 3
+        )
+        .as[ExciseProductCode] shouldBe wineExciseProductCode
     }
   }
 
   "writes" should {
     "write JSON to a model" in {
       Json.toJson(wineExciseProductCode) shouldBe Json.obj(
-        "code" -> "W200",
+        "code"        -> "W200",
         "description" -> "Still wine and still fermented beverages other than wine and beer",
-        "category" -> "W",
-        "categoryDescription" -> "Wine and fermented beverages other than wine and beer"
+        "category"    -> "W",
+        "categoryDescription" -> "Wine and fermented beverages other than wine and beer",
+        "unitOfMeasureCode"   -> 3
       )
     }
 
     "replace ' with smart quotes" in {
-      Json.toJson(wineExciseProductCode.copy(
-        description = "This is a 'test', it's a good 'test' and it will be 'tested'",
-        categoryDescription = "bacon & eggs"
-      )) shouldBe Json.obj(
-        "code" -> "W200",
-        "description" -> "This is a ‘test’, it’s a good ‘test’ and it will be ‘tested’",
-        "category" -> "W",
-        "categoryDescription" -> "bacon & eggs"
+      Json.toJson(
+        wineExciseProductCode.copy(
+          description = "This is a 'test', it's a good 'test' and it will be 'tested'",
+          categoryDescription = "bacon & eggs"
+        )
+      ) shouldBe Json.obj(
+        "code"                -> "W200",
+        "description"         -> "This is a ‘test’, it’s a good ‘test’ and it will be ‘tested’",
+        "category"            -> "W",
+        "categoryDescription" -> "bacon & eggs",
+        "unitOfMeasureCode"   -> 3
       )
     }
   }
