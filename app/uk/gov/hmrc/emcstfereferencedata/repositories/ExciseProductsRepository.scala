@@ -17,11 +17,13 @@
 package uk.gov.hmrc.emcstfereferencedata.repositories
 
 import org.mongodb.scala.*
+import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Filters.*
 import org.mongodb.scala.model.Sorts.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions, Indexes}
 import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
-import uk.gov.hmrc.emcstfereferencedata.models.response.ExciseProductCode
+import uk.gov.hmrc.emcstfereferencedata.models.request.CnInformationRequest
+import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ExciseProductCode}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.transaction.Transactions
@@ -81,4 +83,32 @@ class ExciseProductsRepository @Inject() (val mongoComponent: MongoComponent)(us
       .find()
       .sort(ascending("code"))
       .toFuture()
+
+  def fetchProductCodesInformation(
+    cnInformationRequest: CnInformationRequest
+  ): Future[Map[String, CnCodeInformation]] = {
+
+    val productCodeToCnCode: Map[String, String] =
+      cnInformationRequest.items.map(item => item.productCode -> item.cnCode).toMap
+
+    collection
+      .find(in("code", cnInformationRequest.items.map(_.productCode)*))
+      .sort(ascending("code"))
+      .toFuture()
+      .map { products =>
+        val productsByCode = products.map(product => product.code -> product).toMap
+        cnInformationRequest.items.flatMap { item =>
+          productsByCode.get(item.productCode).map { product =>
+            val cnInfo = CnCodeInformation(
+              cnCode = item.cnCode,
+              cnCodeDescription = product.description,
+              exciseProductCode = product.code,
+              exciseProductCodeDescription = product.description,
+              unitOfMeasureCode = product.unitOfMeasureCode
+            )
+            item.cnCode -> cnInfo
+          }
+        }.toMap
+      }
+  }
 }

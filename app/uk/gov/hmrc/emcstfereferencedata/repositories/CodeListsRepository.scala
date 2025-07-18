@@ -18,7 +18,7 @@ package uk.gov.hmrc.emcstfereferencedata.repositories
 
 import com.mongodb.client.model.Variable
 import org.mongodb.scala.*
-import org.mongodb.scala.bson.{BsonArray, BsonDocument}
+import org.mongodb.scala.bson.{BsonArray, BsonDocument, BsonTransformer}
 import org.mongodb.scala.model.Aggregates.*
 import org.mongodb.scala.model.Filters.*
 import org.mongodb.scala.model.Projections.*
@@ -94,7 +94,7 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
       as = alias
     )
 
-  private def toInt(bson: BsonDocument) =
+  private def toInt[T: BsonTransformer](bson: T) =
     BsonDocument("$toInt" -> bson)
 
   private def getFieldOf(fieldPath: String, arrayField: String) = {
@@ -182,7 +182,9 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
                 // Get the "categoryDescription" from the nested "productCategory" doc's value
                 "categoryDescription",
                 getFieldOf("value", arrayField = "productCategory")
-              )
+              ),
+              // Get the "unitOfMeasure" from the "$properties"
+              computed("unitOfMeasureCode", toInt("$properties.unitOfMeasureCode"))
             )
           )
         )

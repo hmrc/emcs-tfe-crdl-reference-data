@@ -23,18 +23,21 @@ case class ExciseProductCode(
   code: String,
   description: String,
   category: String,
-  categoryDescription: String
+  categoryDescription: String,
+  unitOfMeasureCode: Int
 )
 
 object ExciseProductCode {
   given Reads[ExciseProductCode] = Json.reads[ExciseProductCode]
 
-  given OWrites[ExciseProductCode] = (o: ExciseProductCode) => Json.obj(
-    "code" -> o.code,
-    "description" -> StringUtils.addSmartQuotes(o.description),
-    "category" -> o.category,
-    "categoryDescription" -> StringUtils.addSmartQuotes(o.categoryDescription)
-  )
+  given OWrites[ExciseProductCode] = (o: ExciseProductCode) =>
+    Json.obj(
+      "code"                -> o.code,
+      "description"         -> StringUtils.addSmartQuotes(o.description),
+      "category"            -> o.category,
+      "categoryDescription" -> StringUtils.addSmartQuotes(o.categoryDescription),
+      "unitOfMeasureCode"   -> o.unitOfMeasureCode
+    )
 
   val mongoFormat: OFormat[ExciseProductCode] = Json.format[ExciseProductCode]
 }

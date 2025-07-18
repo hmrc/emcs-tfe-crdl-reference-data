@@ -16,16 +16,36 @@
 
 package uk.gov.hmrc.emcstfereferencedata.connector.retrieveProductCodes
 
+import javax.inject.Inject
+import play.api.Logger
 import uk.gov.hmrc.emcstfereferencedata.models.request.CnInformationRequest
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ErrorResponse}
+import uk.gov.hmrc.emcstfereferencedata.repositories.ExciseProductsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class RetrieveProductCodesConnectorCRDL extends RetrieveProductCodesConnector {
-  // TODO: To be implemented in CRDL-336
+class RetrieveProductCodesConnectorCRDL @Inject() (
+  repository: ExciseProductsRepository
+) extends RetrieveProductCodesConnector {
+
+  lazy val logger: Logger = Logger(this.getClass)
+
   override def retrieveProductCodes(cnInformationRequest: CnInformationRequest)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext
-  ): Future[Either[ErrorResponse, Map[String, CnCodeInformation]]] = ???
+  ): Future[Either[ErrorResponse, Map[String, CnCodeInformation]]] =
+
+    repository
+      .fetchProductCodesInformation(cnInformationRequest)
+      .map(Right(_))
+      .recover {
+        case exception: Exception => {
+          logger.warn(
+            s"[RetrieveProductCodesConnectorCRDL][retrieveProductCodes] Unexpected Error fetching data from repository,",
+            exception
+          )
+          Left(ErrorResponse.UnexpectedDownstreamResponseError)
+        }
+      }
 }
