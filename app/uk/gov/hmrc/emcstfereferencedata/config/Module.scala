@@ -17,27 +17,12 @@
 package uk.gov.hmrc.emcstfereferencedata.config
 
 import com.google.inject.{AbstractModule, Singleton}
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveAllCNCodes.{
-  RetrieveAllCNCodesConnector,
-  RetrieveAllCNCodesConnectorCRDL
-}
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveAllEPCCodes.{
-  RetrieveAllEPCCodesConnector,
-  RetrieveAllEPCCodesConnectorCRDL
-}
+import uk.gov.hmrc.emcstfereferencedata.connector.retrieveAllCNCodes.{RetrieveAllCNCodesConnector, RetrieveAllCNCodesConnectorCRDL}
+import uk.gov.hmrc.emcstfereferencedata.connector.retrieveAllEPCCodes.{RetrieveAllEPCCodesConnector, RetrieveAllEPCCodesConnectorCRDL}
 import uk.gov.hmrc.emcstfereferencedata.connector.retrieveCnCodeInformation.*
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveOtherReferenceData.{
-  RetrieveOtherReferenceDataConnector,
-  RetrieveOtherReferenceDataConnectorCRDL
-}
-import uk.gov.hmrc.emcstfereferencedata.connector.retrievePackagingTypes.{
-  RetrievePackagingTypesConnector,
-  RetrievePackagingTypesConnectorCRDL
-}
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveProductCodes.{
-  RetrieveProductCodesConnector,
-  RetrieveProductCodesConnectorCRDL
-}
+import uk.gov.hmrc.emcstfereferencedata.connector.retrieveOtherReferenceData.{RetrieveOtherReferenceDataConnector, RetrieveOtherReferenceDataConnectorCRDL}
+import uk.gov.hmrc.emcstfereferencedata.connector.retrievePackagingTypes.{RetrievePackagingTypesConnector, RetrievePackagingTypesConnectorCRDL}
+import uk.gov.hmrc.emcstfereferencedata.connector.retrieveProductCodes.{RetrieveProductCodesConnector, RetrieveProductCodesConnectorCRDL}
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.{AuthAction, AuthActionImpl}
 
 @Singleton

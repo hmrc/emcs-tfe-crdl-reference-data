@@ -62,7 +62,7 @@ class ExciseProductsRepository @Inject() (val mongoComponent: MongoComponent)(us
 
   def saveExciseProducts(
     session: ClientSession,
-    exciseProducts: List[ExciseProductCode]
+    exciseProducts: Seq[ExciseProductCode]
   ): Future[Unit] =
     for {
       _ <- deleteExciseProducts(session)
