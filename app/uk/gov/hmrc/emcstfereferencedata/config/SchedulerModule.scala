@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.models.crdl
+package uk.gov.hmrc.emcstfereferencedata.config
 
-import play.api.libs.json.{Format, Json}
+import com.google.inject.AbstractModule
+import org.quartz.SchedulerFactory
+import org.quartz.impl.StdSchedulerFactory
+import uk.gov.hmrc.emcstfereferencedata.scheduler.JobScheduler
 
-case class CodeListCode(value: String) extends AnyVal
+import javax.inject.Singleton
 
-object CodeListCode {
-  given Format[CodeListCode] = Json.valueFormat[CodeListCode]
-  val BC36: CodeListCode = CodeListCode("BC36")
-  val BC37: CodeListCode = CodeListCode("BC37")
-  val BC66: CodeListCode = CodeListCode("BC66")
-  val E200: CodeListCode = CodeListCode("E200")
+@Singleton
+class SchedulerModule extends AbstractModule {
+  override def configure(): Unit = {
+    bind(classOf[JobScheduler]).asEagerSingleton()
+    bind(classOf[SchedulerFactory]).toInstance(new StdSchedulerFactory())
+  }
 }
