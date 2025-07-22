@@ -118,4 +118,75 @@ class CnCodesRepositorySpec
       )
     }
   }
+
+  "CnCodesRepository.saveCnCodes" should {
+    "save new CN codes" in {
+      val cnCodes = List(
+        CnCodeInformation(
+          "22060059",
+          "Other still fermented beverages in containers holding 2 litres or less",
+          "B000",
+          "Beer",
+          unitOfMeasureCode = 3
+        ),
+        CnCodeInformation(
+          "22060059",
+          "Other still fermented beverages in containers holding 2 litres or less",
+          "I000",
+          "Intermediate products",
+          unitOfMeasureCode = 3
+        ),
+      )
+
+      withSessionAndTransaction { repository.saveCnCodes(_, cnCodes) }.futureValue
+
+      val insertedEntries = repository.collection.find().toFuture().futureValue
+
+      insertedEntries should contain theSameElementsAs cnCodes
+    }
+
+    "remove existing CN codes when new CN codes are saved" in {
+      val existingCnCodes = List(
+        CnCodeInformation(
+          "22060059",
+          "Other still fermented beverages in containers holding 2 litres or less",
+          "B000",
+          "Beer",
+          unitOfMeasureCode = 3
+        ),
+        CnCodeInformation(
+          "22060059",
+          "Other still fermented beverages in containers holding 2 litres or less",
+          "I000",
+          "Intermediate products",
+          unitOfMeasureCode = 3
+        ),
+      )
+
+      repository.collection.insertMany(existingCnCodes).toFuture().futureValue
+
+      val newCnCodes = List(
+        CnCodeInformation(
+          "27101944",
+          "Other heavy gas oils for other purposes with a sulphur content not exceeding 0,001% by weight.",
+          "E430",
+          "Gasoil, unmarked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
+          unitOfMeasureCode = 2
+        ),
+        CnCodeInformation(
+          "27101944",
+          "Other heavy gas oils for other purposes with a sulphur content not exceeding 0,001% by weight.",
+          "E440",
+          "Gasoil, marked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
+          unitOfMeasureCode = 2
+        )
+      )
+
+      withSessionAndTransaction { repository.saveCnCodes(_, newCnCodes) }.futureValue
+
+      val insertedEntries = findAll().futureValue
+
+      insertedEntries should contain theSameElementsAs newCnCodes
+    }
+  }
 }
