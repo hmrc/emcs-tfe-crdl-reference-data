@@ -17,7 +17,6 @@
 package uk.gov.hmrc.emcstfereferencedata.repositories
 
 import org.mongodb.scala.*
-import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Filters.*
 import org.mongodb.scala.model.Sorts.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions, Indexes}
@@ -86,7 +85,7 @@ class ExciseProductsRepository @Inject() (val mongoComponent: MongoComponent)(us
 
   def fetchProductCodesInformation(
     cnInformationRequest: CnInformationRequest
-  ): Future[Map[String, CnCodeInformation]] = {
+  ): Future[Map[String, CnCodeInformation]] =
     collection
       .find(in("code", cnInformationRequest.items.map(_.productCode)*))
       .sort(ascending("code"))
@@ -106,5 +105,4 @@ class ExciseProductsRepository @Inject() (val mongoComponent: MongoComponent)(us
           }
         }.toMap
       }
-  }
 }
