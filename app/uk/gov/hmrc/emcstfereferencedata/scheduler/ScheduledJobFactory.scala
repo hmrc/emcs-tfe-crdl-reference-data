@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.config
+package uk.gov.hmrc.emcstfereferencedata.scheduler
 
-import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import org.quartz
+import org.quartz.Job
+import org.quartz.spi.{JobFactory, TriggerFiredBundle}
+import play.api.inject.Injector
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class AppConfig @Inject() (val config: Configuration, servicesConfig: ServicesConfig) {
-  lazy val crdlCacheUrl: String  = servicesConfig.baseUrl("crdl-cache")
-  lazy val crdlCachePath: String = config.get[String]("microservice.services.crdl-cache.path")
-  lazy val importRefDataSchedule: String = config.get[String]("import-reference-data.schedule")
+class ScheduledJobFactory @Inject()(injector: Injector) extends JobFactory {
+  override def newJob(bundle: TriggerFiredBundle, scheduler: quartz.Scheduler): Job =
+    injector.instanceOf(bundle.getJobDetail.getJobClass)
 }

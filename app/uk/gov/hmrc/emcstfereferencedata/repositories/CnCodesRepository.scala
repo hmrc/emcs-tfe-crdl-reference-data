@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.emcstfereferencedata.repositories
 
-import org.mongodb.scala.{model, *}
+import org.mongodb.scala.*
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Filters.*
 import org.mongodb.scala.model.Sorts.*
@@ -60,6 +60,19 @@ class CnCodesRepository @Inject() (val mongoComponent: MongoComponent)(using
         if (!result.wasAcknowledged())
           throw MongoError.NotAcknowledged
       }
+
+  def saveCnCodes(
+    session: ClientSession,
+    cnCodes: Seq[CnCodeInformation]
+  ): Future[Unit] =
+    for {
+      _ <- deleteCnCodes(session)
+
+      _ <- collection.insertMany(session, cnCodes).toFuture().map { result =>
+        if (!result.wasAcknowledged())
+          throw MongoError.NotAcknowledged
+      }
+    } yield ()
 
   def fetchCnCodesForProduct(exciseProductCode: String): Future[Seq[CnCodeInformation]] =
     collection
