@@ -87,10 +87,6 @@ class ExciseProductsRepository @Inject() (val mongoComponent: MongoComponent)(us
   def fetchProductCodesInformation(
     cnInformationRequest: CnInformationRequest
   ): Future[Map[String, CnCodeInformation]] = {
-
-    val productCodeToCnCode: Map[String, String] =
-      cnInformationRequest.items.map(item => item.productCode -> item.cnCode).toMap
-
     collection
       .find(in("code", cnInformationRequest.items.map(_.productCode)*))
       .sort(ascending("code"))
