@@ -5,15 +5,17 @@ object AppDependencies {
 
   val playSuffix = "-play-30"
 
-  val hmrcBootstrapVersion = "9.13.0"
+  val hmrcBootstrapVersion = "9.18.0"
   val hmrcMongoVersion     = "2.6.0"
-  val scalamockVersion     = "7.3.2"
+  val scalamockVersion     = "7.4.0"
   val catsCoreVersion      = "2.13.0"
+  val quartzVersion        = "2.5.0"
 
   private val compile = Seq(
-    "uk.gov.hmrc"       %% s"bootstrap-backend$playSuffix" % hmrcBootstrapVersion,
-    "uk.gov.hmrc.mongo" %% s"hmrc-mongo$playSuffix"        % hmrcMongoVersion,
-    "org.typelevel"     %% "cats-core"                     % catsCoreVersion
+    "uk.gov.hmrc"         %% s"bootstrap-backend$playSuffix" % hmrcBootstrapVersion,
+    "uk.gov.hmrc.mongo"   %% s"hmrc-mongo$playSuffix"        % hmrcMongoVersion,
+    "org.typelevel"       %% "cats-core"                     % catsCoreVersion,
+    "org.quartz-scheduler" % "quartz"                        % quartzVersion
   )
 
   private val test = Seq(

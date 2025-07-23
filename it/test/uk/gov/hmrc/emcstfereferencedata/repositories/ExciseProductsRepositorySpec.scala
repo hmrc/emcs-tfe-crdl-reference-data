@@ -21,7 +21,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
-import uk.gov.hmrc.emcstfereferencedata.models.response.ExciseProductCode
+import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ExciseProductCode}
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
 
@@ -43,12 +43,12 @@ class ExciseProductsRepositorySpec
 
   private val testProducts = List(testExciseProduct1, testExciseProduct2)
 
-
   private val testExciseProduct3 = ExciseProductCode(
     code = "B000",
     description = "Beer",
     category = "B",
-    categoryDescription = "Beer"
+    categoryDescription = "Beer",
+    unitOfMeasureCode = 3
   )
 
   private val testExciseProduct4 = ExciseProductCode(
@@ -56,7 +56,8 @@ class ExciseProductsRepositorySpec
     description =
       "Vegetable and animal oils Products falling within CN codes 1507 to 1518, if these are intended for use as heating fuel or motor fuel (Article 20(1)(a))",
     category = "E",
-    categoryDescription = "Energy Products"
+    categoryDescription = "Energy Products",
+    unitOfMeasureCode = 2
   )
 
   private val testExciseProduct5 = ExciseProductCode(
@@ -64,16 +65,17 @@ class ExciseProductsRepositorySpec
     description =
       "Mineral oils Products falling within CN codes 2707 10, 2707 20, 2707 30 and 2707 50 (Article 20(1)(b))",
     category = "E",
-    categoryDescription = "Energy Products"
+    categoryDescription = "Energy Products",
+    unitOfMeasureCode = 2
   )
 
   private val testExciseProduct6 = ExciseProductCode(
     code = "W200",
     description = "Still wine and still fermented beverages other than wine and beer",
     category = "W",
-    categoryDescription = "Wine and fermented beverages other than wine and beer"
+    categoryDescription = "Wine and fermented beverages other than wine and beer",
+    unitOfMeasureCode = 3
   )
-
 
   val exciseProductsListSorted: Seq[ExciseProductCode] = Seq(
     testExciseProduct3,
@@ -83,6 +85,16 @@ class ExciseProductsRepositorySpec
     testExciseProduct2,
     testExciseProduct6
   )
+
+  val exciseProductToCnCode1: CnCodeInformation =
+    testCnCodeInformation1.copy(cnCodeDescription =
+      testCnCodeInformation1.exciseProductCodeDescription
+    )
+
+  val exciseProductToCnCode2: CnCodeInformation =
+    testCnCodeInformation2.copy(cnCodeDescription =
+      testCnCodeInformation2.exciseProductCodeDescription
+    )
 
   "ExciseProductsRepository.fetchExciseProductsForCategory" should {
     "return matching excise products for a given excise product category code" in {
@@ -115,19 +127,22 @@ class ExciseProductsRepositorySpec
           "B000",
           "Beer",
           "B",
-          "Beer"
+          "Beer",
+          3
         ),
         ExciseProductCode(
           "E300",
           "Mineral oils Products falling within CN codes 2707 10, 2707 20, 2707 30 and 2707 50 (Article 20(1)(b))",
           "E",
-          "Energy Products"
+          "Energy Products",
+          2
         ),
         ExciseProductCode(
           "E460",
           "Kerosene, marked falling within CN code 2710 19 25 (Article 20(1)(c) of Directive 2003/96/EC)",
           "E",
-          "Energy Products"
+          "Energy Products",
+          2
         )
       )
 
@@ -144,19 +159,22 @@ class ExciseProductsRepositorySpec
           "B000",
           "Beer",
           "B",
-          "Beer"
+          "Beer",
+          3
         ),
         ExciseProductCode(
           "E300",
           "Mineral oils Products falling within CN codes 2707 10, 2707 20, 2707 30 and 2707 50 (Article 20(1)(b))",
           "E",
-          "Energy Products"
+          "Energy Products",
+          2
         ),
         ExciseProductCode(
           "E460",
           "Kerosene, marked falling within CN code 2710 19 25 (Article 20(1)(c) of Directive 2003/96/EC)",
           "E",
-          "Energy Products"
+          "Energy Products",
+          2
         )
       )
 
@@ -167,19 +185,22 @@ class ExciseProductsRepositorySpec
           "S200",
           "Spirituous beverages",
           "S",
-          "Ethyl alcohol and spirits"
+          "Ethyl alcohol and spirits",
+          3
         ),
         ExciseProductCode(
           "E910",
           "Fatty-acid mono-alkyl esters, containing by weight 96,5 % or more of esters (FAMAE) falling within CN code 3826 00 10 (Article 20(1)(h) of Directive 2003/96/EC)",
           "E",
-          "Energy Products"
+          "Energy Products",
+          2
         ),
         ExciseProductCode(
           "T300",
           "Cigars & cigarillos",
           "T",
-          "Manufactured tobacco products"
+          "Manufactured tobacco products",
+          4
         )
       )
 
@@ -198,6 +219,21 @@ class ExciseProductsRepositorySpec
         .fetchAllEPCCodes()
         .futureValue should contain theSameElementsInOrderAs exciseProductsListSorted
 
+    }
+  }
+  "ExciseProductsRepository.fetchProductCodesInformation" should {
+    "return a Map of cnCodeInformation Items" when {
+      "given the correct excise product codes" in {
+        repository.collection.insertMany(exciseProductsListSorted).toFuture().futureValue
+
+        val result =
+          Map(testCnCode2 -> exciseProductToCnCode2, testCnCode1 -> exciseProductToCnCode1)
+
+        repository
+          .fetchProductCodesInformation(testCnCodeInformationRequest)
+          .futureValue should contain theSameElementsAs result
+
+      }
     }
   }
 }

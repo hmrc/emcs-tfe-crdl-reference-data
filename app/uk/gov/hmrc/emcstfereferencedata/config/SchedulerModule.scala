@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,17 @@
 
 package uk.gov.hmrc.emcstfereferencedata.config
 
-import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import com.google.inject.AbstractModule
+import org.quartz.SchedulerFactory
+import org.quartz.impl.StdSchedulerFactory
+import uk.gov.hmrc.emcstfereferencedata.scheduler.JobScheduler
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.Singleton
 
 @Singleton
-class AppConfig @Inject() (val config: Configuration, servicesConfig: ServicesConfig) {
-  lazy val crdlCacheUrl: String  = servicesConfig.baseUrl("crdl-cache")
-  lazy val crdlCachePath: String = config.get[String]("microservice.services.crdl-cache.path")
-  lazy val importRefDataSchedule: String = config.get[String]("import-reference-data.schedule")
+class SchedulerModule extends AbstractModule {
+  override def configure(): Unit = {
+    bind(classOf[JobScheduler]).asEagerSingleton()
+    bind(classOf[SchedulerFactory]).toInstance(new StdSchedulerFactory())
+  }
 }

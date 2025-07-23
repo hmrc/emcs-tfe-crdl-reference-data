@@ -43,27 +43,31 @@ class RetrieveAllEPCCodesConnectorCRDLSpec
       code = "W200",
       description = "Still wine and still fermented beverages other than wine and beer",
       category = "W",
-      categoryDescription = "Wine and fermented beverages other than wine and beer"
+      categoryDescription = "Wine and fermented beverages other than wine and beer",
+      unitOfMeasureCode = 3
     ),
     ExciseProductCode(
       code = "B000",
       description = "Beer",
       category = "B",
-      categoryDescription = "Beer"
+      categoryDescription = "Beer",
+      unitOfMeasureCode = 3
     ),
     ExciseProductCode(
       code = "E200",
       description =
         "Vegetable and animal oils Products falling within CN codes 1507 to 1518, if these are intended for use as heating fuel or motor fuel (Article 20(1)(a))",
       category = "E",
-      categoryDescription = "Energy Products"
+      categoryDescription = "Energy Products",
+      unitOfMeasureCode = 2
     ),
     ExciseProductCode(
       code = "E300",
       description =
         "Mineral oils Products falling within CN codes 2707 10, 2707 20, 2707 30 and 2707 50 (Article 20(1)(b))",
       category = "E",
-      categoryDescription = "Energy Products"
+      categoryDescription = "Energy Products",
+      unitOfMeasureCode = 2
     )
   )
 

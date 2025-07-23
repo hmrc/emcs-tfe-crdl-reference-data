@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.models.crdl
+package uk.gov.hmrc.emcstfereferencedata.scheduler
 
-import play.api.libs.json.{Format, Json}
+import org.quartz.Trigger.TriggerState
+import play.api.libs.json.{JsString, Json, Writes}
 
-case class CodeListCode(value: String) extends AnyVal
+case class JobStatus(status: TriggerState)
 
-object CodeListCode {
-  given Format[CodeListCode] = Json.valueFormat[CodeListCode]
-  val BC08 = CodeListCode("BC08")
-  val BC11 = CodeListCode("BC11")
-  val BC17 = CodeListCode("BC17")
-  val BC35 = CodeListCode("BC35")
-  val BC36 = CodeListCode("BC36")
-  val BC37 = CodeListCode("BC37")
-  val BC41 = CodeListCode("BC41")
-  val BC66 = CodeListCode("BC66")
-  val E200 = CodeListCode("E200")
-  val BC106 = CodeListCode("BC106")
+object JobStatus {
+  given Writes[TriggerState] = {
+    case TriggerState.BLOCKED => JsString("RUNNING")
+    case TriggerState.NORMAL  => JsString("IDLE")
+    case other                => JsString(other.toString)
+  }
+
+  given Writes[JobStatus] = Json.writes[JobStatus]
 }

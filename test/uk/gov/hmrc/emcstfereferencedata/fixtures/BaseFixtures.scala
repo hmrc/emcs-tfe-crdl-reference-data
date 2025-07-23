@@ -17,20 +17,27 @@
 package uk.gov.hmrc.emcstfereferencedata.fixtures
 
 import uk.gov.hmrc.emcstfereferencedata.models.request.{CnInformationItem, CnInformationRequest}
-import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, Country, ExciseProductCode}
+import uk.gov.hmrc.emcstfereferencedata.models.response.{
+  CnCodeInformation,
+  Country,
+  ExciseProductCode
+}
 
 trait BaseFixtures {
 
-  val testErn: String = "SomeErn"
-  val testCredId: String = "cred1234567891"
-  val testInternalId: String = "int1234567891"
-  val testCnCode1: String = "24029000"
+  val testErn: String          = "SomeErn"
+  val testCredId: String       = "cred1234567891"
+  val testInternalId: String   = "int1234567891"
+  val testCnCode1: String      = "24029000"
   val testProductCode1: String = "T400"
-  val testCnCodeInformationItem1: CnInformationItem = CnInformationItem(productCode = testProductCode1, cnCode = testCnCode1)
-  val testCnCode2: String = "10000000"
+  val testCnCodeInformationItem1: CnInformationItem =
+    CnInformationItem(productCode = testProductCode1, cnCode = testCnCode1)
+  val testCnCode2: String      = "10000000"
   val testProductCode2: String = "S500"
-  val testCnCodeInformationItem2: CnInformationItem = CnInformationItem(productCode = testProductCode2, cnCode = testCnCode2)
-  val testCnCodeInformationRequest: CnInformationRequest = CnInformationRequest(items = Seq(testCnCodeInformationItem1, testCnCodeInformationItem2))
+  val testCnCodeInformationItem2: CnInformationItem =
+    CnInformationItem(productCode = testProductCode2, cnCode = testCnCode2)
+  val testCnCodeInformationRequest: CnInformationRequest =
+    CnInformationRequest(items = Seq(testCnCodeInformationItem1, testCnCodeInformationItem2))
   val testCnCodeInformation1: CnCodeInformation = CnCodeInformation(
     cnCode = "24029000",
     cnCodeDescription = "Cigars, cheroots, cigarillos and cigarettes not containing tobacco",
@@ -47,43 +54,53 @@ trait BaseFixtures {
   )
   val testCnCodeInformation3: CnCodeInformation = CnCodeInformation(
     cnCode = "27101944",
-    cnCodeDescription = "Other heavy gas oils for other purposes with a sulphur content not exceeding 0,001% by weight.",
+    cnCodeDescription =
+      "Other heavy gas oils for other purposes with a sulphur content not exceeding 0,001% by weight.",
     exciseProductCode = "E430",
-    exciseProductCodeDescription = "Gasoil, unmarked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
+    exciseProductCodeDescription =
+      "Gasoil, unmarked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
     unitOfMeasureCode = 2
   )
   val testCnCodeInformation4: CnCodeInformation = CnCodeInformation(
     cnCode = "27101944",
-    cnCodeDescription = "Other heavy gas oils for other purposes with a sulphur content not exceeding 0,001% by weight.",
+    cnCodeDescription =
+      "Other heavy gas oils for other purposes with a sulphur content not exceeding 0,001% by weight.",
     exciseProductCode = "E440",
-    exciseProductCodeDescription = "Gasoil, marked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
+    exciseProductCodeDescription =
+      "Gasoil, marked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
     unitOfMeasureCode = 2
   )
   val testCnCodeInformation5: CnCodeInformation = CnCodeInformation(
     cnCode = "27102019",
-    cnCodeDescription = "Gas oil with a sulphur content exceeding 0.1% by weight, containing biodiesel",
+    cnCodeDescription =
+      "Gas oil with a sulphur content exceeding 0.1% by weight, containing biodiesel",
     exciseProductCode = "E430",
-    exciseProductCodeDescription = "Gasoil, unmarked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
+    exciseProductCodeDescription =
+      "Gasoil, unmarked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
     unitOfMeasureCode = 2
   )
   val testCnCodeInformation6: CnCodeInformation = CnCodeInformation(
     cnCode = "27102019",
-    cnCodeDescription = "Gas oil with a sulphur content exceeding 0.1% by weight, containing biodiesel",
+    cnCodeDescription =
+      "Gas oil with a sulphur content exceeding 0.1% by weight, containing biodiesel",
     exciseProductCode = "E440",
-    exciseProductCodeDescription = "Gasoil, marked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
+    exciseProductCodeDescription =
+      "Gasoil, marked falling within CN codes 2710 19 42, 2710 19 44, 2710 19 46, 2710 19 47, 2710 19 48, 2710 20 11, 2710 20 16 and 2710 20 19 (Article 20(1)(c) of Directive 2003/96/EC)",
     unitOfMeasureCode = 2
   )
   val testExciseProduct1: ExciseProductCode = ExciseProductCode(
     code = "S500",
     description = "Other products containing ethyl alcohol",
     category = "S",
-    categoryDescription = "Ethyl alcohol and spirits"
+    categoryDescription = "Ethyl alcohol and spirits",
+    unitOfMeasureCode = 3
   )
   val testExciseProduct2: ExciseProductCode = ExciseProductCode(
     code = "T400",
     description = "Fine-cut tobacco for the rolling of cigarettes",
     category = "T",
-    categoryDescription = "Manufactured tobacco products"
+    categoryDescription = "Manufactured tobacco products",
+    unitOfMeasureCode = 1
   )
   val testWineOperations: Seq[String] = Seq(
     "4",
@@ -91,9 +108,9 @@ trait BaseFixtures {
     "9"
   )
   val testWineOperationsResult: Map[String, String] = Map(
-    "4" -> "The product has been sweetened",
+    "4"  -> "The product has been sweetened",
     "11" -> "The product has been partially dealcoholised",
-    "9" -> "The product has been made using oak chips"
+    "9"  -> "The product has been made using oak chips"
   )
   val memberStatesResult: Map[String, String] = Map(
     "AT" -> "Austria",
@@ -926,26 +943,26 @@ trait BaseFixtures {
   )
 
   val typesOfDocumentResult: Map[String, String] = Map(
-    "0" -> "Other",
-    "1" -> "e-AD",
-    "2" -> "SAAD or e-SAD",
-    "3" -> "Invoice",
-    "4" -> "Delivery note",
-    "5" -> "CMR",
-    "6" -> "Bill of lading",
-    "7" -> "Way Bill",
-    "8" -> "Contract",
-    "9" -> "Trader's Application",
-    "10" -> "Official record",
-    "11" -> "Request",
-    "12" -> "Answer",
-    "13" -> "Fallback documents, Fallback Printout",
-    "14" -> "Photo",
-    "15" -> "Export Declaration",
-    "16" -> "Anticipated Export Record",
-    "17" -> "Exit Results",
-    "18" -> "SAD (Single Administrative Document)",
-    "19" -> "Certificate of independent small producer of alcoholic beverages",
+    "0"    -> "Other",
+    "1"    -> "e-AD",
+    "2"    -> "SAAD or e-SAD",
+    "3"    -> "Invoice",
+    "4"    -> "Delivery note",
+    "5"    -> "CMR",
+    "6"    -> "Bill of lading",
+    "7"    -> "Way Bill",
+    "8"    -> "Contract",
+    "9"    -> "Trader's Application",
+    "10"   -> "Official record",
+    "11"   -> "Request",
+    "12"   -> "Answer",
+    "13"   -> "Fallback documents, Fallback Printout",
+    "14"   -> "Photo",
+    "15"   -> "Export Declaration",
+    "16"   -> "Anticipated Export Record",
+    "17"   -> "Exit Results",
+    "18"   -> "SAD (Single Administrative Document)",
+    "19"   -> "Certificate of independent small producer of alcoholic beverages",
     "A004" -> "Certificate of authenticity Tobacco",
     "C006" -> "Export permit (Council Decision (EU) 2017/37 (OJ L 11))",
     "C014" -> "V I 1 document",
