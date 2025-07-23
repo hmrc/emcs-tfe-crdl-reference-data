@@ -5,7 +5,7 @@ object AppDependencies {
 
   val playSuffix = "-play-30"
 
-  val hmrcBootstrapVersion = "9.16.0"
+  val hmrcBootstrapVersion = "9.18.0"
   val hmrcMongoVersion     = "2.6.0"
   val scalamockVersion     = "7.4.0"
   val catsCoreVersion      = "2.13.0"
