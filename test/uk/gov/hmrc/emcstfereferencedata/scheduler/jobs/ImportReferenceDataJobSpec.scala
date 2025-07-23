@@ -158,13 +158,15 @@ class ImportReferenceDataJobSpec
       "B000",
       "Beer",
       "B",
-      "Beer"
+      "Beer",
+      unitOfMeasureCode = 3
     ),
     ExciseProductCode(
       "I000",
       "Intermediate products",
       "I",
-      "Intermediate products"
+      "Intermediate products",
+      unitOfMeasureCode = 3
     )
   )
 
