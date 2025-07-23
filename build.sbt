@@ -11,7 +11,7 @@ lazy val microservice = (project in file("."))
   .settings(
     name := appName,
     libraryDependencies ++= AppDependencies(),
-    PlayKeys.playDefaultPort := 8312,
+    PlayKeys.playDefaultPort := 8321,
     // Change classloader layering to avert classloading issues
     Compile / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat,
     scalacOptions ++= Seq(
