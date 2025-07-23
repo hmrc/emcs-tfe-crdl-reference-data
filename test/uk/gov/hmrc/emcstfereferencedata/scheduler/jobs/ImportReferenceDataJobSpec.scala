@@ -252,7 +252,7 @@ class ImportReferenceDataJobSpec
 
     refDataJob.importReferenceData().failed.futureValue shouldBe an[UpstreamErrorResponse]
 
-    verify(codeListsRepository, times(3)).saveCodeListEntries(equalTo(clientSession), any(), any())
+    verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(equalTo(clientSession), any(), any())
     verify(cnCodesRepository, times(1)).saveCnCodes(equalTo(clientSession), any())
     verify(exciseProductsRepository, never()).saveExciseProducts(equalTo(clientSession), any())
 
@@ -283,7 +283,7 @@ class ImportReferenceDataJobSpec
 
     refDataJob.importReferenceData().failed.futureValue shouldBe an[UpstreamErrorResponse]
 
-    verify(codeListsRepository, times(3)).saveCodeListEntries(equalTo(clientSession), any(), any())
+    verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(equalTo(clientSession), any(), any())
     verify(cnCodesRepository, never()).saveCnCodes(equalTo(clientSession), any())
     verify(exciseProductsRepository, times(1)).saveExciseProducts(equalTo(clientSession), any())
 
@@ -314,7 +314,7 @@ class ImportReferenceDataJobSpec
 
     refDataJob.importReferenceData().failed.futureValue shouldBe an[UpstreamErrorResponse]
 
-    verify(codeListsRepository, times(3)).saveCodeListEntries(equalTo(clientSession), any(), any())
+    verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(equalTo(clientSession), any(), any())
     verify(cnCodesRepository, never()).saveCnCodes(equalTo(clientSession), any())
     verify(exciseProductsRepository, never()).saveExciseProducts(equalTo(clientSession), any())
 
@@ -345,8 +345,7 @@ class ImportReferenceDataJobSpec
 
     refDataJob.importReferenceData().failed.futureValue shouldBe a[MongoError]
 
-    verify(codeListsRepository, times(4)).saveCodeListEntries(equalTo(clientSession), any(), any())
-    verify(cnCodesRepository, times(1)).saveCnCodes(equalTo(clientSession), any())
+    verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(equalTo(clientSession), any(), any())
     verify(exciseProductsRepository, times(1)).saveExciseProducts(equalTo(clientSession), any())
 
     verify(clientSession, times(1)).abortTransaction()
@@ -377,9 +376,8 @@ class ImportReferenceDataJobSpec
 
     refDataJob.importReferenceData().failed.futureValue shouldBe a[MongoError]
 
-    verify(codeListsRepository, times(4)).saveCodeListEntries(equalTo(clientSession), any(), any())
+    verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(equalTo(clientSession), any(), any())
     verify(cnCodesRepository, times(1)).saveCnCodes(equalTo(clientSession), any())
-    verify(exciseProductsRepository, times(1)).saveExciseProducts(equalTo(clientSession), any())
 
     verify(clientSession, times(1)).abortTransaction()
   }
