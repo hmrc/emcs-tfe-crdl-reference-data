@@ -22,8 +22,13 @@ case class CodeListCode(value: String) extends AnyVal
 
 object CodeListCode {
   given Format[CodeListCode] = Json.valueFormat[CodeListCode]
-  val BC36: CodeListCode = CodeListCode("BC36")
-  val BC37: CodeListCode = CodeListCode("BC37")
-  val BC66: CodeListCode = CodeListCode("BC66")
-  val E200: CodeListCode = CodeListCode("E200")
+  val BC36 = CodeListCode("BC36")
+  val BC37 = CodeListCode("BC37")
+  val BC66 = CodeListCode("BC66")
+  val E200 = CodeListCode("E200")
+  val BC41 = CodeListCode("BC41")
+  val BC08 = CodeListCode("BC08")
+  val BC106 = CodeListCode("BC106")
+  val BC35 = CodeListCode("BC35")
+  val BC11 = CodeListCode("BC11")
 }
