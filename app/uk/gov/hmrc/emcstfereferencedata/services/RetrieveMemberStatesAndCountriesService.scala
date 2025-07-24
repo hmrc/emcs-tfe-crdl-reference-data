@@ -27,25 +27,31 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RetrieveMemberStatesAndCountriesService @Inject()(connector: RetrieveOtherReferenceDataConnector) extends Logging {
+class RetrieveMemberStatesAndCountriesService @Inject() (
+  connector: RetrieveOtherReferenceDataConnector
+) extends Logging {
 
-  def get()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Seq[Country]]] = {
-    val memberStatesAndCountriesResult: Future[Either[ErrorResponse, Map[String, String]]] = (for {
+  def get()(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[Either[ErrorResponse, Seq[Country]]] = {
+    val memberStatesAndCountriesResult = for {
       memberStates <- EitherT(connector.retrieveMemberStates())
-      countries <- EitherT(connector.retrieveCountries())
+      countries    <- EitherT(connector.retrieveCountries())
     } yield {
       val memberStatesAndCountries: Map[String, String] = memberStates ++ countries
-      memberStatesAndCountries.map {
-        case (k, v) => (k, StringUtils.addSmartQuotes(v))
+      memberStatesAndCountries.map { case (k, v) =>
+        (k, StringUtils.addSmartQuotes(v))
       }
-    }).value
+    }
 
-    memberStatesAndCountriesResult.map {
-      case Left(value) => Left(value)
-      case Right(countries) if countries.nonEmpty => Right(Country(countries).sortBy(_.country))
-      case _ =>
+    memberStatesAndCountriesResult.subflatMap { countries =>
+      if (countries.nonEmpty) {
+        Right(Country(countries).sortBy(_.country))
+      } else {
         logger.warn(s"No data returned for member states or countries")
         Left(NoDataReturnedFromDatabaseError)
-    }
+      }
+    }.value
   }
 }

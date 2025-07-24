@@ -40,17 +40,15 @@ class RetrieveCnCodeInformationService @Inject()(
     val cnCodeConnectorRequest = cnInformationRequest.copy(items = cnInformationRequest.items.filterNot(item => productCodesWithoutCnCode.contains(item.productCode)))
     val productCodesConnectorRequest = cnInformationRequest.copy(items = cnInformationRequest.items.filter(item => productCodesWithoutCnCode.contains(item.productCode)))
 
-    val cnCodeConnectorResultF: Future[Either[ErrorResponse, Map[String, CnCodeInformation]]] = cnCodeConnector.retrieveCnCodeInformation(cnCodeConnectorRequest)
-    val productCodesConnectorResultF: Future[Either[ErrorResponse, Map[String, CnCodeInformation]]] = productCodesConnector.retrieveProductCodes(productCodesConnectorRequest)
+    val cnCodeConnectorResultF = cnCodeConnector.retrieveCnCodeInformation(cnCodeConnectorRequest)
+    val productCodesConnectorResultF = productCodesConnector.retrieveProductCodes(productCodesConnectorRequest)
 
-    val res: Future[Either[ErrorResponse, Map[String, CnCodeInformation]]] = (for {
+    val result = for {
       cnCodeConnectorResult <- EitherT(cnCodeConnectorResultF)
       productCodesConnectorResult <- EitherT(productCodesConnectorResultF)
-    } yield {
-      cnCodeConnectorResult ++ productCodesConnectorResult
-    }).value
+    } yield cnCodeConnectorResult ++ productCodesConnectorResult
 
-    res
+    result.value
   }
 
 }
