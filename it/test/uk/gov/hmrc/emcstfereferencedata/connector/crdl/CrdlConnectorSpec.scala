@@ -106,6 +106,22 @@ class CrdlConnectorSpec
         .map(_ shouldBe exciseProductCategories)
     }
 
+    "supply a query parameter to filter the keys of entries when keys are provided for filtering" in {
+      stubFor(
+        get(urlPathEqualTo("/crdl-cache/lists/BC66"))
+          .withQueryParam("keys", equalTo("E,I,S"))
+          .willReturn(
+            ok()
+              .withHeader(HeaderNames.CONTENT_TYPE, ContentTypes.JSON)
+              .withBody(Json.stringify(Json.toJson(exciseProductCategories)))
+          )
+      )
+
+      connector
+        .fetchCodeList(CodeListCode.BC66, filterKeys = Some(Set("E", "I", "S")))
+        .map(_ shouldBe exciseProductCategories)
+    }
+
     "retry issuing the request when the upstream service returns a server error" in {
       val retrySuccess = "RetrySuccess"
       val failedState  = "Failed"

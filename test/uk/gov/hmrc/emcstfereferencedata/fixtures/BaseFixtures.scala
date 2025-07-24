@@ -102,7 +102,7 @@ trait BaseFixtures {
     categoryDescription = "Manufactured tobacco products",
     unitOfMeasureCode = 1
   )
-  val testWineOperations: Seq[String] = Seq(
+  val testWineOperations: Set[String] = Set(
     "4",
     "11",
     "9"

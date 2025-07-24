@@ -36,7 +36,7 @@ class RetrieveWineOperationsController @Inject() (
   with AuthActionHelper {
 
   def showAllWineOperations: Action[AnyContent] = authorisedUserGetRequest { implicit request =>
-    service.retrieveWineOperations().map {
+    service.retrieveWineOperations(wineOperations = None).map {
       case Right(response) =>
         Ok(Json.toJson(response))
       case Left(error) =>
@@ -44,9 +44,9 @@ class RetrieveWineOperationsController @Inject() (
     }
   }
 
-  def show: Action[Seq[String]] = authorisedUserPostRequest(Reads.of[Seq[String]]) {
+  def show: Action[Set[String]] = authorisedUserPostRequest(Reads.of[Set[String]]) {
     implicit request =>
-      service.retrieveWineOperations(request.body).map {
+      service.retrieveWineOperations(wineOperations = Some(request.body)).map {
         case Right(response) =>
           Ok(Json.toJson(response))
         case Left(error) =>

@@ -30,12 +30,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class RetrieveWineOperationsService @Inject() (connector: RetrieveOtherReferenceDataConnector)
   extends Logging {
 
-  def retrieveWineOperations()(implicit
+  def retrieveWineOperations(wineOperations: Option[Set[String]])(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): Future[Either[ErrorResponse, Map[String, String]]] = {
     connector
-      .retrieveWineOperations(filterKeys = None)
+      .retrieveWineOperations(filterKeys = wineOperations)
       .map(_.flatMap { wineOperations =>
         if (wineOperations.nonEmpty) {
           Right(wineOperations)
@@ -45,21 +45,4 @@ class RetrieveWineOperationsService @Inject() (connector: RetrieveOtherReference
         }
       })
   }
-
-  def retrieveWineOperations(wineOperationsList: Seq[String])(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext
-  ): Future[Either[ErrorResponse, Map[String, String]]] = {
-    connector
-      .retrieveWineOperations(filterKeys = Some(wineOperationsList.toSet))
-      .map(_.flatMap { wineOperations =>
-        if (wineOperations.nonEmpty) {
-          Right(wineOperations)
-        } else {
-          logger.warn(s"No data returned for all wine operations")
-          Left(NoDataReturnedFromDatabaseError)
-        }
-      })
-  }
-
 }
