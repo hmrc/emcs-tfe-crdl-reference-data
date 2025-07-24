@@ -37,37 +37,38 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 
 @DisallowConcurrentExecution
-class ImportReferenceDataJob @Inject() (
-  val mongoComponent: MongoComponent,
-  val lockRepository: MongoLockRepository,
-  crdlConnector: CrdlConnector,
-  codeListsRepository: CodeListsRepository,
-  cnCodesRepository: CnCodesRepository,
-  exciseProductsRepository: ExciseProductsRepository
-)(using ec: ExecutionContext)
+class ImportReferenceDataJob @Inject()(
+                                        val mongoComponent: MongoComponent,
+                                        val lockRepository: MongoLockRepository,
+                                        crdlConnector: CrdlConnector,
+                                        codeListsRepository: CodeListsRepository,
+                                        cnCodesRepository: CnCodesRepository,
+                                        exciseProductsRepository: ExciseProductsRepository
+                                      )(using ec: ExecutionContext)
   extends Job
-  with LockService
-  with Logging
-  with Transactions {
+    with LockService
+    with Logging
+    with Transactions {
 
   private val jobName = "import-reference-data"
-  private val hc      = HeaderCarrier()
+
+  given HeaderCarrier = HeaderCarrier()
 
   given TransactionConfiguration = TransactionConfiguration.strict
 
   override val lockId: String = jobName
-  override val ttl: Duration  = 1.hour
+  override val ttl: Duration = 1.hour
 
   private def refreshCodeListEntries(session: ClientSession, codeListCode: CodeListCode) =
     for {
-      entries <- crdlConnector.fetchCodeList(codeListCode, filterKeys = None)(using hc, ec)
-      _       <- codeListsRepository.saveCodeListEntries(session, codeListCode, entries)
+      entries <- crdlConnector.fetchCodeList(codeListCode, filterKeys = None, filterProperties = None)
+      _ <- codeListsRepository.saveCodeListEntries(session, codeListCode, entries)
     } yield ()
 
   private def rebuildExciseProducts(
-    session: ClientSession,
-    saveExciseProducts: Future[Unit]
-  ): Future[Unit] = {
+                                     session: ClientSession,
+                                     saveExciseProducts: Future[Unit]
+                                   ): Future[Unit] = {
     val saveProductCategories = refreshCodeListEntries(session, BC66)
 
     for {
@@ -76,16 +77,16 @@ class ImportReferenceDataJob @Inject() (
       _ <- saveProductCategories
 
       exciseProducts <- codeListsRepository.buildExciseProducts(session)
-      _              <- exciseProductsRepository.saveExciseProducts(session, exciseProducts)
+      _ <- exciseProductsRepository.saveExciseProducts(session, exciseProducts)
 
     } yield ()
   }
 
   private def rebuildCnCodes(
-    session: ClientSession,
-    saveExciseProducts: Future[Unit]
-  ): Future[Unit] = {
-    val saveCnCodes         = refreshCodeListEntries(session, BC37)
+                              session: ClientSession,
+                              saveExciseProducts: Future[Unit]
+                            ): Future[Unit] = {
+    val saveCnCodes = refreshCodeListEntries(session, BC37)
     val saveCorrespondences = refreshCodeListEntries(session, E200)
 
     for {
@@ -95,7 +96,7 @@ class ImportReferenceDataJob @Inject() (
       _ <- saveCnCodes
 
       cnCodeInfo <- codeListsRepository.buildCnCodes(session)
-      _          <- cnCodesRepository.saveCnCodes(session, cnCodeInfo)
+      _ <- cnCodesRepository.saveCnCodes(session, cnCodeInfo)
 
     } yield ()
   }
@@ -104,8 +105,8 @@ class ImportReferenceDataJob @Inject() (
     val importRefData = withSessionAndTransaction { session =>
       // BC36 data is used by both of the derived collections
       val saveExciseProducts = refreshCodeListEntries(session, BC36)
-      val cnCodes            = rebuildCnCodes(session, saveExciseProducts)
-      val exciseProducts     = rebuildExciseProducts(session, saveExciseProducts)
+      val cnCodes = rebuildCnCodes(session, saveExciseProducts)
+      val exciseProducts = rebuildExciseProducts(session, saveExciseProducts)
       cnCodes.zip(exciseProducts).map(_ => ())
     }
 

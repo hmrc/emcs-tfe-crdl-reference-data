@@ -20,7 +20,7 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.emcstfereferencedata.models.response.PackagingType
 
 trait PackagingTypeFixtures {
-  val testPackagingTypes: Seq[String] = Seq(
+  val testPackagingTypes: Set[String] = Set(
     "VP",
     "NE",
     "TO"

@@ -45,7 +45,7 @@ class RetrievePackagingTypesController @Inject() (
       }
     }
 
-  def show: Action[Seq[String]] = authorisedUserPostRequest(Reads.of[Seq[String]]) {
+  def show: Action[Set[String]] = authorisedUserPostRequest(Reads.of[Set[String]]) {
     implicit request =>
       service.retrievePackagingTypes(request.body).map {
         case Right(response) =>

@@ -35,56 +35,54 @@ import uk.gov.hmrc.emcstfereferencedata.connector.crdl.CrdlConnector
 
 class RetrievePackagingTypesConnectorCRDLSpec
   extends AnyWordSpec
-  with Matchers
-  with ScalaFutures
-  with MockitoSugar {
+    with Matchers
+    with ScalaFutures
+    with MockitoSugar {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val httpClient: HttpClientV2     = mock[HttpClientV2]
-  val config: AppConfig            = mock[AppConfig]
+  val httpClient: HttpClientV2 = mock[HttpClientV2]
+  val config: AppConfig = mock[AppConfig]
   val crdlConnector: CrdlConnector = mock[CrdlConnector]
 
   val connector = new RetrievePackagingTypesConnectorCRDL(httpClient, config, crdlConnector)
+  val crdlEntries = List(
+    CrdlCodeListEntry(
+      key = "1A",
+      value = "Drum, steel",
+      properties = Json.obj(
+        "countableFlag" -> true,
+        "actionIdentification" -> "1236"
+      )
+    ),
+    CrdlCodeListEntry(
+      key = "1B",
+      value = "Drum, aluminium",
+      properties = Json.obj("countableFlag" -> true, "actionIdentification" -> "1237")
+    ),
+    CrdlCodeListEntry(
+      key = "NE",
+      value = "Unpacked or unpackaged",
+      properties = Json.obj("countableFlag" -> false, "actionIdentification" -> "1421")
+    ),
+    CrdlCodeListEntry(
+      key = "AE",
+      value = "Aerosol",
+      properties = Json.obj("countableFlag" -> true, "actionIdentification" -> "1268")
+    ),
+    CrdlCodeListEntry(
+      key = "AM",
+      value = "Ampoule, non protected",
+      properties = Json.obj("countableFlag" -> true, "actionIdentification" -> "1275")
+    )
+  )
 
   "RetrievePackagingTypesConnectorCRDL" should {
-    "return a Right(Map) when CrdlConnector returns valid entries" in {
-
-      val crdlEntries = List(
-        CrdlCodeListEntry(
-          key = "1A",
-          value = "Drum, steel",
-          properties = Json.obj(
-            "countableFlag"        -> true,
-            "actionIdentification" -> "1236"
-          )
-        ),
-        CrdlCodeListEntry(
-          key = "1B",
-          value = "Drum, aluminium",
-          properties = Json.obj("countableFlag" -> true, "actionIdentification" -> "1237")
-        ),
-        CrdlCodeListEntry(
-          key = "NE",
-          value = "Unpacked or unpackaged",
-          properties = Json.obj("countableFlag" -> false, "actionIdentification" -> "1421")
-        ),
-        CrdlCodeListEntry(
-          key = "AE",
-          value = "Aerosol",
-          properties = Json.obj("countableFlag" -> true, "actionIdentification" -> "1268")
-        ),
-        CrdlCodeListEntry(
-          key = "AM",
-          value = "Ampoule, non protected",
-          properties = Json.obj("countableFlag" -> true, "actionIdentification" -> "1275")
-        )
-      )
-
-      when(crdlConnector.fetchCodeList(any(), equalTo(None))(using any(), any()))
+    "return a Right(Map) when CrdlConnector returns valid entries and isCountable parameter is not provided" in {
+      when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(None))(using any(), any()))
         .thenReturn(Future.successful(crdlEntries))
 
-      val result = connector.retrievePackagingTypes().futureValue
+      val result = connector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = None).futureValue
 
       result shouldBe Right(
         Map(
@@ -97,6 +95,24 @@ class RetrievePackagingTypesConnectorCRDLSpec
       )
     }
 
+    "return a Right(Map) when CrdlConnector returns valid entries and isCountable parameter is true" in {
+      when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(Some(Map("countableFlag"->true))))(using any(), any()))
+        .thenReturn(Future.successful(crdlEntries))
+
+      val result = connector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(true)).futureValue
+
+      result shouldBe a[Right[_,_]]
+    }
+
+    "return a Right(Map) when CrdlConnector returns valid entries and isCountable parameter is false" in {
+      when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(Some(Map("countableFlag"->false))))(using any(), any()))
+        .thenReturn(Future.successful(crdlEntries))
+
+      val result = connector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(false)).futureValue
+
+      result shouldBe a[Right[_,_]]
+    }
+
     "return a Left(ErrorResponse) when property json object empty" in {
 
       val noCountableFlagEntry = CrdlCodeListEntry(
@@ -105,10 +121,10 @@ class RetrievePackagingTypesConnectorCRDLSpec
         properties = Json.obj()
       )
 
-      when(crdlConnector.fetchCodeList(any(), equalTo(None))(using any(), any()))
+      when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(None))(using any(), any()))
         .thenReturn(Future.successful(List(noCountableFlagEntry)))
 
-      val result = connector.retrievePackagingTypes().futureValue
+      val result = connector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = None).futureValue
 
       result shouldBe Left(ErrorResponse.JsonValidationError)
     }
@@ -122,21 +138,22 @@ class RetrievePackagingTypesConnectorCRDLSpec
       properties = Json.obj("otherFlag" -> false, "actionIdentification" -> "1237")
     )
 
-    when(crdlConnector.fetchCodeList(any(), equalTo(None))(using any(), any()))
+    when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(None))(using any(), any()))
       .thenReturn(Future.successful(List(unexpectedPropertiesEntries)))
 
-    val result = connector.retrievePackagingTypes().futureValue
+    val result = connector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = None).futureValue
 
     result shouldBe Left(ErrorResponse.JsonValidationError)
   }
 
   "return a Left(ErrorResponse) when unable to receive data from crdl-cache" in {
 
-    when(crdlConnector.fetchCodeList(any(), equalTo(None))(using any(), any()))
+    when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(None))(using any(), any()))
       .thenReturn(Future.failed(UpstreamErrorResponse("Service unavailable", 503)))
 
-    val result = connector.retrievePackagingTypes().futureValue
+    val result = connector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = None).futureValue
 
     result shouldBe Left(ErrorResponse.UnexpectedDownstreamResponseError)
   }
+
 }

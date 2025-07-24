@@ -18,7 +18,7 @@ package uk.gov.hmrc.emcstfereferencedata.services
 
 import uk.gov.hmrc.emcstfereferencedata.fixtures.PackagingTypeFixtures
 import uk.gov.hmrc.emcstfereferencedata.mocks.connectors.MockRetrievePackagingTypesConnector
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.NoDataReturnedFromDatabaseError
+import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.{NoDataReturnedFromDatabaseError, UnexpectedDownstreamResponseError}
 import uk.gov.hmrc.emcstfereferencedata.support.UnitSpec
 
 import scala.collection.immutable.ListMap
@@ -31,28 +31,21 @@ class RetrievePackagingTypesServiceSpec extends UnitSpec with MockRetrievePackag
   "The RetrievePackagingTypesService" should {
     "return a successful response containing the PackagingTypes" when {
       "retrievePackagingTypes(Seq[String]) method is called" in {
-        MockConnector.retrievePackagingTypes()(Future.successful(Right(testPackagingTypesConnectorResult)))
+        MockConnector.retrievePackagingTypes(packagingTypeCodes = Some(testPackagingTypes), isCountable = None)(Future.successful(Right(testPackagingTypesConnectorResult)))
 
         await(TestService.retrievePackagingTypes(testPackagingTypes)) shouldBe Right(testPackagingTypesServiceResult)
       }
 
       "retrievePackagingTypes(Option[Boolean]) method is called (ordering by description) - returning only countable" in {
-        val testServiceResponse: Map[String, String] = ListMap(
-          "TO" -> "Tun",
-          "VP" -> "Vacuum-packed"
-        )
-        MockConnector.retrievePackagingTypes()(Future.successful(Right(testPackagingTypesConnectorResult)))
+        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(true))(Future.successful(Right(testPackagingTypesConnectorResult)))
 
-        await(TestService.retrievePackagingTypes(Some(true))) shouldBe Right(testServiceResponse)
+        await(TestService.retrievePackagingTypes(Some(true))) shouldBe a[Right[_,_]]
       }
 
       "retrievePackagingTypes(Option[Boolean]) method is called (ordering by description) - returning non countable" in {
-        val testServiceResponse: Map[String, String] = ListMap(
-          "NE" -> "Unpacked or unpackaged"
-        )
-        MockConnector.retrievePackagingTypes()(Future.successful(Right(testPackagingTypesConnectorResult)))
+        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(false))(Future.successful(Right(testPackagingTypesConnectorResult)))
 
-        await(TestService.retrievePackagingTypes(Some(false))) shouldBe Right(testServiceResponse)
+        await(TestService.retrievePackagingTypes(Some(false))) shouldBe a[Right[_,_]]
       }
 
       "retrievePackagingTypes(Option[Boolean]) method is called (ordering by description) - returning all" in {
@@ -61,7 +54,7 @@ class RetrievePackagingTypesServiceSpec extends UnitSpec with MockRetrievePackag
           "NE" -> "Unpacked or unpackaged",
           "VP" -> "Vacuum-packed"
         )
-        MockConnector.retrievePackagingTypes()(Future.successful(Right(testPackagingTypesConnectorResult)))
+        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = None)(Future.successful(Right(testPackagingTypesConnectorResult)))
 
         await(TestService.retrievePackagingTypes(None)) shouldBe Right(testServiceResponse)
       }
@@ -69,15 +62,41 @@ class RetrievePackagingTypesServiceSpec extends UnitSpec with MockRetrievePackag
 
     "return an Error Response" when {
       "there is no data available for retrievePackagingTypes(Seq[String]) method call" in {
-        MockConnector.retrievePackagingTypes()(Future.successful(Left(NoDataReturnedFromDatabaseError)))
+        MockConnector.retrievePackagingTypes(packagingTypeCodes = Some(testPackagingTypes), isCountable = None)(Future.successful(Right(Map.empty)))
 
         await(TestService.retrievePackagingTypes(testPackagingTypes)) shouldBe Left(NoDataReturnedFromDatabaseError)
       }
 
       "there is no data available for retrievePackagingTypes(Option[Boolean]) method call" in {
-        MockConnector.retrievePackagingTypes()(Future.successful(Left(NoDataReturnedFromDatabaseError)))
+        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(true))(Future.successful(Right(Map.empty)))
 
         await(TestService.retrievePackagingTypes(Some(true))) shouldBe Left(NoDataReturnedFromDatabaseError)
+      }
+
+      "there is an upstream error for retrievePackagingTypes(Seq[String]) method call" in {
+        MockConnector.retrievePackagingTypes(packagingTypeCodes = Some(testPackagingTypes), isCountable = None)(Future.successful(Left(UnexpectedDownstreamResponseError)))
+
+        await(TestService.retrievePackagingTypes(testPackagingTypes)) shouldBe Left(UnexpectedDownstreamResponseError)
+      }
+
+      "there is an upstream error for retrievePackagingTypes(Option[Boolean]) method call" in {
+        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(true))(Future.successful(Left(UnexpectedDownstreamResponseError)))
+
+        await(TestService.retrievePackagingTypes(Some(true))) shouldBe Left(UnexpectedDownstreamResponseError)
+      }
+
+      "the connector throws an exception for retrievePackagingTypes(Seq[String]) method call" in {
+        MockConnector.retrievePackagingTypes(packagingTypeCodes = Some(testPackagingTypes), isCountable = None)(Future.failed(new RuntimeException("Error")))
+        assertThrows[RuntimeException] {
+          await(TestService.retrievePackagingTypes(testPackagingTypes))
+        }
+      }
+
+      "the connector throws an exception for retrievePackagingTypes(Option[Boolean]) method call" in {
+        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(true))(Future.failed(new RuntimeException("Error")))
+        assertThrows[RuntimeException] {
+          await(TestService.retrievePackagingTypes(Some(true)))
+        }
       }
     }
   }

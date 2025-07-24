@@ -22,7 +22,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 
 trait RetrievePackagingTypesConnector {
-  def retrievePackagingTypes()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Map[String, PackagingType]]]
+  def retrievePackagingTypes(packagingTypeCodes: Option[Set[String]], isCountable: Option[Boolean])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Map[String, PackagingType]]]
 }
 
 object RetrievePackagingTypesConnector {

@@ -30,28 +30,29 @@ import scala.concurrent.{ExecutionContext, Future}
 import java.net.URL
 
 @Singleton
-class CrdlConnector @Inject() (config: AppConfig, httpClient: HttpClientV2)(using
-  system: ActorSystem
+class CrdlConnector @Inject()(config: AppConfig, httpClient: HttpClientV2)(using
+                                                                           system: ActorSystem
 ) extends Retries {
   override protected def actorSystem: ActorSystem = system
-  override protected def configuration: Config    = config.config.underlying
+
+  override protected def configuration: Config = config.config.underlying
 
   private val throwOnFailureReads = throwOnFailure(readEitherOf[List[CrdlCodeListEntry]])
-  private val crdlCacheUrl        = url"${config.crdlCacheUrl}/${config.crdlCachePath.split('/')}"
+  private val crdlCacheUrl = url"${config.crdlCacheUrl}/${config.crdlCachePath.split('/')}"
 
-  private def urlFor(code: CodeListCode, filterKeys: Option[Set[String]]): URL =
-    filterKeys
-      .map { keys =>
-        url"$crdlCacheUrl/${code.value}?keys=${keys.mkString(",")}"
-      }
-      .getOrElse {
-        url"$crdlCacheUrl/${code.value}"
-      }
+  private def urlFor(code: CodeListCode, filterKeys: Option[Set[String]], filterProperties: Option[Map[String, Any]]): URL =
+    (filterKeys, filterProperties) match {
+      case (Some(keys), Some(properties)) => url"$crdlCacheUrl/${code.value}?keys=${keys.mkString(",")}&$properties"
+      case (Some(keys), None) => url"$crdlCacheUrl/${code.value}?keys=${keys.mkString(",")}"
+      case (None, Some(properties)) => url"$crdlCacheUrl/${code.value}?$properties"
+      case (None, None) => url"$crdlCacheUrl/${code.value}"
+    }
 
   def fetchCodeList(
-    code: CodeListCode,
-    filterKeys: Option[Set[String]]
-  )(using hc: HeaderCarrier, ec: ExecutionContext): Future[List[CrdlCodeListEntry]] = {
+                     code: CodeListCode,
+                     filterKeys: Option[Set[String]],
+                     filterProperties: Option[Map[String, Any]]
+                   )(using hc: HeaderCarrier, ec: ExecutionContext): Future[List[CrdlCodeListEntry]] = {
     retryFor(s"fetch of codelist entries for ${code.value}") {
       // No point in retrying if our request is wrong
       case Upstream4xxResponse(_) => false
@@ -59,7 +60,7 @@ class CrdlConnector @Inject() (config: AppConfig, httpClient: HttpClientV2)(usin
       case Upstream5xxResponse(_) => true
     } {
       httpClient
-        .get(urlFor(code, filterKeys))
+        .get(urlFor(code, filterKeys, filterProperties))
         .execute[List[CrdlCodeListEntry]](using throwOnFailureReads, ec)
     }
   }

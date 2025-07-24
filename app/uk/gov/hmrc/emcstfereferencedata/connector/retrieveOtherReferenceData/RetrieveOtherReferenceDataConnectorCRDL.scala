@@ -35,7 +35,7 @@ class RetrieveOtherReferenceDataConnectorCRDL @Inject() (
     ec: ExecutionContext
   ): Future[Either[ErrorResponse, Map[String, String]]] =
     connector
-      .fetchCodeList(typeName.codeListCode, filterKeys)
+      .fetchCodeList(typeName.codeListCode, filterKeys, filterProperties = None)
       .map { codeListEntries =>
         val mappedEntries: Map[String, String] =
           codeListEntries.map(entry => entry.key -> entry.value).toMap

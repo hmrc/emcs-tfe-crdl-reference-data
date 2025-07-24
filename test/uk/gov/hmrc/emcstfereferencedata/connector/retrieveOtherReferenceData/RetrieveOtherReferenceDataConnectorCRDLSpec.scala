@@ -53,7 +53,7 @@ class RetrieveOtherReferenceDataConnectorCRDLSpec
     "given a typeName return a map of transportUnits in key and value pairs" in {
       val codeListEntrySeq = convertToCrdlCodeListEntrySeq(transportUnitsResult)
 
-      when(crdlConnector.fetchCodeList(any(), equalTo(None))(using any(), any()))
+      when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(None))(using any(), any()))
         .thenReturn(Future.successful(codeListEntrySeq))
 
       connector
@@ -63,7 +63,7 @@ class RetrieveOtherReferenceDataConnectorCRDLSpec
     }
 
     "given an invalid codelist code return a empty list" in {
-      when(crdlConnector.fetchCodeList(any(), equalTo(None))(using any(), any()))
+      when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(None))(using any(), any()))
         .thenReturn(Future.successful(Seq.empty))
 
       connector
@@ -73,7 +73,7 @@ class RetrieveOtherReferenceDataConnectorCRDLSpec
     }
 
     "when there is an error fetching data return an error response" in {
-      when(crdlConnector.fetchCodeList(any(), equalTo(None))(using any(), any()))
+      when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(None))(using any(), any()))
         .thenReturn(Future.failed(new RuntimeException("Simulated failure")))
 
       connector
@@ -85,7 +85,7 @@ class RetrieveOtherReferenceDataConnectorCRDLSpec
     "given a typeName WineOperations return a map of wineOperations in key and value pairs" in {
       val codeListEntrySeq = convertToCrdlCodeListEntrySeq(testWineOperationsResult)
 
-      when(crdlConnector.fetchCodeList(any(), equalTo(None))(using any(), any()))
+      when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(None))(using any(), any()))
         .thenReturn(Future.successful(codeListEntrySeq))
 
       connector
@@ -97,7 +97,7 @@ class RetrieveOtherReferenceDataConnectorCRDLSpec
     "given a typeName MemberStates return a map of memberStates in key and value pairs" in {
       val codeListEntrySeq = convertToCrdlCodeListEntrySeq(memberStatesResult)
 
-      when(crdlConnector.fetchCodeList(any(), equalTo(None))(using any(), any()))
+      when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(None))(using any(), any()))
         .thenReturn(Future.successful(codeListEntrySeq))
 
       connector.retrieveMemberStates().map(_ shouldBe Right(memberStatesResult))
@@ -108,7 +108,7 @@ class RetrieveOtherReferenceDataConnectorCRDLSpec
     "given a typeName Countries return a map of countries in key and value pairs" in {
       val codeListEntrySeq = convertToCrdlCodeListEntrySeq(countriesResult)
 
-      when(crdlConnector.fetchCodeList(any(), equalTo(None))(using any(), any()))
+      when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(None))(using any(), any()))
         .thenReturn(Future.successful(codeListEntrySeq))
 
       connector.retrieveCountries().map(_ shouldBe Right(countriesResult))
@@ -119,7 +119,7 @@ class RetrieveOtherReferenceDataConnectorCRDLSpec
     "given a typeName TransportUnits return a map of transportUnits in key and value pairs" in {
       val codeListEntrySeq = convertToCrdlCodeListEntrySeq(transportUnitsResult)
 
-      when(crdlConnector.fetchCodeList(any(), equalTo(None))(using any(), any()))
+      when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(None))(using any(), any()))
         .thenReturn(Future.successful(codeListEntrySeq))
 
       connector.retrieveTransportUnits().map(_ shouldBe Right(transportUnitsResult))
@@ -130,7 +130,7 @@ class RetrieveOtherReferenceDataConnectorCRDLSpec
     "given a typeName TypeOfDocument return a map of typeOfDocument in key and value pairs" in {
       val codeListEntrySeq = convertToCrdlCodeListEntrySeq(typesOfDocumentResult)
 
-      when(crdlConnector.fetchCodeList(any(), equalTo(None))(using any(), any()))
+      when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(None))(using any(), any()))
         .thenReturn(Future.successful(codeListEntrySeq))
 
       connector.retrieveTypesOfDocument().map(_ shouldBe Right(typesOfDocumentResult))
