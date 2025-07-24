@@ -24,28 +24,29 @@ import uk.gov.hmrc.http.HeaderCarrier
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class RetrieveOtherReferenceDataConnectorCRDL @Inject()(
-                                                         connector: CrdlConnector
-                                                       ) extends RetrieveOtherReferenceDataConnector {
+class RetrieveOtherReferenceDataConnectorCRDL @Inject() (
+  connector: CrdlConnector
+) extends RetrieveOtherReferenceDataConnector {
   lazy val logger: Logger = Logger(this.getClass)
 
-  override def retrieveOtherReferenceData(typeName: TypeName)(implicit
-                                                              hc: HeaderCarrier,
-                                                              ec: ExecutionContext
+  override def retrieveOtherReferenceData(typeName: TypeName, filterKeys: Option[Set[String]])(
+    implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
   ): Future[Either[ErrorResponse, Map[String, String]]] =
-    connector.fetchCodeList(typeName.codeListCode)
-      .map {
-        codeListEntries =>
-          val mappedEntries: Map[String, String] = codeListEntries.map(entry => entry.key -> entry.value).toMap
-          Right(mappedEntries)
+    connector
+      .fetchCodeList(typeName.codeListCode, filterKeys)
+      .map { codeListEntries =>
+        val mappedEntries: Map[String, String] =
+          codeListEntries.map(entry => entry.key -> entry.value).toMap
+        Right(mappedEntries)
       }
-      .recover {
-        case exception: Exception =>
-          logger.warn(
-            s"[RetrieveOtherReferenceDataConnectorCRDL][retrieveOtherReferenceData] Unexpected Error fetching data", exception
-          )
-          Left(ErrorResponse.UnexpectedDownstreamResponseError)
+      .recover { case exception: Exception =>
+        logger.warn(
+          s"[RetrieveOtherReferenceDataConnectorCRDL][retrieveOtherReferenceData] Unexpected Error fetching data",
+          exception
+        )
+        Left(ErrorResponse.UnexpectedDownstreamResponseError)
       }
-
 
 }

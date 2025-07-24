@@ -22,22 +22,22 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 
 trait RetrieveOtherReferenceDataConnector {
-  def retrieveOtherReferenceData(typeName: TypeName)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Map[String, String]]]
+  def retrieveOtherReferenceData(typeName: TypeName, filterKeys: Option[Set[String]])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Map[String, String]]]
 
-  def retrieveWineOperations()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Map[String, String]]] =
-    retrieveOtherReferenceData(WineOperations)
+  def retrieveWineOperations(filterKeys: Option[Set[String]])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Map[String, String]]] =
+    retrieveOtherReferenceData(WineOperations, filterKeys)
 
   def retrieveMemberStates()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Map[String, String]]] =
-    retrieveOtherReferenceData(MemberStates)
+    retrieveOtherReferenceData(MemberStates, filterKeys = None)
 
   def retrieveCountries()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Map[String, String]]] =
-    retrieveOtherReferenceData(Countries)
+    retrieveOtherReferenceData(Countries, filterKeys = None)
 
   def retrieveTransportUnits()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Map[String, String]]] =
-    retrieveOtherReferenceData(TransportUnits)
+    retrieveOtherReferenceData(TransportUnits, filterKeys = None)
 
   def retrieveTypesOfDocument()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Map[String, String]]] =
-    retrieveOtherReferenceData(TypeOfDocument)
+    retrieveOtherReferenceData(TypeOfDocument, filterKeys = None)
 }
 
 object RetrieveOtherReferenceDataConnector {

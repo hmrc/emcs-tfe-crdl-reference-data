@@ -34,6 +34,7 @@ import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
 import javax.inject.Inject
 import scala.concurrent.duration.*
 import scala.concurrent.{Await, ExecutionContext, Future}
+import uk.gov.hmrc.http.HeaderCarrier
 
 @DisallowConcurrentExecution
 class ImportReferenceDataJob @Inject() (
@@ -50,6 +51,7 @@ class ImportReferenceDataJob @Inject() (
   with Transactions {
 
   private val jobName = "import-reference-data"
+  private val hc      = HeaderCarrier()
 
   given TransactionConfiguration = TransactionConfiguration.strict
 
@@ -58,7 +60,7 @@ class ImportReferenceDataJob @Inject() (
 
   private def refreshCodeListEntries(session: ClientSession, codeListCode: CodeListCode) =
     for {
-      entries <- crdlConnector.fetchCodeList(codeListCode)
+      entries <- crdlConnector.fetchCodeList(codeListCode, filterKeys = None)(using hc, ec)
       _       <- codeListsRepository.saveCodeListEntries(session, codeListCode, entries)
     } yield ()
 

@@ -24,29 +24,28 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
+import play.api.libs.json.Reads
 
 @Singleton
-class RetrievePackagingTypesController @Inject()(cc: ControllerComponents,
-                                                 service: RetrievePackagingTypesService,
-                                                 override val auth: AuthAction
-                                                )(implicit ec: ExecutionContext) extends BackendController(cc) with AuthActionHelper {
+class RetrievePackagingTypesController @Inject() (
+  cc: ControllerComponents,
+  service: RetrievePackagingTypesService,
+  override val auth: AuthAction
+)(implicit ec: ExecutionContext)
+  extends BackendController(cc)
+  with AuthActionHelper {
 
-  def showAllPackagingTypes(optIsCountable: Option[Boolean]): Action[AnyContent] = authorisedUserGetRequest {
-    implicit request =>
+  def showAllPackagingTypes(optIsCountable: Option[Boolean]): Action[AnyContent] =
+    authorisedUserGetRequest { implicit request =>
       service.retrievePackagingTypes(optIsCountable).map {
         case Right(response) =>
           Ok(Json.toJson(response))
         case Left(error) =>
           InternalServerError(Json.toJson(error))
       }
-  }
+    }
 
-  def show: Action[Seq[String]] = authorisedUserPostRequest {
-    json =>
-      for {
-        packagingTypesList <- json.validate[Seq[String]]
-      } yield packagingTypesList
-  } {
+  def show: Action[Seq[String]] = authorisedUserPostRequest(Reads.of[Seq[String]]) {
     implicit request =>
       service.retrievePackagingTypes(request.body).map {
         case Right(response) =>
@@ -55,5 +54,4 @@ class RetrievePackagingTypesController @Inject()(cc: ControllerComponents,
           InternalServerError(Json.toJson(error))
       }
   }
-
 }

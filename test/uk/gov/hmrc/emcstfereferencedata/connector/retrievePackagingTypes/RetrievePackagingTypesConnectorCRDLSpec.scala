@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.emcstfereferencedata.connector.retrievePackagingTypes
 
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq => equalTo}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -28,7 +28,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.emcstfereferencedata.config.AppConfig
-import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListEntry}
+import uk.gov.hmrc.emcstfereferencedata.models.crdl.CrdlCodeListEntry
 import uk.gov.hmrc.emcstfereferencedata.models.response.{ErrorResponse, PackagingType}
 import play.api.libs.json.Json
 import uk.gov.hmrc.emcstfereferencedata.connector.crdl.CrdlConnector
@@ -81,7 +81,7 @@ class RetrievePackagingTypesConnectorCRDLSpec
         )
       )
 
-      when(crdlConnector.fetchCodeList(any())(using any()))
+      when(crdlConnector.fetchCodeList(any(), equalTo(None))(using any(), any()))
         .thenReturn(Future.successful(crdlEntries))
 
       val result = connector.retrievePackagingTypes().futureValue
@@ -105,7 +105,7 @@ class RetrievePackagingTypesConnectorCRDLSpec
         properties = Json.obj()
       )
 
-      when(crdlConnector.fetchCodeList(any())(using any()))
+      when(crdlConnector.fetchCodeList(any(), equalTo(None))(using any(), any()))
         .thenReturn(Future.successful(List(noCountableFlagEntry)))
 
       val result = connector.retrievePackagingTypes().futureValue
@@ -122,7 +122,7 @@ class RetrievePackagingTypesConnectorCRDLSpec
       properties = Json.obj("otherFlag" -> false, "actionIdentification" -> "1237")
     )
 
-    when(crdlConnector.fetchCodeList(any())(using any()))
+    when(crdlConnector.fetchCodeList(any(), equalTo(None))(using any(), any()))
       .thenReturn(Future.successful(List(unexpectedPropertiesEntries)))
 
     val result = connector.retrievePackagingTypes().futureValue
@@ -132,7 +132,7 @@ class RetrievePackagingTypesConnectorCRDLSpec
 
   "return a Left(ErrorResponse) when unable to receive data from crdl-cache" in {
 
-    when(crdlConnector.fetchCodeList(any())(using any()))
+    when(crdlConnector.fetchCodeList(any(), equalTo(None))(using any(), any()))
       .thenReturn(Future.failed(UpstreamErrorResponse("Service unavailable", 503)))
 
     val result = connector.retrievePackagingTypes().futureValue

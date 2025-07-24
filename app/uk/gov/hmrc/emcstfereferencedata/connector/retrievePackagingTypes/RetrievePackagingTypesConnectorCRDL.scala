@@ -43,7 +43,7 @@ class RetrievePackagingTypesConnectorCRDL @Inject() (
     ec: ExecutionContext
   ): Future[Either[ErrorResponse, Map[String, PackagingType]]] = {
 
-    crdlConnector.fetchCodeList(BC17).map { entries =>
+    crdlConnector.fetchCodeList(BC17, filterKeys = None).map { entries =>
       val results: List[Either[ErrorResponse, (String, PackagingType)]] = entries.map { entry =>
         (entry.properties \ "countableFlag").validate[Boolean] match {
           case JsSuccess(flag, _) =>

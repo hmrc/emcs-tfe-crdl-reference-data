@@ -32,6 +32,7 @@ import uk.gov.hmrc.http.test.{HttpClientV2Support, WireMockSupport}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.http.HeaderCarrier
 
 class CrdlConnectorSpec
   extends AsyncWordSpec
@@ -42,6 +43,7 @@ class CrdlConnectorSpec
 
   given actorSystem: ActorSystem  = ActorSystem("test")
   given ExecutionContext          = actorSystem.dispatcher
+  given HeaderCarrier             = HeaderCarrier()
   given Writes[CrdlCodeListEntry] = Json.writes[CrdlCodeListEntry]
 
   private val config = Configuration(
@@ -100,7 +102,7 @@ class CrdlConnectorSpec
       )
 
       connector
-        .fetchCodeList(CodeListCode.BC66)
+        .fetchCodeList(CodeListCode.BC66, filterKeys = None)
         .map(_ shouldBe exciseProductCategories)
     }
 
@@ -128,7 +130,7 @@ class CrdlConnectorSpec
       )
 
       connector
-        .fetchCodeList(CodeListCode.BC66)
+        .fetchCodeList(CodeListCode.BC66, filterKeys = None)
         .map(_ shouldBe exciseProductCategories)
     }
 
@@ -139,7 +141,7 @@ class CrdlConnectorSpec
       )
 
       recoverToSucceededIf[UpstreamErrorResponse] {
-        connector.fetchCodeList(CodeListCode.BC66)
+        connector.fetchCodeList(CodeListCode.BC66, filterKeys = None)
       }
     }
 
@@ -166,7 +168,7 @@ class CrdlConnectorSpec
       )
 
       recoverToSucceededIf[UpstreamErrorResponse] {
-        connector.fetchCodeList(CodeListCode.BC66)
+        connector.fetchCodeList(CodeListCode.BC66, filterKeys = None)
       }
     }
   }

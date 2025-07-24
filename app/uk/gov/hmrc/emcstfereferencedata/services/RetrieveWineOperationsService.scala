@@ -35,7 +35,7 @@ class RetrieveWineOperationsService @Inject() (connector: RetrieveOtherReference
     ec: ExecutionContext
   ): Future[Either[ErrorResponse, Map[String, String]]] = {
     connector
-      .retrieveWineOperations()
+      .retrieveWineOperations(filterKeys = None)
       .map(_.flatMap { wineOperations =>
         if (wineOperations.nonEmpty) {
           Right(wineOperations)
@@ -51,20 +51,15 @@ class RetrieveWineOperationsService @Inject() (connector: RetrieveOtherReference
     ec: ExecutionContext
   ): Future[Either[ErrorResponse, Map[String, String]]] = {
     connector
-      .retrieveWineOperations()
-      .map(
-        _.map {
-          _.collect {
-            case (key, value) if wineOperationsList.contains(key) => key -> value
-          }
-        } match {
-          case Left(value)                    => Left(value)
-          case Right(value) if value.nonEmpty => Right(value)
-          case _ =>
-            logger.warn(s"No data returned for input wine operations: $wineOperationsList")
-            Left(NoDataReturnedFromDatabaseError)
+      .retrieveWineOperations(filterKeys = Some(wineOperationsList.toSet))
+      .map(_.flatMap { wineOperations =>
+        if (wineOperations.nonEmpty) {
+          Right(wineOperations)
+        } else {
+          logger.warn(s"No data returned for all wine operations")
+          Left(NoDataReturnedFromDatabaseError)
         }
-      )
+      })
   }
 
 }
