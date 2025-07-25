@@ -22,6 +22,7 @@ import uk.gov.hmrc.emcstfereferencedata.repositories.CnCodesRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 @Singleton
 class RetrieveAllCNCodesConnector @Inject() (repository: CnCodesRepository) {
@@ -39,7 +40,7 @@ class RetrieveAllCNCodesConnector @Inject() (repository: CnCodesRepository) {
       .fetchCnCodesForProduct(exciseProductCode)
       .map(Right(_))
       .recover {
-        case ex => {
+        case NonFatal(ex) => {
           logger.warn(
             "[RetrieveAllCnCodesConnector][retrieveAllCnCodes] Unexpected Error fetching data from repository",
             ex
