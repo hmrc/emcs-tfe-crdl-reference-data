@@ -18,78 +18,110 @@ package uk.gov.hmrc.emcstfereferencedata.services
 
 import uk.gov.hmrc.emcstfereferencedata.fixtures.PackagingTypeFixtures
 import uk.gov.hmrc.emcstfereferencedata.mocks.connectors.MockRetrievePackagingTypesConnector
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.{NoDataReturnedFromDatabaseError, UnexpectedDownstreamResponseError}
+import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.{
+  NoDataReturnedFromDatabaseError,
+  UnexpectedDownstreamResponseError
+}
 import uk.gov.hmrc.emcstfereferencedata.support.UnitSpec
 
 import scala.concurrent.Future
 
-class RetrievePackagingTypesServiceSpec extends UnitSpec with MockRetrievePackagingTypesConnector with PackagingTypeFixtures {
+class RetrievePackagingTypesServiceSpec
+  extends UnitSpec
+  with MockRetrievePackagingTypesConnector
+  with PackagingTypeFixtures {
 
   object TestService extends RetrievePackagingTypesService(mockConnector)
 
   "The RetrievePackagingTypesService" should {
     "return a successful response containing the PackagingTypes" when {
-      "retrievePackagingTypes(Seq[String]) method is called" in {
-        MockConnector.retrievePackagingTypes(packagingTypeCodes = Some(testPackagingTypes), isCountable = None)(Future.successful(Right(testPackagingTypesConnectorResult)))
+      "retrievePackagingTypes is called with packaging type codes" in {
+        MockConnector.retrievePackagingTypes(
+          packagingTypeCodes = Some(testPackagingTypes),
+          isCountable = None
+        )(Future.successful(Right(testPackagingTypesConnectorResult)))
 
-        await(TestService.retrievePackagingTypes(testPackagingTypes)) shouldBe Right(testPackagingTypesConnectorResult)
+        await(
+          TestService.retrievePackagingTypes(
+            packagingTypeCodes = Some(testPackagingTypes),
+            isCountable = None
+          )
+        ) shouldBe Right(testPackagingTypesConnectorResult)
       }
 
-      "retrievePackagingTypes(Option[Boolean]) method is called (ordering by description) - returning only countable" in {
-        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(true))(Future.successful(Right(testPackagingTypesConnectorResult)))
+      "retrievePackagingTypes is called with no codes for countable packaging types" in {
+        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(true))(
+          Future.successful(Right(testPackagingTypesConnectorResult))
+        )
 
-        await(TestService.retrievePackagingTypes(Some(true))) shouldBe Right(testPackagingTypesConnectorResult)
+        await(
+          TestService.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(true))
+        ) shouldBe Right(testPackagingTypesConnectorResult)
       }
 
-      "retrievePackagingTypes(Option[Boolean]) method is called (ordering by description) - returning non countable" in {
-        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(false))(Future.successful(Right(testPackagingTypesConnectorResult)))
+      "retrievePackagingTypes is called with no codes for non-countable packaging types" in {
+        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(false))(
+          Future.successful(Right(testPackagingTypesConnectorResult))
+        )
 
-        await(TestService.retrievePackagingTypes(Some(false))) shouldBe  Right(testPackagingTypesConnectorResult)
+        await(
+          TestService.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(false))
+        ) shouldBe Right(testPackagingTypesConnectorResult)
       }
 
-      "retrievePackagingTypes(Option[Boolean]) method is called (ordering by description) - returning all" in {
-        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = None)(Future.successful(Right(testPackagingTypesConnectorResult)))
+      "retrievePackagingTypes is called with no codes for all packaging types" in {
+        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = None)(
+          Future.successful(Right(testPackagingTypesConnectorResult))
+        )
 
-        await(TestService.retrievePackagingTypes(None)) shouldBe Right(testPackagingTypesConnectorResult)
+        await(
+          TestService.retrievePackagingTypes(packagingTypeCodes = None, isCountable = None)
+        ) shouldBe Right(testPackagingTypesConnectorResult)
       }
     }
 
     "return an Error Response" when {
-      "there is no data available for retrievePackagingTypes(Seq[String]) method call" in {
-        MockConnector.retrievePackagingTypes(packagingTypeCodes = Some(testPackagingTypes), isCountable = None)(Future.successful(Right(Map.empty)))
+      "there is no data available" in {
+        MockConnector.retrievePackagingTypes(
+          packagingTypeCodes = Some(testPackagingTypes),
+          isCountable = None
+        )(Future.successful(Right(Map.empty)))
 
-        await(TestService.retrievePackagingTypes(testPackagingTypes)) shouldBe Left(NoDataReturnedFromDatabaseError)
-      }
-
-      "there is no data available for retrievePackagingTypes(Option[Boolean]) method call" in {
-        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(true))(Future.successful(Right(Map.empty)))
-
-        await(TestService.retrievePackagingTypes(Some(true))) shouldBe Left(NoDataReturnedFromDatabaseError)
+        await(
+          TestService.retrievePackagingTypes(
+            packagingTypeCodes = Some(testPackagingTypes),
+            isCountable = None
+          )
+        ) shouldBe Left(NoDataReturnedFromDatabaseError)
       }
 
       "there is an upstream error for retrievePackagingTypes(Seq[String]) method call" in {
-        MockConnector.retrievePackagingTypes(packagingTypeCodes = Some(testPackagingTypes), isCountable = None)(Future.successful(Left(UnexpectedDownstreamResponseError)))
+        MockConnector.retrievePackagingTypes(
+          packagingTypeCodes = Some(testPackagingTypes),
+          isCountable = None
+        )(Future.successful(Left(UnexpectedDownstreamResponseError)))
 
-        await(TestService.retrievePackagingTypes(testPackagingTypes)) shouldBe Left(UnexpectedDownstreamResponseError)
-      }
-
-      "there is an upstream error for retrievePackagingTypes(Option[Boolean]) method call" in {
-        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(true))(Future.successful(Left(UnexpectedDownstreamResponseError)))
-
-        await(TestService.retrievePackagingTypes(Some(true))) shouldBe Left(UnexpectedDownstreamResponseError)
+        await(
+          TestService.retrievePackagingTypes(
+            packagingTypeCodes = Some(testPackagingTypes),
+            isCountable = None
+          )
+        ) shouldBe Left(UnexpectedDownstreamResponseError)
       }
 
       "the connector throws an exception for retrievePackagingTypes(Seq[String]) method call" in {
-        MockConnector.retrievePackagingTypes(packagingTypeCodes = Some(testPackagingTypes), isCountable = None)(Future.failed(new RuntimeException("Error")))
-        assertThrows[RuntimeException] {
-          await(TestService.retrievePackagingTypes(testPackagingTypes))
-        }
-      }
+        MockConnector.retrievePackagingTypes(
+          packagingTypeCodes = Some(testPackagingTypes),
+          isCountable = None
+        )(Future.failed(new RuntimeException("Error")))
 
-      "the connector throws an exception for retrievePackagingTypes(Option[Boolean]) method call" in {
-        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(true))(Future.failed(new RuntimeException("Error")))
         assertThrows[RuntimeException] {
-          await(TestService.retrievePackagingTypes(Some(true)))
+          await(
+            TestService.retrievePackagingTypes(
+              packagingTypeCodes = Some(testPackagingTypes),
+              isCountable = None
+            )
+          )
         }
       }
     }

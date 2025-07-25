@@ -27,36 +27,29 @@ import scala.collection.Map
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RetrievePackagingTypesService @Inject()(connector: RetrievePackagingTypesConnector) extends Logging {
+class RetrievePackagingTypesService @Inject() (connector: RetrievePackagingTypesConnector)
+  extends Logging {
 
-  def retrievePackagingTypes(packagingTypesList: Set[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Map[String, String]]] = {
-    connector.retrievePackagingTypes(Some(packagingTypesList), isCountable = None)
-      .map(
-        _.flatMap { packagingTypes =>
-          if (packagingTypes.nonEmpty) {
-            Right(packagingTypes)
-          }
-          else {
-            logger.warn(s"No data returned for input packaging types: $packagingTypesList")
-            Left(NoDataReturnedFromDatabaseError)
-          }
+  def retrievePackagingTypes(packagingTypeCodes: Option[Set[String]], isCountable: Option[Boolean])(
+    implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[Either[ErrorResponse, Map[String, String]]] = {
+    connector
+      .retrievePackagingTypes(packagingTypeCodes, isCountable)
+      .map(_.flatMap { packagingTypes =>
+        if (packagingTypes.nonEmpty) {
+          Right(packagingTypes)
+        } else {
+          packagingTypeCodes
+            .map { codes =>
+              logger.warn(s"No data returned for input packaging types: ${codes.mkString(",")}")
+            }
+            .getOrElse {
+              logger.warn("No data returned for all packaging types")
+            }
+          Left(NoDataReturnedFromDatabaseError)
         }
-      )
+      })
   }
-
-  def retrievePackagingTypes(isCountable: Option[Boolean])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Map[String, String]]] = {
-    connector.retrievePackagingTypes(packagingTypeCodes = None, isCountable)
-      .map {
-        _.flatMap { packagingTypes =>
-          if (packagingTypes.nonEmpty) {
-            Right(packagingTypes)
-          }
-          else {
-            logger.warn("No data returned for all packaging types")
-            Left(NoDataReturnedFromDatabaseError)
-          }
-        }
-      }
-  }
-
 }

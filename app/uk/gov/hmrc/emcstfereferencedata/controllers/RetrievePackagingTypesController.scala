@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.emcstfereferencedata.controllers
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, Reads}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.{AuthAction, AuthActionHelper}
 import uk.gov.hmrc.emcstfereferencedata.services.RetrievePackagingTypesService
@@ -24,7 +24,6 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
-import play.api.libs.json.Reads
 
 @Singleton
 class RetrievePackagingTypesController @Inject() (
@@ -35,9 +34,9 @@ class RetrievePackagingTypesController @Inject() (
   extends BackendController(cc)
   with AuthActionHelper {
 
-  def showAllPackagingTypes(optIsCountable: Option[Boolean]): Action[AnyContent] =
+  def showAllPackagingTypes(isCountable: Option[Boolean]): Action[AnyContent] =
     authorisedUserGetRequest { implicit request =>
-      service.retrievePackagingTypes(optIsCountable).map {
+      service.retrievePackagingTypes(packagingTypeCodes = None, isCountable).map {
         case Right(response) =>
           Ok(Json.toJson(response))
         case Left(error) =>
@@ -45,13 +44,15 @@ class RetrievePackagingTypesController @Inject() (
       }
     }
 
-  def show: Action[Set[String]] = authorisedUserPostRequest(Reads.of[Set[String]]) {
-    implicit request =>
-      service.retrievePackagingTypes(request.body).map {
-        case Right(response) =>
-          Ok(Json.toJson(response))
-        case Left(error) =>
-          InternalServerError(Json.toJson(error))
-      }
-  }
+  def show: Action[Set[String]] =
+    authorisedUserPostRequest(Reads.of[Set[String]]) { implicit request =>
+      service
+        .retrievePackagingTypes(packagingTypeCodes = Some(request.body), isCountable = None)
+        .map {
+          case Right(response) =>
+            Ok(Json.toJson(response))
+          case Left(error) =>
+            InternalServerError(Json.toJson(error))
+        }
+    }
 }
