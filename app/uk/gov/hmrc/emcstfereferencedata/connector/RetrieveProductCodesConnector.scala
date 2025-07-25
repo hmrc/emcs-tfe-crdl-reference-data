@@ -16,16 +16,17 @@
 
 package uk.gov.hmrc.emcstfereferencedata.connector
 
-import javax.inject.Inject
 import play.api.Logger
 import uk.gov.hmrc.emcstfereferencedata.models.request.CnInformationRequest
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ErrorResponse}
 import uk.gov.hmrc.emcstfereferencedata.repositories.ExciseProductsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
+@Singleton
 class RetrieveProductCodesConnector @Inject() (repository: ExciseProductsRepository) {
 
   lazy val logger: Logger = Logger(this.getClass)
