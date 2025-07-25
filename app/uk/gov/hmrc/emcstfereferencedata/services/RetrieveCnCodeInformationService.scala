@@ -18,8 +18,8 @@ package uk.gov.hmrc.emcstfereferencedata.services
 
 import cats.data.EitherT
 import cats.implicits._
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveCnCodeInformation.RetrieveCnCodeInformationConnector
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveProductCodes.RetrieveProductCodesConnector
+import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveCnCodeInformationConnector
+import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveProductCodesConnector
 import uk.gov.hmrc.emcstfereferencedata.models.request.CnInformationRequest
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ErrorResponse}
 import uk.gov.hmrc.http.HeaderCarrier

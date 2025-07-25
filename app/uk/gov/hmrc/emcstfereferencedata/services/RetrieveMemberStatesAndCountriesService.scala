@@ -17,7 +17,7 @@
 package uk.gov.hmrc.emcstfereferencedata.services
 
 import cats.data.EitherT
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveOtherReferenceData.RetrieveOtherReferenceDataConnector
+import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveOtherReferenceDataConnector
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.NoDataReturnedFromDatabaseError
 import uk.gov.hmrc.emcstfereferencedata.models.response.{Country, ErrorResponse}
 import uk.gov.hmrc.emcstfereferencedata.utils.{Logging, StringUtils}

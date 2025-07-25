@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.emcstfereferencedata.services
 
-import uk.gov.hmrc.emcstfereferencedata.connector.retrievePackagingTypes.RetrievePackagingTypesConnector
+import uk.gov.hmrc.emcstfereferencedata.connector.RetrievePackagingTypesConnector
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.NoDataReturnedFromDatabaseError
 import uk.gov.hmrc.emcstfereferencedata.utils.Logging
@@ -34,7 +34,7 @@ class RetrievePackagingTypesService @Inject()(connector: RetrievePackagingTypesC
       .map(
         _.flatMap { packagingTypes =>
           if (packagingTypes.nonEmpty) {
-            Right(packagingTypes.view.mapValues(_.description).toMap)
+            Right(packagingTypes)
           }
           else {
             logger.warn(s"No data returned for input packaging types: $packagingTypesList")
@@ -49,7 +49,7 @@ class RetrievePackagingTypesService @Inject()(connector: RetrievePackagingTypesC
       .map {
         _.flatMap { packagingTypes =>
           if (packagingTypes.nonEmpty) {
-            Right(packagingTypes.view.mapValues(_.description).toMap)
+            Right(packagingTypes)
           }
           else {
             logger.warn("No data returned for all packaging types")

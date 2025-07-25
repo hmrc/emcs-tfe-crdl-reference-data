@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.connector.retrieveAllCNCodes
+package uk.gov.hmrc.emcstfereferencedata.connector
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, when}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatestplus.mockito.MockitoSugar
@@ -27,19 +27,25 @@ import uk.gov.hmrc.emcstfereferencedata.repositories.CnCodesRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
+import org.scalatest.BeforeAndAfterEach
 
-class RetrieveAllCNCodesConnectorCRDLSpec
+class RetrieveAllCNCodesConnectorSpec
   extends AsyncWordSpec
   with Matchers
   with MockitoSugar
-  with BaseFixtures {
+  with BaseFixtures
+  with BeforeAndAfterEach {
 
   private val repository = mock[CnCodesRepository]
-  private val connector  = new RetrieveAllCNCodesConnectorCRDL(repository)
+  private val connector  = new RetrieveAllCNCodesConnector(repository)
 
   given HeaderCarrier = HeaderCarrier()
 
-  "RetrieveAllCNCodesConnectorCRDL.retrieveAllCnCodes" when {
+  override def beforeEach() = {
+    reset(repository)
+  }
+
+  "RetrieveAllCNCodesConnector.retrieveAllCnCodes" when {
     "given an excise product code" should {
       "return a list of CN Code information" in {
         when(repository.fetchCnCodesForProduct(any()))

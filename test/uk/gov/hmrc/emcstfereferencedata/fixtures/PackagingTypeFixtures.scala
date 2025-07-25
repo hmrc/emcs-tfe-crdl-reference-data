@@ -17,7 +17,6 @@
 package uk.gov.hmrc.emcstfereferencedata.fixtures
 
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.emcstfereferencedata.models.response.PackagingType
 
 trait PackagingTypeFixtures {
   val testPackagingTypes: Set[String] = Set(
@@ -25,16 +24,13 @@ trait PackagingTypeFixtures {
     "NE",
     "TO"
   )
-  val testPackagingTypesConnectorResult: Map[String, PackagingType] = Map(
-    "VP" -> PackagingType("VP", "Vacuum-packed", true),
-    "NE" -> PackagingType("NE", "Unpacked or unpackaged", false),
-    "TO" -> PackagingType("TO", "Tun", true)
-  )
-  val testPackagingTypesServiceResult: Map[String, String] = Map(
+  val testPackagingTypesConnectorResult: Map[String, String] = Map(
     "NE" -> "Unpacked or unpackaged",
     "TO" -> "Tun",
     "VP" -> "Vacuum-packed"
   )
+  // This service passes its result straight through now
+  val testPackagingTypesServiceResult = testPackagingTypesConnectorResult
   val testPackagingTypesServiceResultOrdered: Map[String, String] = Map(
     "TO" -> "Tun",
     "NE" -> "Unpacked or unpackaged",

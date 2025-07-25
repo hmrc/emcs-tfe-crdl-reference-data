@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.connector.retrieveAllEPCCodes
+package uk.gov.hmrc.emcstfereferencedata.connector
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, when}
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
 import uk.gov.hmrc.emcstfereferencedata.models.response.{ErrorResponse, ExciseProductCode}
@@ -26,15 +26,17 @@ import uk.gov.hmrc.emcstfereferencedata.repositories.ExciseProductsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
+import org.scalatest.BeforeAndAfterEach
 
-class RetrieveAllEPCCodesConnectorCRDLSpec
+class RetrieveAllEPCCodesConnectorSpec
   extends AsyncWordSpec
   with Matchers
   with MockitoSugar
-  with BaseFixtures {
+  with BaseFixtures
+  with BeforeAndAfterEach {
 
   private val repository = mock[ExciseProductsRepository]
-  private val connector  = new RetrieveAllEPCCodesConnectorCRDL(repository)
+  private val connector  = new RetrieveAllEPCCodesConnector(repository)
 
   given HeaderCarrier = HeaderCarrier()
 
@@ -71,7 +73,11 @@ class RetrieveAllEPCCodesConnectorCRDLSpec
     )
   )
 
-  "RetrieveAllEPCCodesConnectorCRDL.retrieveAllEPCCodes" should {
+  override def beforeEach() = {
+    reset(repository)
+  }
+
+  "RetrieveAllEPCCodesConnector.retrieveAllEPCCodes" should {
     "Return a Sequence of all excise products" in {
       when(repository.fetchAllEPCCodes())
         .thenReturn(

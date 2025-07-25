@@ -21,7 +21,6 @@ import uk.gov.hmrc.emcstfereferencedata.mocks.connectors.MockRetrievePackagingTy
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.{NoDataReturnedFromDatabaseError, UnexpectedDownstreamResponseError}
 import uk.gov.hmrc.emcstfereferencedata.support.UnitSpec
 
-import scala.collection.immutable.ListMap
 import scala.concurrent.Future
 
 class RetrievePackagingTypesServiceSpec extends UnitSpec with MockRetrievePackagingTypesConnector with PackagingTypeFixtures {
@@ -33,30 +32,25 @@ class RetrievePackagingTypesServiceSpec extends UnitSpec with MockRetrievePackag
       "retrievePackagingTypes(Seq[String]) method is called" in {
         MockConnector.retrievePackagingTypes(packagingTypeCodes = Some(testPackagingTypes), isCountable = None)(Future.successful(Right(testPackagingTypesConnectorResult)))
 
-        await(TestService.retrievePackagingTypes(testPackagingTypes)) shouldBe Right(testPackagingTypesServiceResult)
+        await(TestService.retrievePackagingTypes(testPackagingTypes)) shouldBe Right(testPackagingTypesConnectorResult)
       }
 
       "retrievePackagingTypes(Option[Boolean]) method is called (ordering by description) - returning only countable" in {
         MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(true))(Future.successful(Right(testPackagingTypesConnectorResult)))
 
-        await(TestService.retrievePackagingTypes(Some(true))) shouldBe a[Right[_,_]]
+        await(TestService.retrievePackagingTypes(Some(true))) shouldBe Right(testPackagingTypesConnectorResult)
       }
 
       "retrievePackagingTypes(Option[Boolean]) method is called (ordering by description) - returning non countable" in {
         MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(false))(Future.successful(Right(testPackagingTypesConnectorResult)))
 
-        await(TestService.retrievePackagingTypes(Some(false))) shouldBe a[Right[_,_]]
+        await(TestService.retrievePackagingTypes(Some(false))) shouldBe  Right(testPackagingTypesConnectorResult)
       }
 
       "retrievePackagingTypes(Option[Boolean]) method is called (ordering by description) - returning all" in {
-        val testServiceResponse: Map[String, String] = ListMap(
-          "TO" -> "Tun",
-          "NE" -> "Unpacked or unpackaged",
-          "VP" -> "Vacuum-packed"
-        )
         MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = None)(Future.successful(Right(testPackagingTypesConnectorResult)))
 
-        await(TestService.retrievePackagingTypes(None)) shouldBe Right(testServiceResponse)
+        await(TestService.retrievePackagingTypes(None)) shouldBe Right(testPackagingTypesConnectorResult)
       }
     }
 

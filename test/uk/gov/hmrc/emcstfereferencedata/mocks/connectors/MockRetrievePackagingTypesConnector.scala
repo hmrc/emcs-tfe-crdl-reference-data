@@ -19,8 +19,8 @@ package uk.gov.hmrc.emcstfereferencedata.mocks.connectors
 import org.scalamock.handlers.CallHandler4
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.TestSuite
-import uk.gov.hmrc.emcstfereferencedata.connector.retrievePackagingTypes.RetrievePackagingTypesConnector
-import uk.gov.hmrc.emcstfereferencedata.models.response.{ErrorResponse, PackagingType}
+import uk.gov.hmrc.emcstfereferencedata.connector.RetrievePackagingTypesConnector
+import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -29,7 +29,7 @@ trait MockRetrievePackagingTypesConnector extends MockFactory { this: TestSuite 
   lazy val mockConnector: RetrievePackagingTypesConnector = mock[RetrievePackagingTypesConnector]
 
   object MockConnector {
-    def retrievePackagingTypes(packagingTypeCodes: Option[Set[String]], isCountable: Option[Boolean])(response: Future[Either[ErrorResponse, Map[String, PackagingType]]]): CallHandler4[Option[Set[String]], Option[Boolean], HeaderCarrier, ExecutionContext, Future[Either[ErrorResponse, Map[String, PackagingType]]]] =
+    def retrievePackagingTypes(packagingTypeCodes: Option[Set[String]], isCountable: Option[Boolean])(response: Future[Either[ErrorResponse, Map[String, String]]]): CallHandler4[Option[Set[String]], Option[Boolean], HeaderCarrier, ExecutionContext, Future[Either[ErrorResponse, Map[String, String]]]] =
       (mockConnector.retrievePackagingTypes(_: Option[Set[String]],_: Option[Boolean])(_: HeaderCarrier, _: ExecutionContext)).expects(packagingTypeCodes, isCountable, *, *).returns(response)
   }
 

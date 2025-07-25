@@ -14,39 +14,49 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.connector.retrieveOtherReferenceData
+package uk.gov.hmrc.emcstfereferencedata.connector
 
 import play.api.Logger
 import uk.gov.hmrc.emcstfereferencedata.connector.crdl.CrdlConnector
+import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode
+import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode.BC17
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
 import uk.gov.hmrc.http.HeaderCarrier
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
-class RetrieveOtherReferenceDataConnectorCRDL @Inject() (
-  connector: CrdlConnector
-) extends RetrieveOtherReferenceDataConnector {
+@Singleton
+class RetrievePackagingTypesConnector @Inject() (crdlConnector: CrdlConnector) {
+
   lazy val logger: Logger = Logger(this.getClass)
 
-  override def retrieveOtherReferenceData(typeName: TypeName, filterKeys: Option[Set[String]])(
-    implicit
+  def retrievePackagingTypes(
+    packagingTypeCodes: Option[Set[String]],
+    isCountable: Option[Boolean]
+  )(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext
-  ): Future[Either[ErrorResponse, Map[String, String]]] =
-    connector
-      .fetchCodeList(typeName.codeListCode, filterKeys, filterProperties = None)
+  ): Future[Either[ErrorResponse, Map[String, String]]] = {
+
+    crdlConnector
+      .fetchCodeList(
+        BC17,
+        filterKeys = packagingTypeCodes,
+        isCountable.map(countable => Map("countableFlag" -> countable))
+      )
       .map { codeListEntries =>
         val mappedEntries: Map[String, String] =
           codeListEntries.map(entry => entry.key -> entry.value).toMap
         Right(mappedEntries)
       }
-      .recover { case exception: Exception =>
+      .recover { case NonFatal(ex) =>
         logger.warn(
-          s"[RetrieveOtherReferenceDataConnectorCRDL][retrieveOtherReferenceData] Unexpected Error fetching data",
-          exception
+          s"[RetrievePackagingTypesConnector][retrievePackagingTypes] Failed response from crdl-cache",
+          ex
         )
         Left(ErrorResponse.UnexpectedDownstreamResponseError)
       }
-
+  }
 }

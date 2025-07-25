@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.connector.retrieveAllEPCCodes
+package uk.gov.hmrc.emcstfereferencedata.connector
 
 import play.api.Logger
 import uk.gov.hmrc.emcstfereferencedata.models.response.{ErrorResponse, ExciseProductCode}
 import uk.gov.hmrc.emcstfereferencedata.repositories.ExciseProductsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
-class RetrieveAllEPCCodesConnectorCRDL @Inject() (
-  repository: ExciseProductsRepository
-) extends RetrieveAllEPCCodesConnector {
+@Singleton
+class RetrieveAllEPCCodesConnector @Inject() (repository: ExciseProductsRepository) {
 
   lazy val logger: Logger = Logger(this.getClass)
 
-  override def retrieveAllEPCCodes()(implicit
+  def retrieveAllEPCCodes()(implicit
     ec: ExecutionContext,
     hc: HeaderCarrier
   ): Future[Either[ErrorResponse, Seq[ExciseProductCode]]] = {
@@ -38,7 +38,7 @@ class RetrieveAllEPCCodesConnectorCRDL @Inject() (
       .fetchAllEPCCodes()
       .map(Right(_))
       .recover {
-        case exception: Exception => {
+        case NonFatal(exception) => {
           logger.warn(
             "[RetrieveAllEPCCodesConnector][retrieveAllEPCCodes] Unexpected Error fetching data from repository",
             exception
