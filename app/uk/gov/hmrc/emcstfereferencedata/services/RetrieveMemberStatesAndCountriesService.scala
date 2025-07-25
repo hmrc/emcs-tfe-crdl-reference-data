@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.emcstfereferencedata.services
 
-import cats.data.EitherT
 import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveOtherReferenceDataConnector
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.NoDataReturnedFromDatabaseError
 import uk.gov.hmrc.emcstfereferencedata.models.response.{Country, ErrorResponse}
@@ -35,23 +34,27 @@ class RetrieveMemberStatesAndCountriesService @Inject() (
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): Future[Either[ErrorResponse, Seq[Country]]] = {
-    val memberStatesAndCountriesResult = for {
-      memberStates <- EitherT(connector.retrieveMemberStates())
-      countries    <- EitherT(connector.retrieveCountries())
-    } yield {
-      val memberStatesAndCountries: Map[String, String] = memberStates ++ countries
-      memberStatesAndCountries.map { case (k, v) =>
-        (k, StringUtils.addSmartQuotes(v))
-      }
-    }
+    val fetchMemberStates = connector.retrieveMemberStates()
+    val fetchCountries    = connector.retrieveCountries()
 
-    memberStatesAndCountriesResult.subflatMap { countries =>
+    val memberStatesAndCountriesResult =
+      fetchMemberStates.zip(fetchCountries).map { case (memberStatesResponse, countriesResponse) =>
+        for {
+          memberStates <- memberStatesResponse
+          countries    <- countriesResponse
+          memberStatesAndCountries = memberStates ++ countries
+        } yield memberStatesAndCountries.map { case (k, v) =>
+          (k, StringUtils.addSmartQuotes(v))
+        }
+      }
+
+    memberStatesAndCountriesResult.map(_.flatMap { countries =>
       if (countries.nonEmpty) {
         Right(Country(countries).sortBy(_.country))
       } else {
         logger.warn(s"No data returned for member states or countries")
         Left(NoDataReturnedFromDatabaseError)
       }
-    }.value
+    })
   }
 }

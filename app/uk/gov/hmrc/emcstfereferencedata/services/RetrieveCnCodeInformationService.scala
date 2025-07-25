@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.emcstfereferencedata.services
 
-import cats.data.EitherT
-import cats.implicits._
-import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveCnCodeInformationConnector
-import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveProductCodesConnector
+import uk.gov.hmrc.emcstfereferencedata.connector.{
+  RetrieveCnCodeInformationConnector,
+  RetrieveProductCodesConnector
+}
 import uk.gov.hmrc.emcstfereferencedata.models.request.CnInformationRequest
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ErrorResponse}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -29,26 +29,34 @@ import scala.collection.Map
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RetrieveCnCodeInformationService @Inject()(
-                                                  cnCodeConnector: RetrieveCnCodeInformationConnector,
-                                                  productCodesConnector: RetrieveProductCodesConnector,
-                                                ) {
+class RetrieveCnCodeInformationService @Inject() (
+  cnCodeConnector: RetrieveCnCodeInformationConnector,
+  productCodesConnector: RetrieveProductCodesConnector
+) {
 
   private val productCodesWithoutCnCode: Seq[String] = Seq("S500")
 
-  def retrieveCnCodeInformation(cnInformationRequest: CnInformationRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Map[String, CnCodeInformation]]] = {
-    val cnCodeConnectorRequest = cnInformationRequest.copy(items = cnInformationRequest.items.filterNot(item => productCodesWithoutCnCode.contains(item.productCode)))
-    val productCodesConnectorRequest = cnInformationRequest.copy(items = cnInformationRequest.items.filter(item => productCodesWithoutCnCode.contains(item.productCode)))
+  def retrieveCnCodeInformation(cnInformationRequest: CnInformationRequest)(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[Either[ErrorResponse, Map[String, CnCodeInformation]]] = {
+    // Filter out products with no CN codes
+    val productCodesConnectorRequest = cnInformationRequest.copy(items =
+      cnInformationRequest.items.filter(item =>
+        productCodesWithoutCnCode.contains(item.productCode)
+      )
+    )
 
-    val cnCodeConnectorResultF = cnCodeConnector.retrieveCnCodeInformation(cnCodeConnectorRequest)
-    val productCodesConnectorResultF = productCodesConnector.retrieveProductCodes(productCodesConnectorRequest)
+    val fetchCnCodes      = cnCodeConnector.retrieveCnCodeInformation(cnInformationRequest)
+    val fetchProductCodes = productCodesConnector.retrieveProductCodes(productCodesConnectorRequest)
 
-    val result = for {
-      cnCodeConnectorResult <- EitherT(cnCodeConnectorResultF)
-      productCodesConnectorResult <- EitherT(productCodesConnectorResultF)
-    } yield cnCodeConnectorResult ++ productCodesConnectorResult
-
-    result.value
+    fetchCnCodes.zip(fetchProductCodes).map {
+      case (cnCodeConnectorResult, productCodesConnectorResult) =>
+        for {
+          cnCodes      <- cnCodeConnectorResult
+          productCodes <- productCodesConnectorResult
+        } yield cnCodes ++ productCodes
+    }
   }
 
 }
