@@ -16,26 +16,29 @@
 
 package uk.gov.hmrc.emcstfereferencedata.services
 
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveOtherReferenceData.RetrieveOtherReferenceDataConnector
+import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveOtherReferenceDataConnector
+import uk.gov.hmrc.emcstfereferencedata.models.response.Country
+import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.NoDataReturnedFromDatabaseError
-import uk.gov.hmrc.emcstfereferencedata.models.response.{Country, ErrorResponse}
 import uk.gov.hmrc.emcstfereferencedata.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import javax.inject.Inject
+import javax.inject.Singleton
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @Singleton
 class RetrieveMemberStatesService @Inject()(connector: RetrieveOtherReferenceDataConnector) extends Logging {
 
   def retrieveMemberStates()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Seq[Country]]] =
     connector.retrieveMemberStates()
-      .map {
-        case Left(value) => Left(value)
-        case Right(countries) if countries.nonEmpty => Right(Country(countries))
-        case _ =>
+      .map(_.flatMap { countries =>
+        if (countries.nonEmpty) {
+           Right(Country(countries))
+        } else {
           logger.warn(s"No data returned for member states")
           Left(NoDataReturnedFromDatabaseError)
-      }
-
+        }
+      })
 }

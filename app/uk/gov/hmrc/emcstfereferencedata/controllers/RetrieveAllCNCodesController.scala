@@ -18,7 +18,7 @@ package uk.gov.hmrc.emcstfereferencedata.controllers
 
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveAllCNCodes.RetrieveAllCNCodesConnector
+import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveAllCNCodesConnector
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.{AuthAction, AuthActionHelper}
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController

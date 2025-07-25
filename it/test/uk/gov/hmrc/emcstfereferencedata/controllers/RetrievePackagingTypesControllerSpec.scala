@@ -62,12 +62,11 @@ class RetrievePackagingTypesControllerSpec
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
         when(
-          packagingTypesService.retrievePackagingTypes(isCountable = equalTo(Some(true)))(using
-            any(),
-            any()
-          )
-        )
-          .thenReturn(Future.successful(Right(testPackagingTypesServiceResult)))
+          packagingTypesService.retrievePackagingTypes(
+            packagingTypeCodes = equalTo(None),
+            isCountable = equalTo(Some(true))
+          )(using any(), any())
+        ).thenReturn(Future.successful(Right(testPackagingTypesServiceResult)))
 
         val response =
           httpClientV2
@@ -83,12 +82,11 @@ class RetrievePackagingTypesControllerSpec
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
         when(
-          packagingTypesService.retrievePackagingTypes(isCountable = equalTo(Some(false)))(using
-            any(),
-            any()
-          )
-        )
-          .thenReturn(Future.successful(Right(testPackagingTypesServiceResult)))
+          packagingTypesService.retrievePackagingTypes(
+            packagingTypeCodes = equalTo(None),
+            isCountable = equalTo(Some(false))
+          )(using any(), any())
+        ).thenReturn(Future.successful(Right(testPackagingTypesServiceResult)))
 
         val response =
           httpClientV2
@@ -104,12 +102,11 @@ class RetrievePackagingTypesControllerSpec
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
         when(
-          packagingTypesService.retrievePackagingTypes(isCountable = equalTo(None))(using
-            any(),
-            any()
-          )
-        )
-          .thenReturn(Future.successful(Right(testPackagingTypesServiceResult)))
+          packagingTypesService.retrievePackagingTypes(
+            packagingTypeCodes = equalTo(None),
+            isCountable = equalTo(None)
+          )(using any(), any())
+        ).thenReturn(Future.successful(Right(testPackagingTypesServiceResult)))
 
         val response =
           httpClientV2
@@ -139,8 +136,12 @@ class RetrievePackagingTypesControllerSpec
     "return 500 Internal Service Error" when {
       "the connector returns a NoDataReturnedFromDatabaseError" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(packagingTypesService.retrievePackagingTypes(equalTo(None))(using any(), any()))
-          .thenReturn(Future.successful(Left(NoDataReturnedFromDatabaseError)))
+        when(
+          packagingTypesService.retrievePackagingTypes(
+            packagingTypeCodes = equalTo(None),
+            isCountable = equalTo(None)
+          )(using any(), any())
+        ).thenReturn(Future.successful(Left(NoDataReturnedFromDatabaseError)))
 
         val response =
           httpClientV2
@@ -153,8 +154,12 @@ class RetrievePackagingTypesControllerSpec
 
       "the connector returns an UnexpectedDownstreamResponseError" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(packagingTypesService.retrievePackagingTypes(equalTo(None))(using any(), any()))
-          .thenReturn(Future.successful(Left(UnexpectedDownstreamResponseError)))
+        when(
+          packagingTypesService.retrievePackagingTypes(
+            packagingTypeCodes = equalTo(None),
+            isCountable = equalTo(None)
+          )(using any(), any())
+        ).thenReturn(Future.successful(Left(UnexpectedDownstreamResponseError)))
 
         val response =
           httpClientV2
@@ -167,8 +172,12 @@ class RetrievePackagingTypesControllerSpec
 
       "the connector throws an error" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(packagingTypesService.retrievePackagingTypes(equalTo(None))(using any(), any()))
-          .thenReturn(Future.failed(new RuntimeException("Boom!")))
+        when(
+          packagingTypesService.retrievePackagingTypes(
+            packagingTypeCodes = equalTo(None),
+            isCountable = equalTo(None)
+          )(using any(), any())
+        ).thenReturn(Future.failed(new RuntimeException("Boom!")))
 
         val response =
           httpClientV2
@@ -187,12 +196,11 @@ class RetrievePackagingTypesControllerSpec
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
         when(
-          packagingTypesService.retrievePackagingTypes(equalTo(testPackagingTypes))(using
-            any(),
-            any()
-          )
-        )
-          .thenReturn(Future.successful(Right(testPackagingTypesServiceResult)))
+          packagingTypesService.retrievePackagingTypes(
+            packagingTypeCodes = equalTo(Some(testPackagingTypes)),
+            isCountable = equalTo(None)
+          )(using any(), any())
+        ).thenReturn(Future.successful(Right(testPackagingTypesServiceResult)))
 
         val response =
           httpClientV2
@@ -227,12 +235,11 @@ class RetrievePackagingTypesControllerSpec
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
         when(
-          packagingTypesService.retrievePackagingTypes(equalTo(testPackagingTypes))(using
-            any(),
-            any()
-          )
-        )
-          .thenReturn(Future.successful(Left(NoDataReturnedFromDatabaseError)))
+          packagingTypesService.retrievePackagingTypes(
+            packagingTypeCodes = equalTo(Some(testPackagingTypes)),
+            isCountable = equalTo(None)
+          )(using any(), any())
+        ).thenReturn(Future.successful(Left(NoDataReturnedFromDatabaseError)))
 
         val response =
           httpClientV2
@@ -248,12 +255,11 @@ class RetrievePackagingTypesControllerSpec
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
         when(
-          packagingTypesService.retrievePackagingTypes(equalTo(testPackagingTypes))(using
-            any(),
-            any()
-          )
-        )
-          .thenReturn(Future.successful(Left(UnexpectedDownstreamResponseError)))
+          packagingTypesService.retrievePackagingTypes(
+            packagingTypeCodes = equalTo(Some(testPackagingTypes)),
+            isCountable = equalTo(None)
+          )(using any(), any())
+        ).thenReturn(Future.successful(Left(UnexpectedDownstreamResponseError)))
 
         val response =
           httpClientV2
@@ -269,12 +275,11 @@ class RetrievePackagingTypesControllerSpec
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
         when(
-          packagingTypesService.retrievePackagingTypes(equalTo(testPackagingTypes))(using
-            any(),
-            any()
-          )
-        )
-          .thenReturn(Future.failed(new RuntimeException("Boom!")))
+          packagingTypesService.retrievePackagingTypes(
+            packagingTypeCodes = equalTo(Some(testPackagingTypes)),
+            isCountable = equalTo(None)
+          )(using any(), any())
+        ).thenReturn(Future.failed(new RuntimeException("Boom!")))
 
         val response =
           httpClientV2

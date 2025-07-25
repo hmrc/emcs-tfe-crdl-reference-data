@@ -22,6 +22,7 @@ import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.NoDataRetu
 import uk.gov.hmrc.emcstfereferencedata.support.UnitSpec
 
 import scala.concurrent.Future
+import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.UnexpectedDownstreamResponseError
 
 class RetrieveWineOperationsServiceSpec extends UnitSpec with MockRetrieveOtherReferenceDataConnector with BaseFixtures {
 
@@ -29,30 +30,40 @@ class RetrieveWineOperationsServiceSpec extends UnitSpec with MockRetrieveOtherR
 
   "The RetrieveWineOperationsService" should {
     "return a successful response containing the WineOperations" when {
-      "retrieveWineOperations(Seq[String]) method is called" in {
+      "retrieveWineOperations method is called with wine operation codes for filtering" in {
         val testResponse = Right(testWineOperationsResult)
-        MockConnector.retrieveWineOperations()(Future.successful(testResponse))
+        MockConnector.retrieveWineOperations(filterKeys = Some(testWineOperations))(Future.successful(testResponse))
 
-        await(TestService.retrieveWineOperations(testWineOperations)) shouldBe testResponse
+        await(TestService.retrieveWineOperations(Some(testWineOperations))) shouldBe testResponse
       }
-      "retrieveWineOperations() method is called" in {
-        val testResponse = Right(testWineOperationsResult)
-        MockConnector.retrieveWineOperations()(Future.successful(testResponse))
 
-        await(TestService.retrieveWineOperations()) shouldBe testResponse
+      "retrieveWineOperations method is called with no wine operation codes" in {
+        val testResponse = Right(testWineOperationsResult)
+        MockConnector.retrieveWineOperations(filterKeys = None)(Future.successful(testResponse))
+
+        await(TestService.retrieveWineOperations(None)) shouldBe testResponse
       }
     }
 
     "return an Error Response" when {
-      "there is no data available for retrieveWineOperations(Seq[String]) method call" in {
-        MockConnector.retrieveWineOperations()(Future.successful(Left(NoDataReturnedFromDatabaseError)))
+      "there is no data available" in {
+        MockConnector.retrieveWineOperations(filterKeys = Some(testWineOperations))(Future.successful(Right(Map.empty)))
 
-        await(TestService.retrieveWineOperations(testWineOperations)) shouldBe Left(NoDataReturnedFromDatabaseError)
+        await(TestService.retrieveWineOperations(Some(testWineOperations))) shouldBe Left(NoDataReturnedFromDatabaseError)
       }
-      "there is no data available for retrieveWineOperations() method call" in {
-        MockConnector.retrieveWineOperations()(Future.successful(Left(NoDataReturnedFromDatabaseError)))
 
-        await(TestService.retrieveWineOperations()) shouldBe Left(NoDataReturnedFromDatabaseError)
+      "there is an upstream error" in {
+        MockConnector.retrieveWineOperations(filterKeys = Some(testWineOperations))(Future.successful(Left(UnexpectedDownstreamResponseError)))
+
+        await(TestService.retrieveWineOperations(Some(testWineOperations))) shouldBe Left(UnexpectedDownstreamResponseError)
+      }
+
+      "the connector throws an exception" in {
+        MockConnector.retrieveWineOperations(filterKeys = Some(testWineOperations))(Future.failed(new RuntimeException("Error")))
+
+        assertThrows[RuntimeException] {
+          await(TestService.retrieveWineOperations(Some(testWineOperations)))
+        }
       }
     }
   }

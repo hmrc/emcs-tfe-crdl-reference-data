@@ -32,6 +32,7 @@ import uk.gov.hmrc.http.test.{HttpClientV2Support, WireMockSupport}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.http.HeaderCarrier
 
 class CrdlConnectorSpec
   extends AsyncWordSpec
@@ -42,6 +43,7 @@ class CrdlConnectorSpec
 
   given actorSystem: ActorSystem  = ActorSystem("test")
   given ExecutionContext          = actorSystem.dispatcher
+  given HeaderCarrier             = HeaderCarrier()
   given Writes[CrdlCodeListEntry] = Json.writes[CrdlCodeListEntry]
 
   private val config = Configuration(
@@ -100,7 +102,56 @@ class CrdlConnectorSpec
       )
 
       connector
-        .fetchCodeList(CodeListCode.BC66)
+        .fetchCodeList(CodeListCode.BC66, filterKeys = None, filterProperties = None)
+        .map(_ shouldBe exciseProductCategories)
+    }
+
+    "supply a query parameter to filter the keys of entries when keys are provided for filtering" in {
+      stubFor(
+        get(urlPathEqualTo("/crdl-cache/lists/BC66"))
+          .withQueryParam("keys", equalTo("E,I,S"))
+          .willReturn(
+            ok()
+              .withHeader(HeaderNames.CONTENT_TYPE, ContentTypes.JSON)
+              .withBody(Json.stringify(Json.toJson(exciseProductCategories)))
+          )
+      )
+
+      connector
+        .fetchCodeList(CodeListCode.BC66, filterKeys = Some(Set("E", "I", "S")), filterProperties = None)
+        .map(_ shouldBe exciseProductCategories)
+    }
+
+    "supply a query parameter to filter the properties of entries when properties are provided for filtering" in {
+      stubFor(
+        get(urlPathEqualTo("/crdl-cache/lists/BC66"))
+          .withQueryParam("countableFlag", equalTo("true"))
+          .willReturn(
+            ok()
+              .withHeader(HeaderNames.CONTENT_TYPE, ContentTypes.JSON)
+              .withBody(Json.stringify(Json.toJson(exciseProductCategories)))
+          )
+      )
+
+      connector
+        .fetchCodeList(CodeListCode.BC66, filterKeys = None, filterProperties = Some(Map("countableFlag"->true)))
+        .map(_ shouldBe exciseProductCategories)
+    }
+
+    "supply a query parameter to filter the keys and properties of entries when both keys and properties are provided for filtering" in {
+      stubFor(
+        get(urlPathEqualTo("/crdl-cache/lists/BC66"))
+          .withQueryParam("keys", equalTo("E,I,S"))
+          .withQueryParam("countableFlag", equalTo("true"))
+          .willReturn(
+            ok()
+              .withHeader(HeaderNames.CONTENT_TYPE, ContentTypes.JSON)
+              .withBody(Json.stringify(Json.toJson(exciseProductCategories)))
+          )
+      )
+
+      connector
+        .fetchCodeList(CodeListCode.BC66, filterKeys = Some(Set("E", "I", "S")), filterProperties = Some(Map("countableFlag" -> true)))
         .map(_ shouldBe exciseProductCategories)
     }
 
@@ -128,7 +179,7 @@ class CrdlConnectorSpec
       )
 
       connector
-        .fetchCodeList(CodeListCode.BC66)
+        .fetchCodeList(CodeListCode.BC66, filterKeys = None, filterProperties = None)
         .map(_ shouldBe exciseProductCategories)
     }
 
@@ -139,7 +190,7 @@ class CrdlConnectorSpec
       )
 
       recoverToSucceededIf[UpstreamErrorResponse] {
-        connector.fetchCodeList(CodeListCode.BC66)
+        connector.fetchCodeList(CodeListCode.BC66, filterKeys = None, filterProperties = None)
       }
     }
 
@@ -166,7 +217,7 @@ class CrdlConnectorSpec
       )
 
       recoverToSucceededIf[UpstreamErrorResponse] {
-        connector.fetchCodeList(CodeListCode.BC66)
+        connector.fetchCodeList(CodeListCode.BC66, filterKeys = None, filterProperties = None)
       }
     }
   }

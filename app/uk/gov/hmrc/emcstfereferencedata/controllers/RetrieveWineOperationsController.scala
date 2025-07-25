@@ -24,32 +24,29 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
+import play.api.libs.json.Reads
 
 @Singleton
-class RetrieveWineOperationsController @Inject()(cc: ControllerComponents,
-                                                 service: RetrieveWineOperationsService,
-                                                 override val auth: AuthAction
-                                                )(implicit ec: ExecutionContext) extends BackendController(cc) with AuthActionHelper {
+class RetrieveWineOperationsController @Inject() (
+  cc: ControllerComponents,
+  service: RetrieveWineOperationsService,
+  override val auth: AuthAction
+)(implicit ec: ExecutionContext)
+  extends BackendController(cc)
+  with AuthActionHelper {
 
-
-  def showAllWineOperations: Action[AnyContent] = authorisedUserGetRequest {
-    implicit request =>
-      service.retrieveWineOperations().map {
-        case Right(response) =>
-          Ok(Json.toJson(response))
-        case Left(error) =>
-          InternalServerError(Json.toJson(error))
-      }
+  def showAllWineOperations: Action[AnyContent] = authorisedUserGetRequest { implicit request =>
+    service.retrieveWineOperations(wineOperations = None).map {
+      case Right(response) =>
+        Ok(Json.toJson(response))
+      case Left(error) =>
+        InternalServerError(Json.toJson(error))
+    }
   }
 
-  def show: Action[Seq[String]] = authorisedUserPostRequest {
-    json =>
-      for {
-        wineOperationsList <- json.validate[Seq[String]]
-      } yield wineOperationsList
-  } {
+  def show: Action[Set[String]] = authorisedUserPostRequest(Reads.of[Set[String]]) {
     implicit request =>
-      service.retrieveWineOperations(request.body).map {
+      service.retrieveWineOperations(wineOperations = Some(request.body)).map {
         case Right(response) =>
           Ok(Json.toJson(response))
         case Left(error) =>

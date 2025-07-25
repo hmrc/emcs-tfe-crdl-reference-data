@@ -14,44 +14,50 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.connector.retrieveCnCodeInformation
+package uk.gov.hmrc.emcstfereferencedata.connector
 
 import org.mockito.ArgumentMatchers.any
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, when}
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
 import uk.gov.hmrc.emcstfereferencedata.models.request.{CnInformationItem, CnInformationRequest}
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ErrorResponse}
-import uk.gov.hmrc.emcstfereferencedata.repositories.CnCodesRepository
+import uk.gov.hmrc.emcstfereferencedata.repositories.ExciseProductsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
+import org.scalatest.BeforeAndAfterEach
 
-class RetrieveCnCodeInformationConnectorCRDLSpec
+class RetrieveProductCodesConnectorSpec
   extends AsyncWordSpec
   with Matchers
   with MockitoSugar
-  with BaseFixtures {
+  with BaseFixtures
+  with BeforeAndAfterEach {
 
-  private val repository               = mock[CnCodesRepository]
-  private val codeInformationConnector = new RetrieveCnCodeInformationConnectorCRDL(repository)
+  private val repository = mock[ExciseProductsRepository]
+  private val connector  = new RetrieveProductCodesConnector(repository)
 
   given HeaderCarrier = HeaderCarrier()
 
-  "RetrieveCnCodeInformationConnectorCRDL.retrieveCnCodeInformation" when {
-    "Given a List of CnInformation Items, each with a product code and excise code" should {
+  override def beforeEach() = {
+    reset(repository)
+  }
+
+  "RetrieveProductCodesConnector.retrieveProductCodes" when {
+    "Given a CnInformationRequest" should {
       "Return a Map of Cncode to CnCodeInformation " in {
-        when(repository.fetchCnCodeInformation(any()))
+        when(repository.fetchProductCodesInformation(any()))
           .thenReturn(
             Future.successful(
               Map(testCnCode1 -> testCnCodeInformation1, testCnCode2 -> testCnCodeInformation2)
             )
           )
 
-        codeInformationConnector
-          .retrieveCnCodeInformation(
+        connector
+          .retrieveProductCodes(
             testCnCodeInformationRequest
           )
           .map(
@@ -62,13 +68,13 @@ class RetrieveCnCodeInformationConnectorCRDLSpec
       }
 
     }
-    "given an invalid excise code to CnCode combination" should {
+    "given an invalid excise code" should {
       "Return an empty Map" in {
-        when(repository.fetchCnCodeInformation(any()))
+        when(repository.fetchProductCodesInformation(any()))
           .thenReturn(Future.successful(Map.empty))
 
-        codeInformationConnector
-          .retrieveCnCodeInformation(
+        connector
+          .retrieveProductCodes(
             CnInformationRequest(List(CnInformationItem("M400", "invalid")))
           )
           .map(_ shouldBe Right(Map.empty))
@@ -77,11 +83,11 @@ class RetrieveCnCodeInformationConnectorCRDLSpec
     }
     "return an Error Response" when {
       "there is a error fetching data" in {
-        when(repository.fetchCnCodeInformation(any()))
+        when(repository.fetchProductCodesInformation(any()))
           .thenReturn(Future.failed(new RuntimeException("Simulated failure")))
 
-        codeInformationConnector
-          .retrieveCnCodeInformation(testCnCodeInformationRequest)
+        connector
+          .retrieveProductCodes(testCnCodeInformationRequest)
           .map(_ shouldBe Left(ErrorResponse.UnexpectedDownstreamResponseError))
       }
     }

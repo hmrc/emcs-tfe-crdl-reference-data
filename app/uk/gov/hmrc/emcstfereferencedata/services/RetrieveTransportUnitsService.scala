@@ -16,26 +16,34 @@
 
 package uk.gov.hmrc.emcstfereferencedata.services
 
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveOtherReferenceData.RetrieveOtherReferenceDataConnector
+import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveOtherReferenceDataConnector
+import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.NoDataReturnedFromDatabaseError
-import uk.gov.hmrc.emcstfereferencedata.models.response.{ErrorResponse, TransportUnit}
+import uk.gov.hmrc.emcstfereferencedata.models.response.TransportUnit
 import uk.gov.hmrc.emcstfereferencedata.utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import javax.inject.Inject
+import javax.inject.Singleton
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @Singleton
-class RetrieveTransportUnitsService @Inject()(connector: RetrieveOtherReferenceDataConnector) extends Logging {
+class RetrieveTransportUnitsService @Inject() (connector: RetrieveOtherReferenceDataConnector)
+  extends Logging {
 
-  def retrieveTransportUnits()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Seq[TransportUnit]]] =
-    connector.retrieveTransportUnits()
-      .map {
-        case Left(value) => Left(value)
-        case Right(transportUnits) if transportUnits.nonEmpty => Right(TransportUnit(transportUnits))
-        case _ =>
+  def retrieveTransportUnits()(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[Either[ErrorResponse, Seq[TransportUnit]]] =
+    connector
+      .retrieveTransportUnits()
+      .map(_.flatMap { transportUnits =>
+        if (transportUnits.nonEmpty) {
+          Right(TransportUnit(transportUnits))
+        } else {
           logger.warn(s"No data returned for transport units")
           Left(NoDataReturnedFromDatabaseError)
-      }
-
+        }
+      })
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.connector.retrieveCnCodeInformation
+package uk.gov.hmrc.emcstfereferencedata.connector
 
 /*
  * Copyright 2025 HM Revenue & Customs
@@ -38,16 +38,16 @@ import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, Erro
 import uk.gov.hmrc.emcstfereferencedata.repositories.CnCodesRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
-class RetrieveCnCodeInformationConnectorCRDL @Inject() (
-  repository: CnCodesRepository
-) extends RetrieveCnCodeInformationConnector {
+@Singleton
+class RetrieveCnCodeInformationConnector @Inject() (repository: CnCodesRepository) {
 
   lazy val logger: Logger = Logger(this.getClass)
 
-  override def retrieveCnCodeInformation(cnInformationRequest: CnInformationRequest)(implicit
+  def retrieveCnCodeInformation(cnInformationRequest: CnInformationRequest)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): Future[Either[ErrorResponse, Map[String, CnCodeInformation]]] =
@@ -55,9 +55,10 @@ class RetrieveCnCodeInformationConnectorCRDL @Inject() (
       .fetchCnCodeInformation(cnInformationRequest)
       .map(Right(_))
       .recover {
-        case exception: Exception => {
+        case NonFatal(exception) => {
           logger.warn(
-            s"[RetrieveCnCodeInformationConnectorCRDL][retrieveCnCodeInformation] Unexpected Error fetching data from repository,", exception
+            s"[RetrieveCnCodeInformationConnector][retrieveCnCodeInformation] Unexpected Error fetching data from repository,",
+            exception
           )
           Left(ErrorResponse.UnexpectedDownstreamResponseError)
         }

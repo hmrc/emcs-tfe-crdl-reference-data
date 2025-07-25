@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.http.Status
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveAllEPCCodes.RetrieveAllEPCCodesConnector
+import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveAllEPCCodesConnector
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.AuthAction
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.{
   NoDataReturnedFromDatabaseError,

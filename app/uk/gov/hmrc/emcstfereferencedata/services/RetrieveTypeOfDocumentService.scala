@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.emcstfereferencedata.services
 
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveOtherReferenceData.RetrieveOtherReferenceDataConnector
+import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveOtherReferenceDataConnector
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.NoDataReturnedFromDatabaseError
 import uk.gov.hmrc.emcstfereferencedata.models.response.{ErrorResponse, TypeOfDocument}
 import uk.gov.hmrc.emcstfereferencedata.utils.Logging
@@ -26,16 +26,21 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RetrieveTypeOfDocumentService @Inject()(connector: RetrieveOtherReferenceDataConnector) extends Logging {
+class RetrieveTypeOfDocumentService @Inject() (connector: RetrieveOtherReferenceDataConnector)
+  extends Logging {
 
-  def retrieveTypesOfDocument()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Seq[TypeOfDocument]]] =
-    connector.retrieveTypesOfDocument()
-      .map {
-        case Left(value) => Left(value)
-        case Right(typesOfDocument) if typesOfDocument.nonEmpty => Right(TypeOfDocument(typesOfDocument))
-        case _ =>
+  def retrieveTypesOfDocument()(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[Either[ErrorResponse, Seq[TypeOfDocument]]] =
+    connector
+      .retrieveTypesOfDocument()
+      .map(_.flatMap { typesOfDocument =>
+        if (typesOfDocument.nonEmpty) {
+          Right(TypeOfDocument(typesOfDocument))
+        } else {
           logger.warn(s"No data returned for TypeOfDocument")
           Left(NoDataReturnedFromDatabaseError)
-      }
-
+        }
+      })
 }
