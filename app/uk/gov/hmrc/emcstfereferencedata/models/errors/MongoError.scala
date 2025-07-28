@@ -19,4 +19,5 @@ package uk.gov.hmrc.emcstfereferencedata.models.errors
 enum MongoError(val message: String, val cause: Throwable = null)
   extends Exception(message, cause) {
   case NotAcknowledged extends MongoError("Mongo write was not acknowledged")
+  case NoDataToInsert extends MongoError("No data was retrieved from crdl-cache")
 }

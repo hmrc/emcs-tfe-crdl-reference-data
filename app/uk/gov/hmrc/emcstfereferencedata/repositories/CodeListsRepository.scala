@@ -23,6 +23,7 @@ import org.mongodb.scala.model.Aggregates.*
 import org.mongodb.scala.model.Filters.*
 import org.mongodb.scala.model.Projections.*
 import org.mongodb.scala.model.{IndexModel, IndexOptions, Indexes}
+import play.api.Logger
 import play.api.libs.json.*
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListEntry}
 import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
@@ -69,11 +70,14 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
 
   // This collection's entries are cleared every time new codelists are imported
   override lazy val requiresTtlIndex: Boolean = false
+  lazy val logger: Logger = Logger(this.getClass)
 
   private val ExciseProducts                    = "BC36"
   private val CnCodes                           = "BC37"
   private val ProductCategories                 = "BC66"
   private val CnCodeExciseProductCorrespondence = "E200"
+
+
 
   private def lookupIn(
     codeListCode: String,
@@ -261,14 +265,19 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
     codeListCode: CodeListCode,
     crdlEntries: List[CrdlCodeListEntry]
   ): Future[Unit] =
-    for {
-      _ <- deleteCodeListEntries(session, Some(codeListCode))
+    if (crdlEntries.isEmpty) {
+      logger.error(s"[CodeListsRepository][saveCodeListEntries] Codelist ${codeListCode.value} received from crdl-cache was empty")
+      Future.failed(MongoError.NoDataToInsert) }
+    else
 
-      entries = crdlEntries.map(CodeListEntry.fromCrdlEntry(codeListCode, _))
+      for {
+        _ <- deleteCodeListEntries(session, Some(codeListCode))
 
-      _ <- collection.insertMany(session, entries).toFuture().map { result =>
-        if (!result.wasAcknowledged())
-          throw MongoError.NotAcknowledged
-      }
-    } yield ()
+        entries = crdlEntries.map(CodeListEntry.fromCrdlEntry(codeListCode, _))
+
+        _ <- collection.insertMany(session, entries).toFuture().map { result =>
+          if (!result.wasAcknowledged())
+            throw MongoError.NotAcknowledged
+        }
+      } yield ()
 }
