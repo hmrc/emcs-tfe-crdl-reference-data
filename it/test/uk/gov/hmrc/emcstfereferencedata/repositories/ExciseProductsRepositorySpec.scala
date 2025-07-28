@@ -20,10 +20,13 @@ import org.mongodb.scala.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import play.api.test.Helpers.await
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
+import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ExciseProductCode}
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
+import play.api.test.Helpers.defaultAwaitTimeout
 
 import scala.concurrent.ExecutionContext
 
@@ -211,6 +214,48 @@ class ExciseProductsRepositorySpec
       insertedEntries should contain theSameElementsAs newProducts
     }
   }
+
+  "throw an error and keep existing products when no products are fetched from CRDL-cache" in {
+    val existingProducts = List(
+      ExciseProductCode(
+        "B000",
+        "Beer",
+        "B",
+        "Beer",
+        3
+      ),
+      ExciseProductCode(
+        "E300",
+        "Mineral oils Products falling within CN codes 2707 10, 2707 20, 2707 30 and 2707 50 (Article 20(1)(b))",
+        "E",
+        "Energy Products",
+        2
+      ),
+      ExciseProductCode(
+        "E460",
+        "Kerosene, marked falling within CN code 2710 19 25 (Article 20(1)(c) of Directive 2003/96/EC)",
+        "E",
+        "Energy Products",
+        2
+      )
+    )
+
+    repository.collection.insertMany(existingProducts).toFuture().futureValue
+
+    val emptyList = List.empty
+    val result = withSessionAndTransaction {
+      repository.saveExciseProducts(_, emptyList)
+    }
+
+    assertThrows[MongoError.NoDataToInsert.type] {
+      await(result)
+    }
+
+    val entries = findAll().futureValue
+
+    entries should contain theSameElementsAs existingProducts
+  }
+
   "ExciseProductsRepository.fetchAllEPCCodes" should {
     "return all excise products in the database" in {
       repository.collection.insertMany(exciseProductsListSorted).toFuture().futureValue

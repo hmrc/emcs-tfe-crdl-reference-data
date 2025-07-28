@@ -20,11 +20,14 @@ import org.mongodb.scala.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import play.api.test.Helpers.await
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
+import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
 import uk.gov.hmrc.emcstfereferencedata.models.request.{CnInformationItem, CnInformationRequest}
 import uk.gov.hmrc.emcstfereferencedata.models.response.CnCodeInformation
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
+import play.api.test.Helpers.defaultAwaitTimeout
 
 import scala.concurrent.ExecutionContext
 
@@ -188,5 +191,40 @@ class CnCodesRepositorySpec
 
       insertedEntries should contain theSameElementsAs newCnCodes
     }
+    "throw an error and keep existing CnCodes when no products are fetched from CRDL-cache" in {
+      val existingCnCodes = List(
+        CnCodeInformation(
+          "22060059",
+          "Other still fermented beverages in containers holding 2 litres or less",
+          "B000",
+          "Beer",
+          unitOfMeasureCode = 3
+        ),
+        CnCodeInformation(
+          "22060059",
+          "Other still fermented beverages in containers holding 2 litres or less",
+          "I000",
+          "Intermediate products",
+          unitOfMeasureCode = 3
+        ),
+      )
+
+
+      repository.collection.insertMany(existingCnCodes).toFuture().futureValue
+
+      val emptyList = List.empty
+      val result = withSessionAndTransaction {
+        repository.saveCnCodes(_, emptyList)
+      }
+
+      assertThrows[MongoError] {
+        await(result)
+      }
+
+      val entries = findAll().futureValue
+
+      entries should contain theSameElementsAs existingCnCodes
+    }
+
   }
 }
