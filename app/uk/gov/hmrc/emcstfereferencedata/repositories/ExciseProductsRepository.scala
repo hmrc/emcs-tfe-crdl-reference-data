@@ -20,6 +20,7 @@ import org.mongodb.scala.*
 import org.mongodb.scala.model.Filters.*
 import org.mongodb.scala.model.Sorts.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions, Indexes}
+import play.api.Logger
 import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
 import uk.gov.hmrc.emcstfereferencedata.models.request.CnInformationRequest
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ExciseProductCode}
@@ -49,6 +50,7 @@ class ExciseProductsRepository @Inject() (val mongoComponent: MongoComponent)(us
 
   // This collection's entries are cleared every time new codelists are imported
   override lazy val requiresTtlIndex: Boolean = false
+  lazy val logger: Logger                     = Logger(this.getClass)
 
   def deleteExciseProducts(session: ClientSession): Future[Unit] =
     collection
@@ -63,13 +65,20 @@ class ExciseProductsRepository @Inject() (val mongoComponent: MongoComponent)(us
     session: ClientSession,
     exciseProducts: Seq[ExciseProductCode]
   ): Future[Unit] =
-    for {
-      _ <- deleteExciseProducts(session)
-      _ <- collection.insertMany(session, exciseProducts).toFuture().map { result =>
-        if (!result.wasAcknowledged())
-          throw MongoError.NotAcknowledged
-      }
-    } yield ()
+    if (exciseProducts.isEmpty) {
+      logger.error(
+        "[ExciseProductsRepository][saveExciseProducts] exciseProducts List received from CRDL-Cache was empty"
+      )
+      Future.failed(MongoError.NoDataToInsert)
+    } else
+
+      for {
+        _ <- deleteExciseProducts(session)
+        _ <- collection.insertMany(session, exciseProducts).toFuture().map { result =>
+          if (!result.wasAcknowledged())
+            throw MongoError.NotAcknowledged
+        }
+      } yield ()
 
   def fetchExciseProductsForCategory(categoryCode: String): Future[Seq[ExciseProductCode]] =
     collection
