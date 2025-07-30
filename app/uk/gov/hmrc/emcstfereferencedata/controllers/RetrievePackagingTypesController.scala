@@ -18,8 +18,10 @@ package uk.gov.hmrc.emcstfereferencedata.controllers
 
 import play.api.libs.json.{Json, Reads}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import uk.gov.hmrc.emcstfereferencedata.connector.RetrievePackagingTypesConnector
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.{AuthAction, AuthActionHelper}
-import uk.gov.hmrc.emcstfereferencedata.services.RetrievePackagingTypesService
+import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.NoDataReturnedFromDatabaseError
+import uk.gov.hmrc.emcstfereferencedata.utils.Logging
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
@@ -28,31 +30,40 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class RetrievePackagingTypesController @Inject() (
   cc: ControllerComponents,
-  service: RetrievePackagingTypesService,
+  connector: RetrievePackagingTypesConnector,
   override val auth: AuthAction
 )(implicit ec: ExecutionContext)
   extends BackendController(cc)
-  with AuthActionHelper {
+  with AuthActionHelper
+  with Logging {
 
   def showAllPackagingTypes(isCountable: Option[Boolean]): Action[AnyContent] =
     authorisedUserGetRequest { implicit request =>
-      service.retrievePackagingTypes(packagingTypeCodes = None, isCountable).map {
-        case Right(response) =>
-          Ok(Json.toJson(response))
-        case Left(error) =>
-          InternalServerError(Json.toJson(error))
-      }
+      connector
+        .retrievePackagingTypes(packagingTypeCodes = None, isCountable)
+        .map { response =>
+          if (response.nonEmpty) {
+            Ok(Json.toJson(response))
+          } else {
+            logger.warn("No data returned for all packaging types")
+            InternalServerError(Json.toJson(NoDataReturnedFromDatabaseError))
+          }
+        }
     }
 
   def show: Action[Set[String]] =
     authorisedUserPostRequest(Reads.of[Set[String]]) { implicit request =>
-      service
+      connector
         .retrievePackagingTypes(packagingTypeCodes = Some(request.body), isCountable = None)
-        .map {
-          case Right(response) =>
+        .map { response =>
+          if (response.nonEmpty) {
             Ok(Json.toJson(response))
-          case Left(error) =>
-            InternalServerError(Json.toJson(error))
+          } else {
+            logger.warn(
+              s"No data returned for input packaging types: ${request.body.mkString(",")}"
+            )
+            InternalServerError(Json.toJson(NoDataReturnedFromDatabaseError))
+          }
         }
     }
 }

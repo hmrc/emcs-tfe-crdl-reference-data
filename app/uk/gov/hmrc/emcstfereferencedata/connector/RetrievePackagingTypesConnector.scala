@@ -20,12 +20,10 @@ import play.api.Logger
 import uk.gov.hmrc.emcstfereferencedata.connector.crdl.CrdlConnector
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode.BC17
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
 
 @Singleton
 class RetrievePackagingTypesConnector @Inject() (crdlConnector: CrdlConnector) {
@@ -38,8 +36,7 @@ class RetrievePackagingTypesConnector @Inject() (crdlConnector: CrdlConnector) {
   )(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext
-  ): Future[Either[ErrorResponse, Map[String, String]]] = {
-
+  ): Future[Map[String, String]] = {
     crdlConnector
       .fetchCodeList(
         BC17,
@@ -47,16 +44,7 @@ class RetrievePackagingTypesConnector @Inject() (crdlConnector: CrdlConnector) {
         isCountable.map(countable => Map("countableFlag" -> countable))
       )
       .map { codeListEntries =>
-        val mappedEntries: Map[String, String] =
-          codeListEntries.map(entry => entry.key -> entry.value).toMap
-        Right(mappedEntries)
-      }
-      .recover { case NonFatal(ex) =>
-        logger.warn(
-          s"[RetrievePackagingTypesConnector][retrievePackagingTypes] Failed response from crdl-cache",
-          ex
-        )
-        Left(ErrorResponse.UnexpectedDownstreamResponseError)
+        codeListEntries.map(entry => entry.key -> entry.value).toMap
       }
   }
 }

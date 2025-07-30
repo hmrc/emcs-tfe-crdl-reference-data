@@ -29,7 +29,7 @@ trait MockRetrievePackagingTypesConnector extends MockFactory { this: TestSuite 
   lazy val mockConnector: RetrievePackagingTypesConnector = mock[RetrievePackagingTypesConnector]
 
   object MockConnector {
-    def retrievePackagingTypes(packagingTypeCodes: Option[Set[String]], isCountable: Option[Boolean])(response: Future[Either[ErrorResponse, Map[String, String]]]): CallHandler4[Option[Set[String]], Option[Boolean], HeaderCarrier, ExecutionContext, Future[Either[ErrorResponse, Map[String, String]]]] =
+    def retrievePackagingTypes(packagingTypeCodes: Option[Set[String]], isCountable: Option[Boolean])(response: Future[Map[String, String]]): CallHandler4[Option[Set[String]], Option[Boolean], HeaderCarrier, ExecutionContext, Future[Map[String, String]]] =
       (mockConnector.retrievePackagingTypes(_: Option[Set[String]],_: Option[Boolean])(_: HeaderCarrier, _: ExecutionContext)).expects(packagingTypeCodes, isCountable, *, *).returns(response)
   }
 

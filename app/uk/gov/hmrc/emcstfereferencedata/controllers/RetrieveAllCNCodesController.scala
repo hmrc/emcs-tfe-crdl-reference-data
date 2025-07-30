@@ -20,7 +20,6 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveAllCNCodesConnector
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.{AuthAction, AuthActionHelper}
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
@@ -35,13 +34,8 @@ class RetrieveAllCNCodesController @Inject()(cc: ControllerComponents,
 
   def get(exciseProductCode: String): Action[AnyContent] = authorisedUserGetRequest {
     implicit request =>
-      connector.retrieveAllCnCodes(exciseProductCode).map {
-        case Right(response) =>
+      connector.retrieveAllCnCodes(exciseProductCode).map { response =>
           Ok(Json.toJson(response))
-        case Left(ErrorResponse.NoDataReturnedFromDatabaseError) =>
-          Ok(Json.arr())
-        case Left(error) =>
-          InternalServerError(Json.toJson(error))
       }
   }
 

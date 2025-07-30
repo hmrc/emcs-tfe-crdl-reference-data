@@ -18,16 +18,15 @@ package uk.gov.hmrc.emcstfereferencedata.connector
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
 import uk.gov.hmrc.emcstfereferencedata.repositories.CnCodesRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
-import org.scalatest.BeforeAndAfterEach
 
 class RetrieveAllCNCodesConnectorSpec
   extends AsyncWordSpec
@@ -51,7 +50,7 @@ class RetrieveAllCNCodesConnectorSpec
         when(repository.fetchCnCodesForProduct(any()))
           .thenReturn(Future.successful(Seq(testCnCodeInformation1)))
 
-        connector.retrieveAllCnCodes("T400").map(_ shouldBe Right(Seq(testCnCodeInformation1)))
+        connector.retrieveAllCnCodes("T400").map(_ shouldBe Seq(testCnCodeInformation1))
 
       }
     }
@@ -60,18 +59,19 @@ class RetrieveAllCNCodesConnectorSpec
       "return a empty list" in {
         when(repository.fetchCnCodesForProduct(any())).thenReturn(Future.successful(Seq.empty))
 
-        connector.retrieveAllCnCodes("doesn't exist").map(_ shouldBe Right(Seq.empty))
+        connector.retrieveAllCnCodes("doesn't exist").map(_ shouldBe Seq.empty)
 
       }
     }
+
     "when there is an error fetching data" should {
-      "return an error response" in {
+      "rethrow the exception" in {
         when(repository.fetchCnCodesForProduct(any()))
           .thenReturn(Future.failed(new RuntimeException("Simulated failure")))
 
-        connector
-          .retrieveAllCnCodes(testCnCode1)
-          .map(_ shouldBe Left(ErrorResponse.UnexpectedDownstreamResponseError))
+        recoverToSucceededIf[RuntimeException] {
+          connector.retrieveAllCnCodes(testCnCode1)
+        }
       }
     }
   }

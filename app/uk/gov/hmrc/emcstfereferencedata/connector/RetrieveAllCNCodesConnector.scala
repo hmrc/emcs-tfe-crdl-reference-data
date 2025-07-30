@@ -17,13 +17,12 @@
 package uk.gov.hmrc.emcstfereferencedata.connector
 
 import play.api.Logger
-import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ErrorResponse}
+import uk.gov.hmrc.emcstfereferencedata.models.response.CnCodeInformation
 import uk.gov.hmrc.emcstfereferencedata.repositories.CnCodesRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
 
 @Singleton
 class RetrieveAllCNCodesConnector @Inject() (repository: CnCodesRepository) {
@@ -35,20 +34,7 @@ class RetrieveAllCNCodesConnector @Inject() (repository: CnCodesRepository) {
   )(using
     ec: ExecutionContext,
     hc: HeaderCarrier
-  ): Future[Either[ErrorResponse, Seq[CnCodeInformation]]] = {
-
-    repository
-      .fetchCnCodesForProduct(exciseProductCode)
-      .map(Right(_))
-      .recover {
-        case NonFatal(ex) => {
-          logger.warn(
-            "[RetrieveAllCnCodesConnector][retrieveAllCnCodes] Unexpected Error fetching data from repository",
-            ex
-          )
-          Left(ErrorResponse.UnexpectedDownstreamResponseError)
-        }
-      }
+  ): Future[Seq[CnCodeInformation]] = {
+    repository.fetchCnCodesForProduct(exciseProductCode)
   }
-
 }

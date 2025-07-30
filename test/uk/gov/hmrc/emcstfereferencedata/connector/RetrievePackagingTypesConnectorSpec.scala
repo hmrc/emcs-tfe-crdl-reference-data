@@ -31,13 +31,13 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
+import org.scalatest.wordspec.AsyncWordSpec
 
 class RetrievePackagingTypesConnectorSpec
-  extends AnyWordSpec
-    with Matchers
-    with ScalaFutures
-    with MockitoSugar
-    with BeforeAndAfterEach {
+  extends AsyncWordSpec
+  with Matchers
+  with MockitoSugar
+  with BeforeAndAfterEach {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -49,7 +49,7 @@ class RetrievePackagingTypesConnectorSpec
       key = "1A",
       value = "Drum, steel",
       properties = Json.obj(
-        "countableFlag" -> true,
+        "countableFlag"        -> true,
         "actionIdentification" -> "1236"
       )
     ),
@@ -80,50 +80,65 @@ class RetrievePackagingTypesConnectorSpec
   }
 
   "RetrievePackagingTypesConnector" should {
-    "return a Right(Map) when CrdlConnector returns valid entries and isCountable parameter is not provided" in {
+    "return a Map of entries when CrdlConnector returns valid entries and isCountable parameter is not provided" in {
       when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(None))(using any(), any()))
         .thenReturn(Future.successful(crdlEntries))
 
-      val result = connector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = None).futureValue
+      connector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = None).map {
+        result =>
+          result shouldBe Map(
+            "1A" -> "Drum, steel",
+            "1B" -> "Drum, aluminium",
+            "NE" -> "Unpacked or unpackaged",
+            "AE" -> "Aerosol",
+            "AM" -> "Ampoule, non protected"
+          )
+      }
+    }
 
-      result shouldBe Right(
-        Map(
-          "1A" -> "Drum, steel",
-          "1B" -> "Drum, aluminium",
-          "NE" -> "Unpacked or unpackaged",
-          "AE" -> "Aerosol",
-          "AM" -> "Ampoule, non protected"
-        )
+    "return a Map of entries when CrdlConnector returns valid entries and isCountable parameter is true" in {
+      when(
+        crdlConnector.fetchCodeList(
+          any(),
+          equalTo(None),
+          equalTo(Some(Map("countableFlag" -> true)))
+        )(using any(), any())
       )
-    }
-
-    "return a Right(Map) when CrdlConnector returns valid entries and isCountable parameter is true" in {
-      when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(Some(Map("countableFlag"->true))))(using any(), any()))
         .thenReturn(Future.successful(crdlEntries))
 
-      val result = connector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(true)).futureValue
-
-      result shouldBe a[Right[_,_]]
+      connector
+        .retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(true))
+        .map { result =>
+          result shouldBe a[Map[_, _]]
+        }
     }
 
-    "return a Right(Map) when CrdlConnector returns valid entries and isCountable parameter is false" in {
-      when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(Some(Map("countableFlag"->false))))(using any(), any()))
+    "return a Map of entries when CrdlConnector returns valid entries and isCountable parameter is false" in {
+      when(
+        crdlConnector.fetchCodeList(
+          any(),
+          equalTo(None),
+          equalTo(Some(Map("countableFlag" -> false)))
+        )(using any(), any())
+      )
         .thenReturn(Future.successful(crdlEntries))
 
-      val result = connector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(false)).futureValue
-
-      result shouldBe a[Right[_,_]]
+      connector
+        .retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(false))
+        .map { result =>
+          result shouldBe a[Map[_, _]]
+        }
     }
   }
 
-  "return a Left(ErrorResponse) when unable to receive data from crdl-cache" in {
+  "throw UpstreamErrorResponse when unable to receive data from crdl-cache" in {
 
     when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(None))(using any(), any()))
       .thenReturn(Future.failed(UpstreamErrorResponse("Service unavailable", 503)))
 
-    val result = connector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = None).futureValue
-
-    result shouldBe Left(ErrorResponse.UnexpectedDownstreamResponseError)
+    recoverToSucceededIf[UpstreamErrorResponse] {
+      connector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = None)
+    }
   }
 
 }
