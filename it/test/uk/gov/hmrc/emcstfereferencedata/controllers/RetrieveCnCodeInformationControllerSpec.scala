@@ -25,10 +25,6 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.AuthAction
 import uk.gov.hmrc.emcstfereferencedata.models.response.CnCodeInformation
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.{
-  NoDataReturnedFromDatabaseError,
-  UnexpectedDownstreamResponseError
-}
 import uk.gov.hmrc.emcstfereferencedata.services.RetrieveCnCodeInformationService
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HttpResponse, StringContextOps}
@@ -83,7 +79,7 @@ class RetrieveCnCodeInformationControllerSpec extends ControllerIntegrationSpec 
             any()
           )
         )
-          .thenReturn(Future.successful(Right(cnCodeInformationResponse)))
+          .thenReturn(Future.successful(cnCodeInformationResponse))
 
         val response =
           httpClientV2
@@ -116,25 +112,10 @@ class RetrieveCnCodeInformationControllerSpec extends ControllerIntegrationSpec 
     }
 
     "return 500 Internal Service Error" when {
-      "the connector returns a NoDataReturnedFromDatabaseError" in {
+      "the connector returns no data" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
         when(cnCodesService.retrieveCnCodeInformation(any())(using any(), any()))
-          .thenReturn(Future.successful(Left(NoDataReturnedFromDatabaseError)))
-
-        val response =
-          httpClientV2
-            .post(url"$baseUrl/oracle/cn-code-information")
-            .withBody(cnCodeInformationRequest)
-            .execute[HttpResponse]
-            .futureValue
-
-        response.status shouldBe Status.INTERNAL_SERVER_ERROR
-      }
-
-      "the connector returns an UnexpectedDownstreamResponseError" in {
-        when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(cnCodesService.retrieveCnCodeInformation(any())(using any(), any()))
-          .thenReturn(Future.successful(Left(UnexpectedDownstreamResponseError)))
+          .thenReturn(Future.successful(Map.empty))
 
         val response =
           httpClientV2

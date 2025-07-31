@@ -24,13 +24,9 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.AuthAction
 import uk.gov.hmrc.emcstfereferencedata.models.response.Country
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.{
-  NoDataReturnedFromDatabaseError,
-  UnexpectedDownstreamResponseError
-}
 import uk.gov.hmrc.emcstfereferencedata.services.RetrieveMemberStatesAndCountriesService
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.{HttpResponse, StringContextOps, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
@@ -59,7 +55,7 @@ class RetrieveMemberStatesAndCountriesControllerSpec extends ControllerIntegrati
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
         when(countriesService.get()(using any(), any()))
-          .thenReturn(Future.successful(Right(memberStatesAndCountriesResult)))
+          .thenReturn(Future.successful(memberStatesAndCountriesResult))
 
         val response =
           httpClientV2
@@ -88,24 +84,10 @@ class RetrieveMemberStatesAndCountriesControllerSpec extends ControllerIntegrati
     }
 
     "return 500 Internal Service Error" when {
-      "the connector returns a NoDataReturnedFromDatabaseError" in {
+      "the connector returns no data" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
         when(countriesService.get()(using any(), any()))
-          .thenReturn(Future.successful(Left(NoDataReturnedFromDatabaseError)))
-
-        val response =
-          httpClientV2
-            .get(url"$baseUrl/oracle/member-states-and-countries")
-            .execute[HttpResponse]
-            .futureValue
-
-        response.status shouldBe Status.INTERNAL_SERVER_ERROR
-      }
-
-      "the connector returns an UnexpectedDownstreamResponseError" in {
-        when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(countriesService.get()(using any(), any()))
-          .thenReturn(Future.successful(Left(UnexpectedDownstreamResponseError)))
+          .thenReturn(Future.successful(Seq.empty))
 
         val response =
           httpClientV2
@@ -128,6 +110,24 @@ class RetrieveMemberStatesAndCountriesControllerSpec extends ControllerIntegrati
             .futureValue
 
         response.status shouldBe Status.INTERNAL_SERVER_ERROR
+      }
+    }
+
+    "return the `reportAs` status code" when {
+      "the service throws an UpstreamErrorResponse" in {
+        when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
+
+        when(
+          countriesService.get()(using any(), any())
+        ).thenReturn(Future.failed(UpstreamErrorResponse("Internal Server Error", 500, 502)))
+
+        val response =
+          httpClientV2
+            .get(url"$baseUrl/oracle/member-states-and-countries")
+            .execute[HttpResponse]
+            .futureValue
+
+        response.status shouldBe Status.BAD_GATEWAY
       }
     }
   }

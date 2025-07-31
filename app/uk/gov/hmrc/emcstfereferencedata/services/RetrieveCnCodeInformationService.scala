@@ -16,12 +16,9 @@
 
 package uk.gov.hmrc.emcstfereferencedata.services
 
-import uk.gov.hmrc.emcstfereferencedata.connector.{
-  RetrieveCnCodeInformationConnector,
-  RetrieveProductCodesConnector
-}
 import uk.gov.hmrc.emcstfereferencedata.models.request.CnInformationRequest
-import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ErrorResponse}
+import uk.gov.hmrc.emcstfereferencedata.models.response.CnCodeInformation
+import uk.gov.hmrc.emcstfereferencedata.repositories.{CnCodesRepository, ExciseProductsRepository}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
@@ -30,8 +27,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class RetrieveCnCodeInformationService @Inject() (
-  cnCodeConnector: RetrieveCnCodeInformationConnector,
-  productCodesConnector: RetrieveProductCodesConnector
+  cnCodesRepository: CnCodesRepository,
+  exciseProductsRepository: ExciseProductsRepository
 ) {
 
   private val productCodesWithoutCnCode: Seq[String] = Seq("S500")
@@ -39,7 +36,7 @@ class RetrieveCnCodeInformationService @Inject() (
   def retrieveCnCodeInformation(cnInformationRequest: CnInformationRequest)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext
-  ): Future[Either[ErrorResponse, Map[String, CnCodeInformation]]] = {
+  ): Future[Map[String, CnCodeInformation]] = {
     // Filter out products with no CN codes
     val productCodesConnectorRequest = cnInformationRequest.copy(items =
       cnInformationRequest.items.filter(item =>
@@ -47,15 +44,11 @@ class RetrieveCnCodeInformationService @Inject() (
       )
     )
 
-    val fetchCnCodes      = cnCodeConnector.retrieveCnCodeInformation(cnInformationRequest)
-    val fetchProductCodes = productCodesConnector.retrieveProductCodes(productCodesConnectorRequest)
+    val fetchCnCodes      = cnCodesRepository.fetchCnCodeInformation(cnInformationRequest)
+    val fetchProductCodes = exciseProductsRepository.fetchProductCodesInformation(productCodesConnectorRequest)
 
     fetchCnCodes.zip(fetchProductCodes).map {
-      case (cnCodeConnectorResult, productCodesConnectorResult) =>
-        for {
-          cnCodes      <- cnCodeConnectorResult
-          productCodes <- productCodesConnectorResult
-        } yield cnCodes ++ productCodes
+      case (cnCodes, productCodes) => cnCodes ++ productCodes
     }
   }
 

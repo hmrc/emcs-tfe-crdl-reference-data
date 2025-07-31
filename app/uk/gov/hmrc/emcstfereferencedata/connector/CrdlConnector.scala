@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.connector.crdl
+package uk.gov.hmrc.emcstfereferencedata.connector
 
 import com.typesafe.config.Config
 import org.apache.pekko.actor.ActorSystem
@@ -25,9 +25,9 @@ import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.UpstreamErrorResponse.{Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.http.client.HttpClientV2
 
+import java.net.URL
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import java.net.URL
 
 @Singleton
 class CrdlConnector @Inject()(config: AppConfig, httpClient: HttpClientV2)(using

@@ -18,9 +18,8 @@ package uk.gov.hmrc.emcstfereferencedata.controllers
 
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveAllCNCodesConnector
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.{AuthAction, AuthActionHelper}
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
+import uk.gov.hmrc.emcstfereferencedata.repositories.CnCodesRepository
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
@@ -28,20 +27,15 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class RetrieveAllCNCodesController @Inject()(cc: ControllerComponents,
-                                             connector: RetrieveAllCNCodesConnector,
+                                             repository: CnCodesRepository,
                                              override val auth: AuthAction
                                                    )(implicit ec: ExecutionContext) extends BackendController(cc) with AuthActionHelper {
 
 
   def get(exciseProductCode: String): Action[AnyContent] = authorisedUserGetRequest {
     implicit request =>
-      connector.retrieveAllCnCodes(exciseProductCode).map {
-        case Right(response) =>
+      repository.fetchCnCodesForProduct(exciseProductCode).map { response =>
           Ok(Json.toJson(response))
-        case Left(ErrorResponse.NoDataReturnedFromDatabaseError) =>
-          Ok(Json.arr())
-        case Left(error) =>
-          InternalServerError(Json.toJson(error))
       }
   }
 

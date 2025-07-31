@@ -16,9 +16,7 @@
 
 package uk.gov.hmrc.emcstfereferencedata.services
 
-import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveOtherReferenceDataConnector
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.NoDataReturnedFromDatabaseError
-import uk.gov.hmrc.emcstfereferencedata.models.response.{Country, ErrorResponse}
+import uk.gov.hmrc.emcstfereferencedata.models.response.Country
 import uk.gov.hmrc.emcstfereferencedata.utils.{Logging, StringUtils}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -26,35 +24,28 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RetrieveMemberStatesAndCountriesService @Inject() (
-  connector: RetrieveOtherReferenceDataConnector
-) extends Logging {
+class RetrieveMemberStatesAndCountriesService @Inject()(
+                                                         connector: RetrieveOtherReferenceDataService
+                                                       ) extends Logging {
 
   def get()(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext
-  ): Future[Either[ErrorResponse, Seq[Country]]] = {
+            hc: HeaderCarrier,
+            ec: ExecutionContext
+  ): Future[Seq[Country]] = {
     val fetchMemberStates = connector.retrieveMemberStates()
-    val fetchCountries    = connector.retrieveCountries()
+    val fetchCountries = connector.retrieveCountries()
 
-    val memberStatesAndCountriesResult =
-      fetchMemberStates.zip(fetchCountries).map { case (memberStatesResponse, countriesResponse) =>
-        for {
-          memberStates <- memberStatesResponse
-          countries    <- countriesResponse
-          memberStatesAndCountries = memberStates ++ countries
-        } yield memberStatesAndCountries.map { case (k, v) =>
+    val memberStatesAndCountriesResult: Future[Map[String, String]] =
+      fetchMemberStates.zip(fetchCountries).map { case (memberStates, countries) =>
+        val memberStatesAndCountries = memberStates ++ countries
+        memberStatesAndCountries.map { case (k, v) =>
           (k, StringUtils.addSmartQuotes(v))
         }
       }
 
-    memberStatesAndCountriesResult.map(_.flatMap { countries =>
-      if (countries.nonEmpty) {
-        Right(Country(countries).sortBy(_.country))
-      } else {
-        logger.warn(s"No data returned for member states or countries")
-        Left(NoDataReturnedFromDatabaseError)
-      }
-    })
+    memberStatesAndCountriesResult.map { countries =>
+      Country(countries).sortBy(_.country)
+    }
+
   }
 }

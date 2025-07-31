@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.connector
+package uk.gov.hmrc.emcstfereferencedata.services
 
 import org.mockito.ArgumentMatchers.{any, eq as equalTo}
 import org.mockito.Mockito.{reset, when}
@@ -23,23 +23,22 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
-import uk.gov.hmrc.emcstfereferencedata.connector.crdl.CrdlConnector
+import uk.gov.hmrc.emcstfereferencedata.connector.CrdlConnector
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode.BC35
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListEntry}
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
-class RetrieveOtherReferenceDataConnectorSpec
+class RetrieveOtherReferenceDataServiceSpec
   extends AsyncWordSpec
   with Matchers
   with MockitoSugar
   with BaseFixtures
   with BeforeAndAfterEach {
   private val crdlConnector = mock[CrdlConnector]
-  private val connector     = new RetrieveOtherReferenceDataConnector(crdlConnector)
+  private val connector     = new RetrieveOtherReferenceDataService(crdlConnector)
   private val codeListCode  = BC35
 
   given HeaderCarrier = HeaderCarrier()
@@ -65,7 +64,7 @@ class RetrieveOtherReferenceDataConnectorSpec
 
       connector
         .retrieveOtherReferenceData(codeListCode, filterKeys = None)
-        .map(_ shouldBe Right(transportUnitsResult))
+        .map(_ shouldBe transportUnitsResult)
 
     }
 
@@ -75,17 +74,17 @@ class RetrieveOtherReferenceDataConnectorSpec
 
       connector
         .retrieveOtherReferenceData(codeListCode, filterKeys = None)
-        .map(_ shouldBe Right(Map.empty))
+        .map(_ shouldBe Map.empty)
 
     }
 
-    "when there is an error fetching data return an error response" in {
+    "when there is an error fetching data return an UpstreamErrorResponse" in {
       when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(None))(using any(), any()))
-        .thenReturn(Future.failed(new RuntimeException("Simulated failure")))
-
-      connector
-        .retrieveOtherReferenceData(codeListCode, filterKeys = None)
-        .map(_ shouldBe Left(ErrorResponse.UnexpectedDownstreamResponseError))
+        .thenReturn(Future.failed(UpstreamErrorResponse("Service unavailable", 503)))
+      
+        recoverToSucceededIf[UpstreamErrorResponse] {
+          connector.retrieveOtherReferenceData(codeListCode, filterKeys = None)
+        }
     }
   }
   "RetrieveOtherReferenceDataConnector.retrieveWineOperations" should {
@@ -103,7 +102,7 @@ class RetrieveOtherReferenceDataConnectorSpec
 
       connector
         .retrieveWineOperations(filterKeys = None)
-        .map(_ shouldBe Right(testWineOperationsResult))
+        .map(_ shouldBe testWineOperationsResult)
     }
   }
   "RetrieveOtherReferenceDataConnector.retrieveMemberStates" should {
@@ -119,7 +118,7 @@ class RetrieveOtherReferenceDataConnectorSpec
       )
         .thenReturn(Future.successful(codeListEntrySeq))
 
-      connector.retrieveMemberStates().map(_ shouldBe Right(memberStatesResult))
+      connector.retrieveMemberStates().map(_ shouldBe memberStatesResult)
     }
   }
 
@@ -136,7 +135,7 @@ class RetrieveOtherReferenceDataConnectorSpec
       )
         .thenReturn(Future.successful(codeListEntrySeq))
 
-      connector.retrieveCountries().map(_ shouldBe Right(countriesResult))
+      connector.retrieveCountries().map(_ shouldBe countriesResult)
     }
   }
 
@@ -149,7 +148,7 @@ class RetrieveOtherReferenceDataConnectorSpec
       )
         .thenReturn(Future.successful(codeListEntrySeq))
 
-      connector.retrieveTransportUnits().map(_ shouldBe Right(transportUnitsResult))
+      connector.retrieveTransportUnits().map(_ shouldBe transportUnitsResult)
     }
   }
 
@@ -165,7 +164,7 @@ class RetrieveOtherReferenceDataConnectorSpec
       )
         .thenReturn(Future.successful(codeListEntrySeq))
 
-      connector.retrieveTypesOfDocument().map(_ shouldBe Right(typesOfDocumentResult))
+      connector.retrieveTypesOfDocument().map(_ shouldBe typesOfDocumentResult)
     }
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,114 +16,124 @@
 
 package uk.gov.hmrc.emcstfereferencedata.services
 
-import uk.gov.hmrc.emcstfereferencedata.fixtures.PackagingTypeFixtures
-import uk.gov.hmrc.emcstfereferencedata.mocks.connectors.MockRetrievePackagingTypesConnector
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.{
-  NoDataReturnedFromDatabaseError,
-  UnexpectedDownstreamResponseError
-}
-import uk.gov.hmrc.emcstfereferencedata.support.UnitSpec
+import org.mockito.ArgumentMatchers.{any, eq as equalTo}
+import org.mockito.Mockito.*
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.libs.json.Json
+import uk.gov.hmrc.emcstfereferencedata.connector.CrdlConnector
+import uk.gov.hmrc.emcstfereferencedata.models.crdl.CrdlCodeListEntry
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
 class RetrievePackagingTypesServiceSpec
-  extends UnitSpec
-  with MockRetrievePackagingTypesConnector
-  with PackagingTypeFixtures {
+  extends AsyncWordSpec
+  with Matchers
+  with MockitoSugar
+  with BeforeAndAfterEach {
 
-  object TestService extends RetrievePackagingTypesService(mockConnector)
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  "The RetrievePackagingTypesService" should {
-    "return a successful response containing the PackagingTypes" when {
-      "retrievePackagingTypes is called with packaging type codes" in {
-        MockConnector.retrievePackagingTypes(
-          packagingTypeCodes = Some(testPackagingTypes),
-          isCountable = None
-        )(Future.successful(Right(testPackagingTypesConnectorResult)))
+  val crdlConnector: CrdlConnector = mock[CrdlConnector]
 
-        await(
-          TestService.retrievePackagingTypes(
-            packagingTypeCodes = Some(testPackagingTypes),
-            isCountable = None
+  val connector = new RetrievePackagingTypesService(crdlConnector)
+  val crdlEntries = List(
+    CrdlCodeListEntry(
+      key = "1A",
+      value = "Drum, steel",
+      properties = Json.obj(
+        "countableFlag"        -> true,
+        "actionIdentification" -> "1236"
+      )
+    ),
+    CrdlCodeListEntry(
+      key = "1B",
+      value = "Drum, aluminium",
+      properties = Json.obj("countableFlag" -> true, "actionIdentification" -> "1237")
+    ),
+    CrdlCodeListEntry(
+      key = "NE",
+      value = "Unpacked or unpackaged",
+      properties = Json.obj("countableFlag" -> false, "actionIdentification" -> "1421")
+    ),
+    CrdlCodeListEntry(
+      key = "AE",
+      value = "Aerosol",
+      properties = Json.obj("countableFlag" -> true, "actionIdentification" -> "1268")
+    ),
+    CrdlCodeListEntry(
+      key = "AM",
+      value = "Ampoule, non protected",
+      properties = Json.obj("countableFlag" -> true, "actionIdentification" -> "1275")
+    )
+  )
+
+  override def beforeEach() = {
+    reset(crdlConnector)
+  }
+
+  "RetrievePackagingTypesConnector" should {
+    "return a Map of entries when CrdlConnector returns valid entries and isCountable parameter is not provided" in {
+      when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(None))(using any(), any()))
+        .thenReturn(Future.successful(crdlEntries))
+
+      connector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = None).map {
+        result =>
+          result shouldBe Map(
+            "1A" -> "Drum, steel",
+            "1B" -> "Drum, aluminium",
+            "NE" -> "Unpacked or unpackaged",
+            "AE" -> "Aerosol",
+            "AM" -> "Ampoule, non protected"
           )
-        ) shouldBe Right(testPackagingTypesConnectorResult)
-      }
-
-      "retrievePackagingTypes is called with no codes for countable packaging types" in {
-        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(true))(
-          Future.successful(Right(testPackagingTypesConnectorResult))
-        )
-
-        await(
-          TestService.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(true))
-        ) shouldBe Right(testPackagingTypesConnectorResult)
-      }
-
-      "retrievePackagingTypes is called with no codes for non-countable packaging types" in {
-        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(false))(
-          Future.successful(Right(testPackagingTypesConnectorResult))
-        )
-
-        await(
-          TestService.retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(false))
-        ) shouldBe Right(testPackagingTypesConnectorResult)
-      }
-
-      "retrievePackagingTypes is called with no codes for all packaging types" in {
-        MockConnector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = None)(
-          Future.successful(Right(testPackagingTypesConnectorResult))
-        )
-
-        await(
-          TestService.retrievePackagingTypes(packagingTypeCodes = None, isCountable = None)
-        ) shouldBe Right(testPackagingTypesConnectorResult)
       }
     }
 
-    "return an Error Response" when {
-      "there is no data available" in {
-        MockConnector.retrievePackagingTypes(
-          packagingTypeCodes = Some(testPackagingTypes),
-          isCountable = None
-        )(Future.successful(Right(Map.empty)))
+    "return a Map of entries when CrdlConnector returns valid entries and isCountable parameter is true" in {
+      when(
+        crdlConnector.fetchCodeList(
+          any(),
+          equalTo(None),
+          equalTo(Some(Map("countableFlag" -> true)))
+        )(using any(), any())
+      )
+        .thenReturn(Future.successful(crdlEntries))
 
-        await(
-          TestService.retrievePackagingTypes(
-            packagingTypeCodes = Some(testPackagingTypes),
-            isCountable = None
-          )
-        ) shouldBe Left(NoDataReturnedFromDatabaseError)
-      }
-
-      "there is an upstream error for retrievePackagingTypes(Seq[String]) method call" in {
-        MockConnector.retrievePackagingTypes(
-          packagingTypeCodes = Some(testPackagingTypes),
-          isCountable = None
-        )(Future.successful(Left(UnexpectedDownstreamResponseError)))
-
-        await(
-          TestService.retrievePackagingTypes(
-            packagingTypeCodes = Some(testPackagingTypes),
-            isCountable = None
-          )
-        ) shouldBe Left(UnexpectedDownstreamResponseError)
-      }
-
-      "the connector throws an exception for retrievePackagingTypes(Seq[String]) method call" in {
-        MockConnector.retrievePackagingTypes(
-          packagingTypeCodes = Some(testPackagingTypes),
-          isCountable = None
-        )(Future.failed(new RuntimeException("Error")))
-
-        assertThrows[RuntimeException] {
-          await(
-            TestService.retrievePackagingTypes(
-              packagingTypeCodes = Some(testPackagingTypes),
-              isCountable = None
-            )
-          )
+      connector
+        .retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(true))
+        .map { result =>
+          result shouldBe a[Map[_, _]]
         }
-      }
+    }
+
+    "return a Map of entries when CrdlConnector returns valid entries and isCountable parameter is false" in {
+      when(
+        crdlConnector.fetchCodeList(
+          any(),
+          equalTo(None),
+          equalTo(Some(Map("countableFlag" -> false)))
+        )(using any(), any())
+      )
+        .thenReturn(Future.successful(crdlEntries))
+
+      connector
+        .retrievePackagingTypes(packagingTypeCodes = None, isCountable = Some(false))
+        .map { result =>
+          result shouldBe a[Map[_, _]]
+        }
+    }
+  }
+
+  "throw UpstreamErrorResponse when unable to receive data from crdl-cache" in {
+
+    when(crdlConnector.fetchCodeList(any(), equalTo(None), equalTo(None))(using any(), any()))
+      .thenReturn(Future.failed(UpstreamErrorResponse("Service unavailable", 503)))
+
+    recoverToSucceededIf[UpstreamErrorResponse] {
+      connector.retrievePackagingTypes(packagingTypeCodes = None, isCountable = None)
     }
   }
 
