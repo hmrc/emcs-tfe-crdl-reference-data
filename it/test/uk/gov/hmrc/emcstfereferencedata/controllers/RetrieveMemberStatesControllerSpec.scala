@@ -24,31 +24,27 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.AuthAction
 import uk.gov.hmrc.emcstfereferencedata.models.response.Country
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.{
-  NoDataReturnedFromDatabaseError,
-  UnexpectedDownstreamResponseError
-}
-import uk.gov.hmrc.emcstfereferencedata.services.RetrieveMemberStatesService
+import uk.gov.hmrc.emcstfereferencedata.services.RetrieveOtherReferenceDataService
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.{HttpResponse, StringContextOps, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
 class RetrieveMemberStatesControllerSpec extends ControllerIntegrationSpec {
 
   private val authAction          = mock[AuthAction]
-  private val memberStatesService = mock[RetrieveMemberStatesService]
+  private val connector = mock[RetrieveOtherReferenceDataService]
 
   override def beforeEach(): Unit = {
     reset(authAction)
-    reset(memberStatesService)
+    reset(connector)
   }
 
   override def fakeApplication(): Application =
     GuiceApplicationBuilder()
       .overrides(
         bind[AuthAction].toInstance(authAction),
-        bind[RetrieveMemberStatesService].toInstance(memberStatesService),
+        bind[RetrieveOtherReferenceDataService].toInstance(connector),
         bind[HttpClientV2].toInstance(httpClientV2)
       )
       .build()
@@ -58,8 +54,8 @@ class RetrieveMemberStatesControllerSpec extends ControllerIntegrationSpec {
       "the service returns member states" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
-        when(memberStatesService.retrieveMemberStates()(using any(), any()))
-          .thenReturn(Future.successful(Right(Country(memberStatesResult))))
+        when(connector.retrieveMemberStates()(using any(), any()))
+          .thenReturn(Future.successful(memberStatesResult))
 
         val response =
           httpClientV2
@@ -88,24 +84,10 @@ class RetrieveMemberStatesControllerSpec extends ControllerIntegrationSpec {
     }
 
     "return 500 Internal Service Error" when {
-      "the connector returns a NoDataReturnedFromDatabaseError" in {
+      "the connector returns no data" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(memberStatesService.retrieveMemberStates()(using any(), any()))
-          .thenReturn(Future.successful(Left(NoDataReturnedFromDatabaseError)))
-
-        val response =
-          httpClientV2
-            .get(url"$baseUrl/oracle/member-states")
-            .execute[HttpResponse]
-            .futureValue
-
-        response.status shouldBe Status.INTERNAL_SERVER_ERROR
-      }
-
-      "the connector returns an UnexpectedDownstreamResponseError" in {
-        when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(memberStatesService.retrieveMemberStates()(using any(), any()))
-          .thenReturn(Future.successful(Left(UnexpectedDownstreamResponseError)))
+        when(connector.retrieveMemberStates()(using any(), any()))
+          .thenReturn(Future.successful(Map.empty))
 
         val response =
           httpClientV2
@@ -118,7 +100,7 @@ class RetrieveMemberStatesControllerSpec extends ControllerIntegrationSpec {
 
       "the connector throws an error" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(memberStatesService.retrieveMemberStates()(using any(), any()))
+        when(connector.retrieveMemberStates()(using any(), any()))
           .thenReturn(Future.failed(new RuntimeException("Boom!")))
 
         val response =
@@ -128,6 +110,24 @@ class RetrieveMemberStatesControllerSpec extends ControllerIntegrationSpec {
             .futureValue
 
         response.status shouldBe Status.INTERNAL_SERVER_ERROR
+      }
+    }
+
+    "return the `reportAs` status code" when {
+      "the connector throws an UpstreamErrorResponse" in {
+        when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
+
+        when(
+          connector.retrieveMemberStates()(using any(), any())
+        ).thenReturn(Future.failed(UpstreamErrorResponse("Internal Server Error", 500, 502)))
+
+        val response =
+          httpClientV2
+            .get(url"$baseUrl/oracle/member-states")
+            .execute[HttpResponse]
+            .futureValue
+
+        response.status shouldBe Status.BAD_GATEWAY
       }
     }
   }

@@ -23,35 +23,29 @@ import play.api.Application
 import play.api.http.Status
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveAllCNCodesConnector
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.AuthAction
 import uk.gov.hmrc.emcstfereferencedata.models.response.CnCodeInformation
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.{
-  NoDataReturnedFromDatabaseError,
-  UnexpectedDownstreamResponseError
-}
+import uk.gov.hmrc.emcstfereferencedata.repositories.CnCodesRepository
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HttpResponse, StringContextOps}
 
 import scala.concurrent.Future
-import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
-import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class RetrieveAllCNCodesControllerSpec extends ControllerIntegrationSpec {
 
   private val authAction       = mock[AuthAction]
-  private val cnCodesConnector = mock[RetrieveAllCNCodesConnector]
+  private val repository = mock[CnCodesRepository]
 
   override def beforeEach(): Unit = {
     reset(authAction)
-    reset(cnCodesConnector)
+    reset(repository)
   }
 
   override def fakeApplication(): Application =
     GuiceApplicationBuilder()
       .overrides(
         bind[AuthAction].toInstance(authAction),
-        bind[RetrieveAllCNCodesConnector].toInstance(cnCodesConnector),
+        bind[CnCodesRepository].toInstance(repository),
         bind[HttpClientV2].toInstance(httpClientV2)
       )
       .build()
@@ -65,7 +59,7 @@ class RetrieveAllCNCodesControllerSpec extends ControllerIntegrationSpec {
     "return 200 OK" when {
       "the connector returns CN code information" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(cnCodesConnector.retrieveAllCnCodes(any())(using any(), any()))
+        when(repository.fetchCnCodesForProduct(any()))
           .thenReturn(Future.successful(cnCodeInformationResponse))
 
         val response =
@@ -96,7 +90,7 @@ class RetrieveAllCNCodesControllerSpec extends ControllerIntegrationSpec {
     "return 500 Internal Service Error" when {
       "the connector throws an error" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(cnCodesConnector.retrieveAllCnCodes(any())(using any(), any()))
+        when(repository.fetchCnCodesForProduct(any()))
           .thenReturn(Future.failed(new RuntimeException("Boom!")))
 
         val response =

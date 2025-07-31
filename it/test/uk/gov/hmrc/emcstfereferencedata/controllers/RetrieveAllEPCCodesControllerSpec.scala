@@ -23,13 +23,9 @@ import play.api.Application
 import play.api.http.Status
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveAllEPCCodesConnector
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.AuthAction
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.{
-  NoDataReturnedFromDatabaseError,
-  UnexpectedDownstreamResponseError
-}
 import uk.gov.hmrc.emcstfereferencedata.models.response.ExciseProductCode
+import uk.gov.hmrc.emcstfereferencedata.repositories.ExciseProductsRepository
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HttpResponse, StringContextOps}
 
@@ -37,19 +33,19 @@ import scala.concurrent.Future
 
 class RetrieveAllEPCCodesControllerSpec extends ControllerIntegrationSpec {
 
-  private val authAction       = mock[AuthAction]
-  private val epcCodesConnector = mock[RetrieveAllEPCCodesConnector]
+  private val authAction = mock[AuthAction]
+  private val repository = mock[ExciseProductsRepository]
 
   override def beforeEach(): Unit = {
     reset(authAction)
-    reset(epcCodesConnector)
+    reset(repository)
   }
 
   override def fakeApplication(): Application =
     GuiceApplicationBuilder()
       .overrides(
         bind[AuthAction].toInstance(authAction),
-        bind[RetrieveAllEPCCodesConnector].toInstance(epcCodesConnector),
+        bind[ExciseProductsRepository].toInstance(repository),
         bind[HttpClientV2].toInstance(httpClientV2)
       )
       .build()
@@ -63,8 +59,8 @@ class RetrieveAllEPCCodesControllerSpec extends ControllerIntegrationSpec {
     "return 200 OK" when {
       "the connector returns excise product code information" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(epcCodesConnector.retrieveAllEPCCodes()(using any(), any()))
-          .thenReturn(Future.successful(Right(epcCodesResponse)))
+        when(repository.fetchAllEPCCodes())
+          .thenReturn(Future.successful(epcCodesResponse))
 
         val response =
           httpClientV2
@@ -78,10 +74,10 @@ class RetrieveAllEPCCodesControllerSpec extends ControllerIntegrationSpec {
     }
 
     "return 404 Not Found" when {
-      "the connector returns a NoDataReturnedFromDatabaseError" in {
+      "the connector returns no data" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(epcCodesConnector.retrieveAllEPCCodes()(using any(), any()))
-          .thenReturn(Future.successful(Left(NoDataReturnedFromDatabaseError)))
+        when(repository.fetchAllEPCCodes())
+          .thenReturn(Future.successful(Seq.empty))
 
         val response =
           httpClientV2
@@ -108,23 +104,10 @@ class RetrieveAllEPCCodesControllerSpec extends ControllerIntegrationSpec {
     }
 
     "return 500 Internal Service Error" when {
-      "the connector returns an error" in {
-        when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(epcCodesConnector.retrieveAllEPCCodes()(using any(), any()))
-          .thenReturn(Future.successful(Left(UnexpectedDownstreamResponseError)))
-
-        val response =
-          httpClientV2
-            .get(url"$baseUrl/oracle/epc-codes")
-            .execute[HttpResponse]
-            .futureValue
-
-        response.status shouldBe Status.INTERNAL_SERVER_ERROR
-      }
 
       "the connector throws an error" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(epcCodesConnector.retrieveAllEPCCodes()(using any(), any()))
+        when(repository.fetchAllEPCCodes())
           .thenReturn(Future.failed(new RuntimeException("Boom!")))
 
         val response =

@@ -14,26 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.connector
+package uk.gov.hmrc.emcstfereferencedata.services
 
 import org.mockito.ArgumentMatchers.{any, eq as equalTo}
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
-import uk.gov.hmrc.emcstfereferencedata.connector.crdl.CrdlConnector
+import uk.gov.hmrc.emcstfereferencedata.connector.CrdlConnector
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.CrdlCodeListEntry
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
-import org.scalatest.wordspec.AsyncWordSpec
+import scala.concurrent.Future
 
-class RetrievePackagingTypesConnectorSpec
+class RetrievePackagingTypesServiceSpec
   extends AsyncWordSpec
   with Matchers
   with MockitoSugar
@@ -43,7 +39,7 @@ class RetrievePackagingTypesConnectorSpec
 
   val crdlConnector: CrdlConnector = mock[CrdlConnector]
 
-  val connector = new RetrievePackagingTypesConnector(crdlConnector)
+  val connector = new RetrievePackagingTypesService(crdlConnector)
   val crdlEntries = List(
     CrdlCodeListEntry(
       key = "1A",

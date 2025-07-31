@@ -23,9 +23,9 @@ import play.api.http.Status
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import uk.gov.hmrc.emcstfereferencedata.connector.RetrievePackagingTypesConnector
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.AuthAction
 import uk.gov.hmrc.emcstfereferencedata.fixtures.PackagingTypeFixtures
+import uk.gov.hmrc.emcstfereferencedata.services.RetrievePackagingTypesService
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HttpResponse, StringContextOps, UpstreamErrorResponse}
 
@@ -36,7 +36,7 @@ class RetrievePackagingTypesControllerSpec
   with PackagingTypeFixtures {
 
   private val authAction = mock[AuthAction]
-  private val connector  = mock[RetrievePackagingTypesConnector]
+  private val connector  = mock[RetrievePackagingTypesService]
 
   override def beforeEach(): Unit = {
     reset(authAction)
@@ -47,7 +47,7 @@ class RetrievePackagingTypesControllerSpec
     GuiceApplicationBuilder()
       .overrides(
         bind[AuthAction].toInstance(authAction),
-        bind[RetrievePackagingTypesConnector].toInstance(connector),
+        bind[RetrievePackagingTypesService].toInstance(connector),
         bind[HttpClientV2].toInstance(httpClientV2)
       )
       .build()
@@ -151,6 +151,23 @@ class RetrievePackagingTypesControllerSpec
     }
 
     "return 500 Internal Service Error" when {
+      "the connector returns no data" in {
+        when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
+        when(connector.retrievePackagingTypes(
+          packagingTypeCodes = equalTo(None),
+          isCountable = equalTo(None)
+        )(using any(), any()))
+          .thenReturn(Future.successful(Map.empty))
+
+        val response =
+          httpClientV2
+            .get(url"$baseUrl/oracle/packaging-types")
+            .execute[HttpResponse]
+            .futureValue
+
+        response.status shouldBe Status.INTERNAL_SERVER_ERROR
+      }
+
       "the connector throws an error" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
         when(
@@ -234,6 +251,24 @@ class RetrievePackagingTypesControllerSpec
     }
 
     "return 500 Internal Service Error" when {
+      "the connector returns no data" in {
+        when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
+        when(connector.retrievePackagingTypes(
+          packagingTypeCodes = equalTo(Some(testPackagingTypes)),
+          isCountable = equalTo(None)
+        )(using any(), any()))
+          .thenReturn(Future.successful(Map.empty))
+
+        val response =
+          httpClientV2
+            .post(url"$baseUrl/oracle/packaging-types")
+            .withBody(Json.toJson(testPackagingTypes))
+            .execute[HttpResponse]
+            .futureValue
+
+        response.status shouldBe Status.INTERNAL_SERVER_ERROR
+      }
+
       "the connector throws an error" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 

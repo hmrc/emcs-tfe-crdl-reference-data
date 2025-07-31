@@ -19,30 +19,29 @@ package uk.gov.hmrc.emcstfereferencedata.mocks.connectors
 import org.scalamock.handlers.CallHandler2
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.TestSuite
-import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveOtherReferenceDataConnector
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 import org.scalamock.handlers.CallHandler3
+import uk.gov.hmrc.emcstfereferencedata.services.RetrieveOtherReferenceDataService
 
 trait MockRetrieveOtherReferenceDataConnector extends MockFactory { this: TestSuite =>
-  lazy val mockConnector: RetrieveOtherReferenceDataConnector = mock[RetrieveOtherReferenceDataConnector]
+  lazy val mockConnector: RetrieveOtherReferenceDataService = mock[RetrieveOtherReferenceDataService]
 
   object MockConnector {
-    def retrieveWineOperations(filterKeys: Option[Set[String]])(response: Future[Either[ErrorResponse, Map[String, String]]]): CallHandler3[Option[Set[String]], HeaderCarrier, ExecutionContext, Future[Either[ErrorResponse, Map[String, String]]]] =
+    def retrieveWineOperations(filterKeys: Option[Set[String]])(response: Future[Map[String, String]]): CallHandler3[Option[Set[String]], HeaderCarrier, ExecutionContext, Future[Map[String, String]]] =
       (mockConnector.retrieveWineOperations(_: Option[Set[String]])(_: HeaderCarrier, _: ExecutionContext)).expects(filterKeys, *, *).returns(response)
 
-    def retrieveMemberStates()(response: Future[Either[ErrorResponse, Map[String, String]]]): CallHandler2[HeaderCarrier, ExecutionContext, Future[Either[ErrorResponse, Map[String, String]]]] =
+    def retrieveMemberStates()(response: Future[Map[String, String]]): CallHandler2[HeaderCarrier, ExecutionContext, Future[Map[String, String]]] =
       (mockConnector.retrieveMemberStates()(_: HeaderCarrier, _: ExecutionContext)).expects(*, *).returns(response)
 
-    def retrieveCountries()(response: Future[Either[ErrorResponse, Map[String, String]]]): CallHandler2[HeaderCarrier, ExecutionContext, Future[Either[ErrorResponse, Map[String, String]]]] =
+    def retrieveCountries()(response: Future[Map[String, String]]): CallHandler2[HeaderCarrier, ExecutionContext, Future[Map[String, String]]] =
       (mockConnector.retrieveCountries()(_: HeaderCarrier, _: ExecutionContext)).expects(*, *).returns(response)
 
-    def retrieveTransportUnits()(response: Future[Either[ErrorResponse, Map[String, String]]]): CallHandler2[HeaderCarrier, ExecutionContext, Future[Either[ErrorResponse, Map[String, String]]]] =
+    def retrieveTransportUnits()(response: Future[Map[String, String]]): CallHandler2[HeaderCarrier, ExecutionContext, Future[Map[String, String]]] =
       (mockConnector.retrieveTransportUnits()(_: HeaderCarrier, _: ExecutionContext)).expects(*, *).returns(response)
 
-    def retrieveTypesOfDocument()(response: Future[Either[ErrorResponse, Map[String, String]]]): CallHandler2[HeaderCarrier, ExecutionContext, Future[Either[ErrorResponse, Map[String, String]]]] =
+    def retrieveTypesOfDocument()(response: Future[Map[String, String]]): CallHandler2[HeaderCarrier, ExecutionContext, Future[Map[String, String]]] =
       (mockConnector.retrieveTypesOfDocument()(_: HeaderCarrier, _: ExecutionContext)).expects(*, *).returns(response)
   }
 

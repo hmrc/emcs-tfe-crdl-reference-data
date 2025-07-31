@@ -18,9 +18,9 @@ package uk.gov.hmrc.emcstfereferencedata.controllers
 
 import play.api.libs.json.{Json, Reads}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.emcstfereferencedata.connector.RetrievePackagingTypesConnector
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.{AuthAction, AuthActionHelper}
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.NoDataReturnedFromDatabaseError
+import uk.gov.hmrc.emcstfereferencedata.services.RetrievePackagingTypesService
 import uk.gov.hmrc.emcstfereferencedata.utils.Logging
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -29,9 +29,9 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class RetrievePackagingTypesController @Inject() (
-  cc: ControllerComponents,
-  connector: RetrievePackagingTypesConnector,
-  override val auth: AuthAction
+                                                   cc: ControllerComponents,
+                                                   connector: RetrievePackagingTypesService,
+                                                   override val auth: AuthAction
 )(implicit ec: ExecutionContext)
   extends BackendController(cc)
   with AuthActionHelper

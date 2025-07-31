@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.connector
+package uk.gov.hmrc.emcstfereferencedata.services
 
-import play.api.Logger
-import uk.gov.hmrc.emcstfereferencedata.connector.crdl.CrdlConnector
+import uk.gov.hmrc.emcstfereferencedata.connector.CrdlConnector
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode.BC17
 import uk.gov.hmrc.http.HeaderCarrier
@@ -26,9 +25,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RetrievePackagingTypesConnector @Inject() (crdlConnector: CrdlConnector) {
-
-  lazy val logger: Logger = Logger(this.getClass)
+class RetrievePackagingTypesService @Inject()(crdlConnector: CrdlConnector) {
 
   def retrievePackagingTypes(
     packagingTypeCodes: Option[Set[String]],
