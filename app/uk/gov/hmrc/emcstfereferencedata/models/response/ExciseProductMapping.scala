@@ -28,5 +28,5 @@ case class ExciseProductMapping(
 )
 
 object ExciseProductMapping {
-  val mongoFormat: OFormat[ExciseProductMapping] = Json.format[ExciseProductMapping]
+  given mongoFormat: OFormat[ExciseProductMapping] = Json.format[ExciseProductMapping]
 }

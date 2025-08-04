@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.emcstfereferencedata.models.response
 
-import play.api.libs.json.Format
+import play.api.libs.json.OFormat
 import play.api.libs.json.Json
 
 case class CnCodeMapping(
@@ -28,5 +28,5 @@ case class CnCodeMapping(
 )
 
 object CnCodeMapping {
-  val mongoFormat: Format[CnCodeMapping] = Json.format[CnCodeMapping]
+  given mongoFormat: OFormat[CnCodeMapping] = Json.format[CnCodeMapping]
 }
