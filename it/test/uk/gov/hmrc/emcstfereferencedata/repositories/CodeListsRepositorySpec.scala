@@ -160,6 +160,19 @@ class CodeListsRepositorySpec
           "E440",
           Json.obj("actionIdentification" -> "2413")
         ),
+        // CN Codes <-> Excise Products entries that don't correspond to any existing excise products
+        CodeListEntry(
+          cnCodesToExciseProductsCode,
+          "22123127",
+          "X999",
+          Json.obj("actionIdentification" -> "2414")
+        ),
+        CodeListEntry(
+          cnCodesToExciseProductsCode,
+          "22398478",
+          "Y999",
+          Json.obj("actionIdentification" -> "2414")
+        ),
         // CN Codes
         CodeListEntry(
           cnCodesCode,
@@ -357,6 +370,7 @@ class CodeListsRepositorySpec
       val categoriesCode = CodeListCode("BC66")
 
       val codeListEntries = Seq(
+        // Excise product categories
         CodeListEntry(
           categoriesCode,
           "B",
@@ -369,6 +383,7 @@ class CodeListsRepositorySpec
           "Energy Products",
           Json.obj("actionIdentification" -> "1085")
         ),
+        // Excise products
         CodeListEntry(
           productsCode,
           "B000",
@@ -404,6 +419,20 @@ class CodeListsRepositorySpec
             "degreePlatoApplicabilityFlag"       -> false,
             "actionIdentification"               -> "1098",
             "exciseProductsCategoryCode"         -> "E",
+            "alcoholicStrengthApplicabilityFlag" -> false,
+            "densityApplicabilityFlag"           -> true
+          )
+        ),
+        // Excise products that don't correspond to any known category codes
+        CodeListEntry(
+          productsCode,
+          "L460",
+          "Kerosene, marked falling within CN code 2710 19 25 (Article 20(1)(c) of Directive 2003/96/EC)",
+          Json.obj(
+            "unitOfMeasureCode"                  -> "2",
+            "degreePlatoApplicabilityFlag"       -> false,
+            "actionIdentification"               -> "1099",
+            "exciseProductsCategoryCode"         -> "L",
             "alcoholicStrengthApplicabilityFlag" -> false,
             "densityApplicabilityFlag"           -> true
           )

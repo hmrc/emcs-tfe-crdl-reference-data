@@ -287,7 +287,7 @@ class ImportReferenceDataJobSpec
 
     verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(equalTo(clientSession), any(), any())
     verify(cnCodesRepository, never()).saveCnCodes(equalTo(clientSession), any())
-    verify(exciseProductsRepository, times(1)).saveExciseProducts(equalTo(clientSession), any())
+    verify(exciseProductsRepository, never()).saveExciseProducts(equalTo(clientSession), any())
 
     verify(clientSession, times(1)).abortTransaction()
   }
@@ -316,7 +316,7 @@ class ImportReferenceDataJobSpec
 
     refDataJob.importReferenceData().failed.futureValue shouldBe an[UpstreamErrorResponse]
 
-    verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(equalTo(clientSession), any(), any())
+    verify(codeListsRepository, never()).saveCodeListEntries(equalTo(clientSession), any(), any())
     verify(cnCodesRepository, never()).saveCnCodes(equalTo(clientSession), any())
     verify(exciseProductsRepository, never()).saveExciseProducts(equalTo(clientSession), any())
 

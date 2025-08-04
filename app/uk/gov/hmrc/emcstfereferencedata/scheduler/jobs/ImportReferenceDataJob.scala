@@ -62,16 +62,10 @@ class ImportReferenceDataJob @Inject() (
       _       <- codeListsRepository.saveCodeListEntries(session, codeListCode, entries)
     } yield ()
 
-  private def rebuildExciseProducts(
-    session: ClientSession,
-    saveExciseProducts: Future[Unit]
-  ): Future[Unit] = {
-    val saveProductCategories = refreshCodeListEntries(session, BC66)
-
+  private def rebuildExciseProducts(session: ClientSession): Future[Unit] = {
     for {
       // We need both BC36 and BC66 data to build the excise-products collection
-      _ <- saveExciseProducts
-      _ <- saveProductCategories
+      _ <- refreshCodeListEntries(session, BC66)
 
       exciseProducts <- codeListsRepository.buildExciseProducts(session)
       _              <- exciseProductsRepository.saveExciseProducts(session, exciseProducts)
@@ -79,18 +73,11 @@ class ImportReferenceDataJob @Inject() (
     } yield ()
   }
 
-  private def rebuildCnCodes(
-    session: ClientSession,
-    saveExciseProducts: Future[Unit]
-  ): Future[Unit] = {
-    val saveCnCodes         = refreshCodeListEntries(session, BC37)
-    val saveCorrespondences = refreshCodeListEntries(session, E200)
-
+  private def rebuildCnCodes(session: ClientSession): Future[Unit] = {
     for {
       // We need E200, BC36 and BC37 data to build the cn-codes collection
-      _ <- saveCorrespondences
-      _ <- saveExciseProducts
-      _ <- saveCnCodes
+      _ <- refreshCodeListEntries(session, BC37)
+      _ <- refreshCodeListEntries(session, E200)
 
       cnCodeInfo <- codeListsRepository.buildCnCodes(session)
       _          <- cnCodesRepository.saveCnCodes(session, cnCodeInfo)
@@ -101,10 +88,11 @@ class ImportReferenceDataJob @Inject() (
   private[jobs] def importReferenceData(): Future[Unit] = {
     val importRefData = withSessionAndTransaction { session =>
       // BC36 data is used by both of the derived collections
-      val saveExciseProducts = refreshCodeListEntries(session, BC36)
-      val cnCodes            = rebuildCnCodes(session, saveExciseProducts)
-      val exciseProducts     = rebuildExciseProducts(session, saveExciseProducts)
-      cnCodes.zip(exciseProducts).map(_ => ())
+      for {
+        exciseProducts <- refreshCodeListEntries(session, BC36)
+        _              <- rebuildCnCodes(session)
+        _              <- rebuildExciseProducts(session)
+      } yield ()
     }
 
     importRefData.foreach(_ => logger.info(s"${jobName} job completed successfully"))
