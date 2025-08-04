@@ -38,12 +38,12 @@ trait AuthAction {
 
 @Singleton
 class AuthActionImpl @Inject()(override val authConnector: AuthConnector,
-                               val bodyParser: BodyParsers.Default
+                               val cc: ControllerComponents
                               )(implicit val ec: ExecutionContext) extends AuthAction with AuthorisedFunctions with Logging {
 
   override def apply(ern: Option[String]): ActionBuilder[UserRequest, AnyContent] with ActionFunction[Request, UserRequest] =
     new ActionBuilder[UserRequest, AnyContent] with ActionFunction[Request, UserRequest] {
-      override val parser = bodyParser
+      override val parser = cc.parsers.defaultBodyParser
       override val executionContext = ec
 
       override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] = {

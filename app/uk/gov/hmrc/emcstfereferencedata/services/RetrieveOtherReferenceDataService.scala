@@ -19,6 +19,8 @@ package uk.gov.hmrc.emcstfereferencedata.services
 import uk.gov.hmrc.emcstfereferencedata.connector.CrdlConnector
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode.*
+import uk.gov.hmrc.emcstfereferencedata.models.response.Country
+import uk.gov.hmrc.emcstfereferencedata.utils.StringUtils
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
@@ -56,6 +58,27 @@ class RetrieveOtherReferenceDataService @Inject()(connector: CrdlConnector) {
     ec: ExecutionContext
   ): Future[Map[String, String]] =
     retrieveOtherReferenceData(BC106, filterKeys = None)
+
+  def retrieveMemberStatesAndCountries()(implicit
+            hc: HeaderCarrier,
+            ec: ExecutionContext
+  ): Future[Seq[Country]] = {
+    val fetchMemberStates = retrieveMemberStates()
+    val fetchCountries = retrieveCountries()
+
+    val memberStatesAndCountriesResult: Future[Map[String, String]] =
+      fetchMemberStates.zip(fetchCountries).map { case (memberStates, countries) =>
+        val memberStatesAndCountries = memberStates ++ countries
+        memberStatesAndCountries.map { case (k, v) =>
+          (k, StringUtils.addSmartQuotes(v))
+        }
+      }
+
+    memberStatesAndCountriesResult.map { countries =>
+      Country(countries).sortBy(_.country)
+    }
+
+  }
 
   def retrieveOtherReferenceData(codeListCode: CodeListCode, filterKeys: Option[Set[String]])(
     implicit
