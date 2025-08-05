@@ -36,7 +36,7 @@ class RetrieveCnCodeInformationServiceSpec
       "retrieveCnCodeInformation method is called" in {
         val testResponse1 = Right(Map(testCnCode1 -> testCnCodeInformation1))
         val testResponse2 = Right(Map(testCnCode2 -> testCnCodeInformation2))
-        MockCnCodeInformationConnector.retrieveCnCodeInformation(testCnCodeInformationRequest.copy(items = Seq(testCnCodeInformationItem1)))(Future.successful(testResponse1))
+        MockCnCodeInformationConnector.retrieveCnCodeInformation(testCnCodeInformationRequest)(Future.successful(testResponse1))
         MockProductCodesConnector.retrieveProductCodes(testCnCodeInformationRequest.copy(items = Seq(testCnCodeInformationItem2)))(Future.successful(testResponse2))
 
         await(TestService.retrieveCnCodeInformation(testCnCodeInformationRequest)) shouldBe Right(Map(testCnCode1 -> testCnCodeInformation1, testCnCode2 -> testCnCodeInformation2))
@@ -45,7 +45,7 @@ class RetrieveCnCodeInformationServiceSpec
 
     "return an Error Response" when {
       "there is no data available" in {
-        MockCnCodeInformationConnector.retrieveCnCodeInformation(testCnCodeInformationRequest.copy(items = Seq(testCnCodeInformationItem1)))(Future.successful(Left(NoDataReturnedFromDatabaseError)))
+        MockCnCodeInformationConnector.retrieveCnCodeInformation(testCnCodeInformationRequest)(Future.successful(Left(NoDataReturnedFromDatabaseError)))
         MockProductCodesConnector.retrieveProductCodes(testCnCodeInformationRequest.copy(items = Seq(testCnCodeInformationItem2)))(Future.successful(Left(NoDataReturnedFromDatabaseError)))
 
         await(TestService.retrieveCnCodeInformation(testCnCodeInformationRequest)) shouldBe Left(NoDataReturnedFromDatabaseError)

@@ -58,7 +58,9 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
       "the service returns wine operations" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
-        when(wineOpsService.retrieveWineOperations()(using any(), any()))
+        when(
+          wineOpsService.retrieveWineOperations(wineOperations = equalTo(None))(using any(), any())
+        )
           .thenReturn(Future.successful(Right(testWineOperationsResult)))
 
         val response =
@@ -89,7 +91,9 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
     "return 500 Internal Service Error" when {
       "the connector returns a NoDataReturnedFromDatabaseError" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(wineOpsService.retrieveWineOperations()(using any(), any()))
+        when(
+          wineOpsService.retrieveWineOperations(wineOperations = equalTo(None))(using any(), any())
+        )
           .thenReturn(Future.successful(Left(NoDataReturnedFromDatabaseError)))
 
         val response =
@@ -103,7 +107,9 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
 
       "the connector returns an UnexpectedDownstreamResponseError" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(wineOpsService.retrieveWineOperations()(using any(), any()))
+        when(
+          wineOpsService.retrieveWineOperations(wineOperations = equalTo(None))(using any(), any())
+        )
           .thenReturn(Future.successful(Left(UnexpectedDownstreamResponseError)))
 
         val response =
@@ -117,7 +123,9 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
 
       "the connector throws an error" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(wineOpsService.retrieveWineOperations()(using any(), any()))
+        when(
+          wineOpsService.retrieveWineOperations(wineOperations = equalTo(None))(using any(), any())
+        )
           .thenReturn(Future.failed(new RuntimeException("Boom!")))
 
         val response =
@@ -136,7 +144,12 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
       "the service returns the requested wine operations" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
-        when(wineOpsService.retrieveWineOperations(equalTo(testWineOperations))(using any(), any()))
+        when(
+          wineOpsService.retrieveWineOperations(equalTo(Some(testWineOperations)))(using
+            any(),
+            any()
+          )
+        )
           .thenReturn(Future.successful(Right(testWineOperationsResult)))
 
         val response =
@@ -170,7 +183,12 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
       "the connector returns a NoDataReturnedFromDatabaseError" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
-        when(wineOpsService.retrieveWineOperations(equalTo(testWineOperations))(using any(), any()))
+        when(
+          wineOpsService.retrieveWineOperations(equalTo(Some(testWineOperations)))(using
+            any(),
+            any()
+          )
+        )
           .thenReturn(Future.successful(Left(NoDataReturnedFromDatabaseError)))
 
         val response =
@@ -186,7 +204,12 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
       "the connector returns an UnexpectedDownstreamResponseError" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
-        when(wineOpsService.retrieveWineOperations(equalTo(testWineOperations))(using any(), any()))
+        when(
+          wineOpsService.retrieveWineOperations(equalTo(Some(testWineOperations)))(using
+            any(),
+            any()
+          )
+        )
           .thenReturn(Future.successful(Left(UnexpectedDownstreamResponseError)))
 
         val response =
@@ -202,7 +225,12 @@ class RetrieveWineOperationsControllerSpec extends ControllerIntegrationSpec {
       "the connector throws an error" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
-        when(wineOpsService.retrieveWineOperations(equalTo(testWineOperations))(using any(), any()))
+        when(
+          wineOpsService.retrieveWineOperations(equalTo(Some(testWineOperations)))(using
+            any(),
+            any()
+          )
+        )
           .thenReturn(Future.failed(new RuntimeException("Boom!")))
 
         val response =

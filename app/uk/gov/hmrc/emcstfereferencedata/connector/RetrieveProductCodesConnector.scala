@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.connector.retrieveProductCodes
+package uk.gov.hmrc.emcstfereferencedata.connector
 
-import javax.inject.Inject
 import play.api.Logger
 import uk.gov.hmrc.emcstfereferencedata.models.request.CnInformationRequest
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ErrorResponse}
 import uk.gov.hmrc.emcstfereferencedata.repositories.ExciseProductsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
-class RetrieveProductCodesConnectorCRDL @Inject() (
-  repository: ExciseProductsRepository
-) extends RetrieveProductCodesConnector {
+@Singleton
+class RetrieveProductCodesConnector @Inject() (repository: ExciseProductsRepository) {
 
   lazy val logger: Logger = Logger(this.getClass)
 
-  override def retrieveProductCodes(cnInformationRequest: CnInformationRequest)(implicit
+  def retrieveProductCodes(cnInformationRequest: CnInformationRequest)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): Future[Either[ErrorResponse, Map[String, CnCodeInformation]]] =
@@ -40,9 +40,9 @@ class RetrieveProductCodesConnectorCRDL @Inject() (
       .fetchProductCodesInformation(cnInformationRequest)
       .map(Right(_))
       .recover {
-        case exception: Exception => {
+        case NonFatal(exception) => {
           logger.warn(
-            s"[RetrieveProductCodesConnectorCRDL][retrieveProductCodes] Unexpected Error fetching data from repository,",
+            s"[RetrieveProductCodesConnector][retrieveProductCodes] Unexpected Error fetching data from repository,",
             exception
           )
           Left(ErrorResponse.UnexpectedDownstreamResponseError)

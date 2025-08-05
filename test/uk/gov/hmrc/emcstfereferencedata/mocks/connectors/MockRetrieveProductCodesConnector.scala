@@ -19,7 +19,7 @@ package uk.gov.hmrc.emcstfereferencedata.mocks.connectors
 import org.scalamock.handlers.CallHandler3
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.TestSuite
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveProductCodes.RetrieveProductCodesConnector
+import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveProductCodesConnector
 import uk.gov.hmrc.emcstfereferencedata.models.request.CnInformationRequest
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ErrorResponse}
 import uk.gov.hmrc.http.HeaderCarrier

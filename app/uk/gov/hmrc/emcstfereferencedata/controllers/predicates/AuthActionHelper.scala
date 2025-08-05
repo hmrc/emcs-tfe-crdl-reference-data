@@ -22,7 +22,7 @@ import uk.gov.hmrc.emcstfereferencedata.models.auth.UserRequest
 
 import scala.concurrent.Future
 
-trait AuthActionHelper extends BaseControllerHelpers {
+trait AuthActionHelper { self: BaseControllerHelpers =>
   val auth: AuthAction
 
   def authorisedUserGetRequest(block: UserRequest[_] => Future[Result]): Action[AnyContent] =

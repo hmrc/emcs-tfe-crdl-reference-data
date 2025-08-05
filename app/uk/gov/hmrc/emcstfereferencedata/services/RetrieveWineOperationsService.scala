@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.emcstfereferencedata.services
 
-import uk.gov.hmrc.emcstfereferencedata.connector.retrieveOtherReferenceData.RetrieveOtherReferenceDataConnector
+import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveOtherReferenceDataConnector
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.NoDataReturnedFromDatabaseError
 import uk.gov.hmrc.emcstfereferencedata.utils.Logging
@@ -27,34 +27,22 @@ import scala.collection.Map
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RetrieveWineOperationsService @Inject()(connector: RetrieveOtherReferenceDataConnector) extends Logging {
+class RetrieveWineOperationsService @Inject() (connector: RetrieveOtherReferenceDataConnector)
+  extends Logging {
 
-  def retrieveWineOperations()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Map[String, String]]] = {
-    connector.retrieveWineOperations()
-      .map {
-        case Left(value) => Left(value)
-        case Right(value) if value.nonEmpty => Right(value)
-        case _ =>
+  def retrieveWineOperations(wineOperations: Option[Set[String]])(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[Either[ErrorResponse, Map[String, String]]] = {
+    connector
+      .retrieveWineOperations(filterKeys = wineOperations)
+      .map(_.flatMap { wineOperations =>
+        if (wineOperations.nonEmpty) {
+          Right(wineOperations)
+        } else {
           logger.warn(s"No data returned for all wine operations")
           Left(NoDataReturnedFromDatabaseError)
-      }
-  }
-
-  def retrieveWineOperations(wineOperationsList: Seq[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorResponse, Map[String, String]]] = {
-    connector.retrieveWineOperations()
-      .map(
-        _.map {
-          _.collect {
-            case (key, value) if wineOperationsList.contains(key) => key -> value
-          }
-        } match {
-          case Left(value) => Left(value)
-          case Right(value) if value.nonEmpty => Right(value)
-          case _ =>
-            logger.warn(s"No data returned for input wine operations: $wineOperationsList")
-            Left(NoDataReturnedFromDatabaseError)
         }
-      )
+      })
   }
-
 }

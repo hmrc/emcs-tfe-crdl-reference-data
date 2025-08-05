@@ -14,40 +14,38 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.connector.retrieveAllCNCodes
+package uk.gov.hmrc.emcstfereferencedata.connector
 
 import play.api.Logger
-import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ErrorResponse}
-import uk.gov.hmrc.emcstfereferencedata.repositories.CnCodesRepository
+import uk.gov.hmrc.emcstfereferencedata.models.response.{ErrorResponse, ExciseProductCode}
+import uk.gov.hmrc.emcstfereferencedata.repositories.ExciseProductsRepository
 import uk.gov.hmrc.http.HeaderCarrier
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 
-class RetrieveAllCNCodesConnectorCRDL @Inject() (
-  repository: CnCodesRepository
-) extends RetrieveAllCNCodesConnector {
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
+
+@Singleton
+class RetrieveAllEPCCodesConnector @Inject() (repository: ExciseProductsRepository) {
 
   lazy val logger: Logger = Logger(this.getClass)
 
-  override def retrieveAllCnCodes(
-    exciseProductCode: String
-  )(using
+  def retrieveAllEPCCodes()(implicit
     ec: ExecutionContext,
     hc: HeaderCarrier
-  ): Future[Either[ErrorResponse, Seq[CnCodeInformation]]] = {
-
+  ): Future[Either[ErrorResponse, Seq[ExciseProductCode]]] = {
     repository
-      .fetchCnCodesForProduct(exciseProductCode)
+      .fetchAllEPCCodes()
       .map(Right(_))
       .recover {
-        case ex => {
+        case NonFatal(exception) => {
           logger.warn(
-            "[RetrieveAllCnCodesConnectorCRDL][retrieveAllCnCodes] Unexpected Error fetching data from repository",
-            ex
+            "[RetrieveAllEPCCodesConnector][retrieveAllEPCCodes] Unexpected Error fetching data from repository",
+            exception
           )
           Left(ErrorResponse.UnexpectedDownstreamResponseError)
         }
       }
-  }
 
+  }
 }

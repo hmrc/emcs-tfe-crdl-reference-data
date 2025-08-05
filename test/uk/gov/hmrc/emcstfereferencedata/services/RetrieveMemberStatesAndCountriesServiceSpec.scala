@@ -61,6 +61,7 @@ class RetrieveMemberStatesAndCountriesServiceSpec extends UnitSpec with MockRetr
 
       "retrieveMemberStates returns a left" in {
         MockConnector.retrieveMemberStates()(Future.successful(Left(UnexpectedDownstreamResponseError)))
+        MockConnector.retrieveCountries()(Future.successful(Right(countriesResult)))
         await(TestService.get()) shouldBe Left(UnexpectedDownstreamResponseError)
       }
     }
