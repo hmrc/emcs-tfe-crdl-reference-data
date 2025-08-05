@@ -23,7 +23,6 @@ import org.mongodb.scala.model.Aggregates.*
 import org.mongodb.scala.model.Filters.*
 import org.mongodb.scala.model.Projections.*
 import org.mongodb.scala.model.{IndexModel, IndexOptions, Indexes}
-import play.api.Logger
 import play.api.libs.json.*
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListEntry}
 import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
