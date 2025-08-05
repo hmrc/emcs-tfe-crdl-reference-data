@@ -20,7 +20,9 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.{AuthAction, AuthActionHelper}
 import uk.gov.hmrc.emcstfereferencedata.models.request.CnInformationRequest
+import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.NoDataReturnedFromDatabaseError
 import uk.gov.hmrc.emcstfereferencedata.services.RetrieveCnCodeInformationService
+import uk.gov.hmrc.emcstfereferencedata.utils.Logging
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
@@ -30,16 +32,21 @@ import scala.concurrent.ExecutionContext
 class RetrieveCnCodeInformationController @Inject()(cc: ControllerComponents,
                                                     service: RetrieveCnCodeInformationService,
                                                     override val auth: AuthAction
-                                                   )(implicit ec: ExecutionContext) extends BackendController(cc) with AuthActionHelper {
+                                                   )(implicit ec: ExecutionContext) extends BackendController(cc) with AuthActionHelper with Logging {
 
 
   def show: Action[CnInformationRequest] = authorisedUserPostRequest(CnInformationRequest.reads) {
     implicit request =>
-      service.retrieveCnCodeInformation(request.body).map {
-        case Right(response) =>
+      service.retrieveCnCodeInformation(request.body).map { response =>
+        if (response.nonEmpty) {
           Ok(Json.toJson(response))
-        case Left(error) =>
-          InternalServerError(Json.toJson(error))
+        }
+        else {
+          logger.warn(
+            s"[RetrieveCnCodeInformationController][show] No data returned for CnCodeInformation"
+          )
+          InternalServerError(Json.toJson(NoDataReturnedFromDatabaseError))
+        }
       }
   }
 

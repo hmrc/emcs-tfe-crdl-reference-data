@@ -19,38 +19,48 @@ package uk.gov.hmrc.emcstfereferencedata.controllers
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.{AuthAction, AuthActionHelper}
-import uk.gov.hmrc.emcstfereferencedata.services.RetrieveWineOperationsService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 import play.api.libs.json.Reads
+import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.NoDataReturnedFromDatabaseError
+import uk.gov.hmrc.emcstfereferencedata.services.RetrieveOtherReferenceDataService
+import uk.gov.hmrc.emcstfereferencedata.utils.Logging
 
 @Singleton
-class RetrieveWineOperationsController @Inject() (
-  cc: ControllerComponents,
-  service: RetrieveWineOperationsService,
-  override val auth: AuthAction
-)(implicit ec: ExecutionContext)
+class RetrieveWineOperationsController @Inject()(
+                                                  cc: ControllerComponents,
+                                                  connector: RetrieveOtherReferenceDataService,
+                                                  override val auth: AuthAction
+                                                )(implicit ec: ExecutionContext)
   extends BackendController(cc)
-  with AuthActionHelper {
+    with AuthActionHelper with Logging {
 
   def showAllWineOperations: Action[AnyContent] = authorisedUserGetRequest { implicit request =>
-    service.retrieveWineOperations(wineOperations = None).map {
-      case Right(response) =>
+    connector.retrieveWineOperations(filterKeys = None).map { response =>
+      if (response.nonEmpty) {
         Ok(Json.toJson(response))
-      case Left(error) =>
-        InternalServerError(Json.toJson(error))
+      }
+      else {
+        logger.warn("No data returned for all wine operations")
+        InternalServerError(Json.toJson(NoDataReturnedFromDatabaseError))
+      }
     }
   }
 
   def show: Action[Set[String]] = authorisedUserPostRequest(Reads.of[Set[String]]) {
     implicit request =>
-      service.retrieveWineOperations(wineOperations = Some(request.body)).map {
-        case Right(response) =>
+      connector.retrieveWineOperations(filterKeys = Some(request.body)).map { response =>
+        if (response.nonEmpty) {
           Ok(Json.toJson(response))
-        case Left(error) =>
-          InternalServerError(Json.toJson(error))
+        }
+        else {
+          logger.warn(
+            s"No data returned for input wine operations: ${request.body.mkString(",")}"
+          )
+          InternalServerError(Json.toJson(NoDataReturnedFromDatabaseError))
+        }
       }
   }
 

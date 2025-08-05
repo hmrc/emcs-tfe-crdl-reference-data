@@ -18,8 +18,8 @@ package uk.gov.hmrc.emcstfereferencedata.services
 
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
 import uk.gov.hmrc.emcstfereferencedata.mocks.connectors.MockRetrieveOtherReferenceDataConnector
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.{NoDataReturnedFromDatabaseError, UnexpectedDownstreamResponseError}
 import uk.gov.hmrc.emcstfereferencedata.support.UnitSpec
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.Future
 
@@ -30,40 +30,35 @@ class RetrieveMemberStatesAndCountriesServiceSpec extends UnitSpec with MockRetr
   "The RetrieveMemberStatesAndCountriesService" should {
     "return a successful response" when {
       "retrieveMemberStates method returns data and retrieveCountries method returns no data" in {
-        MockConnector.retrieveMemberStates()(Future.successful(Right(memberStatesResult)))
-        MockConnector.retrieveCountries()(Future.successful(Right(Map())))
-        await(TestService.get()) shouldBe Right(memberStatesAndCountriesResultNoCountries)
+        MockConnector.retrieveMemberStates()(Future.successful(memberStatesResult))
+        MockConnector.retrieveCountries()(Future.successful(Map()))
+        await(TestService.get()) shouldBe memberStatesAndCountriesResultNoCountries
       }
       "retrieveMemberStates method returns no data and retrieveCountries method returns data" in {
-        MockConnector.retrieveMemberStates()(Future.successful(Right(Map())))
-        MockConnector.retrieveCountries()(Future.successful(Right(countriesResult)))
-        await(TestService.get()) shouldBe Right(memberStatesAndCountriesResultNoMemberStates)
+        MockConnector.retrieveMemberStates()(Future.successful(Map()))
+        MockConnector.retrieveCountries()(Future.successful(countriesResult))
+        await(TestService.get()) shouldBe memberStatesAndCountriesResultNoMemberStates
       }
       "retrieveMemberStates method returns data and retrieveCountries method returns data" in {
-        MockConnector.retrieveMemberStates()(Future.successful(Right(memberStatesResult)))
-        MockConnector.retrieveCountries()(Future.successful(Right(countriesResult)))
-        await(TestService.get()) shouldBe Right(memberStatesAndCountriesResult)
+        MockConnector.retrieveMemberStates()(Future.successful(memberStatesResult))
+        MockConnector.retrieveCountries()(Future.successful(countriesResult))
+        await(TestService.get()) shouldBe memberStatesAndCountriesResult
       }
     }
 
-    "return an Error Response" when {
-      "there is no data available" in {
-        MockConnector.retrieveMemberStates()(Future.successful(Right(Map())))
-        MockConnector.retrieveCountries()(Future.successful(Right(Map())))
-        await(TestService.get()) shouldBe Left(NoDataReturnedFromDatabaseError)
+    "rethrow errors" when {
+      "the retrieveMemberStates throws an exception" in {
+        MockConnector.retrieveMemberStates()(Future.failed(UpstreamErrorResponse("InternalServerError", 500, 502)))
+        MockConnector.retrieveCountries()(Future.successful(Map()))
+        assertThrows[UpstreamErrorResponse]{await(TestService.get())}
       }
 
-      "retrieveCountries returns a left" in {
-        MockConnector.retrieveMemberStates()(Future.successful(Right(memberStatesResult)))
-        MockConnector.retrieveCountries()(Future.successful(Left(UnexpectedDownstreamResponseError)))
-        await(TestService.get()) shouldBe Left(UnexpectedDownstreamResponseError)
+      "the retrieveCountries throws an exception" in {
+        MockConnector.retrieveCountries()(Future.failed(UpstreamErrorResponse("InternalServerError", 500, 502)))
+        MockConnector.retrieveMemberStates()(Future.successful(Map()))
+        assertThrows[UpstreamErrorResponse]{await(TestService.get())}
       }
 
-      "retrieveMemberStates returns a left" in {
-        MockConnector.retrieveMemberStates()(Future.successful(Left(UnexpectedDownstreamResponseError)))
-        MockConnector.retrieveCountries()(Future.successful(Right(countriesResult)))
-        await(TestService.get()) shouldBe Left(UnexpectedDownstreamResponseError)
-      }
     }
   }
 }

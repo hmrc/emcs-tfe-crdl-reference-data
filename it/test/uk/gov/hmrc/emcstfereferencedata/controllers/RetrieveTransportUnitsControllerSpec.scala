@@ -23,32 +23,28 @@ import play.api.http.Status
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.AuthAction
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.{
-  NoDataReturnedFromDatabaseError,
-  UnexpectedDownstreamResponseError
-}
 import uk.gov.hmrc.emcstfereferencedata.models.response.TransportUnit
-import uk.gov.hmrc.emcstfereferencedata.services.RetrieveTransportUnitsService
+import uk.gov.hmrc.emcstfereferencedata.services.RetrieveOtherReferenceDataService
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.{HttpResponse, StringContextOps, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
 class RetrieveTransportUnitsControllerSpec extends ControllerIntegrationSpec {
 
   private val authAction            = mock[AuthAction]
-  private val transportUnitsService = mock[RetrieveTransportUnitsService]
+  private val connector = mock[RetrieveOtherReferenceDataService]
 
   override def beforeEach(): Unit = {
     reset(authAction)
-    reset(transportUnitsService)
+    reset(connector)
   }
 
   override def fakeApplication(): Application =
     GuiceApplicationBuilder()
       .overrides(
         bind[AuthAction].toInstance(authAction),
-        bind[RetrieveTransportUnitsService].toInstance(transportUnitsService),
+        bind[RetrieveOtherReferenceDataService].toInstance(connector),
         bind[HttpClientV2].toInstance(httpClientV2)
       )
       .build()
@@ -58,8 +54,8 @@ class RetrieveTransportUnitsControllerSpec extends ControllerIntegrationSpec {
       "the service returns transport units" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
-        when(transportUnitsService.retrieveTransportUnits()(using any(), any()))
-          .thenReturn(Future.successful(Right(TransportUnit(transportUnitsResult))))
+        when(connector.retrieveTransportUnits()(using any(), any()))
+          .thenReturn(Future.successful(transportUnitsResult))
 
         val response =
           httpClientV2
@@ -76,8 +72,8 @@ class RetrieveTransportUnitsControllerSpec extends ControllerIntegrationSpec {
       "the caller is not authenticated" in {
         when(authAction(any())).thenReturn(FakeFailedAuthAction(None))
 
-        when(transportUnitsService.retrieveTransportUnits()(using any(), any()))
-          .thenReturn(Future.successful(Right(TransportUnit(transportUnitsResult))))
+        when(connector.retrieveTransportUnits()(using any(), any()))
+          .thenReturn(Future.successful(transportUnitsResult))
 
         val response =
           httpClientV2
@@ -91,24 +87,10 @@ class RetrieveTransportUnitsControllerSpec extends ControllerIntegrationSpec {
     }
 
     "return 500 Internal Service Error" when {
-      "the connector returns a NoDataReturnedFromDatabaseError" in {
+      "the connector returns no data" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(transportUnitsService.retrieveTransportUnits()(using any(), any()))
-          .thenReturn(Future.successful(Left(NoDataReturnedFromDatabaseError)))
-
-        val response =
-          httpClientV2
-            .get(url"$baseUrl/oracle/transport-units")
-            .execute[HttpResponse]
-            .futureValue
-
-        response.status shouldBe Status.INTERNAL_SERVER_ERROR
-      }
-
-      "the connector returns an UnexpectedDownstreamResponseError" in {
-        when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(transportUnitsService.retrieveTransportUnits()(using any(), any()))
-          .thenReturn(Future.successful(Left(UnexpectedDownstreamResponseError)))
+        when(connector.retrieveTransportUnits()(using any(), any()))
+          .thenReturn(Future.successful(Map.empty))
 
         val response =
           httpClientV2
@@ -121,7 +103,7 @@ class RetrieveTransportUnitsControllerSpec extends ControllerIntegrationSpec {
 
       "the connector throws an error" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(transportUnitsService.retrieveTransportUnits()(using any(), any()))
+        when(connector.retrieveTransportUnits()(using any(), any()))
           .thenReturn(Future.failed(new RuntimeException("Boom!")))
 
         val response =
@@ -131,6 +113,24 @@ class RetrieveTransportUnitsControllerSpec extends ControllerIntegrationSpec {
             .futureValue
 
         response.status shouldBe Status.INTERNAL_SERVER_ERROR
+      }
+    }
+
+    "return the `reportAs` status code" when {
+      "the connector throws an UpstreamErrorResponse" in {
+        when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
+
+        when(
+          connector.retrieveTransportUnits()(using any(), any())
+        ).thenReturn(Future.failed(UpstreamErrorResponse("Internal Server Error", 500, 502)))
+
+        val response =
+          httpClientV2
+            .get(url"$baseUrl/oracle/transport-units")
+            .execute[HttpResponse]
+            .futureValue
+
+        response.status shouldBe Status.BAD_GATEWAY
       }
     }
   }

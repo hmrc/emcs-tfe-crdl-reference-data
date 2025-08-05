@@ -29,7 +29,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status
 import play.api.libs.json.Json
 import uk.gov.hmrc.emcstfereferencedata.config.AppConfig
-import uk.gov.hmrc.emcstfereferencedata.connector.crdl.CrdlConnector
+import uk.gov.hmrc.emcstfereferencedata.connector.CrdlConnector
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListEntry}
 import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ExciseProductCode}
