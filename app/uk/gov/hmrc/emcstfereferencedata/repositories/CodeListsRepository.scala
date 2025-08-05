@@ -70,7 +70,6 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
 
   // This collection's entries are cleared every time new codelists are imported
   override lazy val requiresTtlIndex: Boolean = false
-  lazy val logger: Logger = Logger(this.getClass)
 
   private val ExciseProducts                    = "BC36"
   private val CnCodes                           = "BC37"
