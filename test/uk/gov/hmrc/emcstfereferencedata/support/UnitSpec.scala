@@ -16,35 +16,23 @@
 
 package uk.gov.hmrc.emcstfereferencedata.support
 
-import org.scalamock.scalatest.MockFactory
 import org.scalatest.EitherValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.DefaultAwaitTimeout
-import play.api.test.FutureAwaits
-import uk.gov.hmrc.emcstfereferencedata.config.SchedulerModule
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 
 trait UnitSpec
   extends AnyWordSpecLike
-  with MockFactory
   with EitherValues
   with Matchers
   with FutureAwaits
   with DefaultAwaitTimeout
-  with GuiceOneAppPerSuite {
+  with MockitoSugar {
   implicit lazy val hc: HeaderCarrier    = HeaderCarrier()
   implicit lazy val ec: ExecutionContext = ExecutionContext.global
-
-  override def fakeApplication(): Application = {
-    GuiceApplicationBuilder()
-      // Stop Quartz from complaining about being instantiated multiple times
-      .disable(classOf[SchedulerModule])
-      .build()
-  }
+  
 }
