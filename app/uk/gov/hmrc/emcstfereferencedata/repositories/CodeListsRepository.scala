@@ -75,6 +75,8 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
   private val ProductCategories                 = "BC66"
   private val CnCodeExciseProductCorrespondence = "E200"
 
+
+
   private def lookupIn(
     codeListCode: String,
     localField: String,
@@ -261,14 +263,19 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
     codeListCode: CodeListCode,
     crdlEntries: List[CrdlCodeListEntry]
   ): Future[Unit] =
-    for {
-      _ <- deleteCodeListEntries(session, Some(codeListCode))
+    if (crdlEntries.isEmpty) {
+      logger.error(s"[CodeListsRepository][saveCodeListEntries] Codelist ${codeListCode.value} received from crdl-cache was empty")
+      Future.failed(MongoError.NoDataToInsert) }
+    else
 
-      entries = crdlEntries.map(CodeListEntry.fromCrdlEntry(codeListCode, _))
+      for {
+        _ <- deleteCodeListEntries(session, Some(codeListCode))
 
-      _ <- collection.insertMany(session, entries).toFuture().map { result =>
-        if (!result.wasAcknowledged())
-          throw MongoError.NotAcknowledged
-      }
-    } yield ()
+        entries = crdlEntries.map(CodeListEntry.fromCrdlEntry(codeListCode, _))
+
+        _ <- collection.insertMany(session, entries).toFuture().map { result =>
+          if (!result.wasAcknowledged())
+            throw MongoError.NotAcknowledged
+        }
+      } yield ()
 }
