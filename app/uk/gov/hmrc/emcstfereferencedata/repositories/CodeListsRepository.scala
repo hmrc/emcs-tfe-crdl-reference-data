@@ -27,13 +27,19 @@ import play.api.libs.json.*
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListEntry}
 import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
 import uk.gov.hmrc.emcstfereferencedata.models.mongo.CodeListEntry
-import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ExciseProductCode}
+import uk.gov.hmrc.emcstfereferencedata.models.response.{
+  CnCodeInformation,
+  CnCodeMapping,
+  ExciseProductCode,
+  ExciseProductMapping
+}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.mongo.transaction.Transactions
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.emcstfereferencedata.utils.Logging
 
 @Singleton
 class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using ec: ExecutionContext)
@@ -46,7 +52,9 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
         Codecs.playFormatSumCodecs[JsBoolean](Format(Reads.JsBooleanReads, Writes.jsValueWrites)) ++
         Seq(
           Codecs.playFormatCodec(ExciseProductCode.mongoFormat),
-          Codecs.playFormatCodec(CnCodeInformation.mongoFormat)
+          Codecs.playFormatCodec(ExciseProductMapping.mongoFormat),
+          Codecs.playFormatCodec(CnCodeInformation.mongoFormat),
+          Codecs.playFormatCodec(CnCodeMapping.mongoFormat)
         ),
     indexes = Seq(
       IndexModel(
@@ -56,7 +64,8 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
       IndexModel(Indexes.ascending("codeListCode"))
     )
   )
-  with Transactions {
+  with Transactions
+  with Logging {
 
   // This collection's entries are cleared every time new codelists are imported
   override lazy val requiresTtlIndex: Boolean = false
@@ -65,6 +74,8 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
   private val CnCodes                           = "BC37"
   private val ProductCategories                 = "BC66"
   private val CnCodeExciseProductCorrespondence = "E200"
+
+
 
   private def lookupIn(
     codeListCode: String,
@@ -107,7 +118,7 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
 
   def buildCnCodes(session: ClientSession): Future[Seq[CnCodeInformation]] = {
     collection
-      .aggregate[CnCodeInformation](
+      .aggregate[CnCodeMapping](
         session,
         List(
           // Find the CN code <-> excise product mappings
@@ -151,12 +162,33 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
           )
         )
       )
+      .flatMap { cnCodeMapping =>
+        val cnCodeInfo = for {
+          cnCodeDescription            <- cnCodeMapping.cnCodeDescription
+          exciseProductCodeDescription <- cnCodeMapping.exciseProductCodeDescription
+          unitOfMeasureCode            <- cnCodeMapping.unitOfMeasureCode
+        } yield CnCodeInformation(
+          cnCodeMapping.cnCode,
+          cnCodeDescription,
+          cnCodeMapping.exciseProductCode,
+          exciseProductCodeDescription,
+          unitOfMeasureCode
+        )
+
+        cnCodeInfo.getOrElse {
+          logger.warn(
+            s"Unable to retrieve all of the required CN code information for CN code ${cnCodeMapping.cnCode} and excise product ${cnCodeMapping.exciseProductCode}: ${cnCodeMapping}"
+          )
+        }
+
+        Observable(cnCodeInfo.toList)
+      }
       .toFuture()
   }
 
   def buildExciseProducts(session: ClientSession): Future[Seq[ExciseProductCode]] = {
     collection
-      .aggregate[ExciseProductCode](
+      .aggregate[ExciseProductMapping](
         session,
         List(
           // Find the excise products
@@ -173,11 +205,8 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
               computed("code", "$key"),
               // Include the excise product value as "description"
               computed("description", "$value"),
-              computed(
-                // Get the "category" from the nested "productCategory" doc's key
-                "category",
-                getFieldOf("key", arrayField = "productCategory")
-              ),
+              // Include the excise product category as "category"
+              computed("category", "$properties.exciseProductsCategoryCode"),
               computed(
                 // Get the "categoryDescription" from the nested "productCategory" doc's value
                 "categoryDescription",
@@ -189,6 +218,26 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
           )
         )
       )
+      .flatMap { exciseProductMapping =>
+        val exciseProduct = for {
+          categoryDescription <- exciseProductMapping.categoryDescription
+          unitOfMeasureCode   <- exciseProductMapping.unitOfMeasureCode
+        } yield ExciseProductCode(
+          exciseProductMapping.code,
+          exciseProductMapping.description,
+          exciseProductMapping.category,
+          categoryDescription,
+          unitOfMeasureCode
+        )
+
+        exciseProduct.getOrElse {
+          logger.warn(
+            s"Unable to retrieve excise product category information for excise product ${exciseProductMapping.code}: ${exciseProductMapping}"
+          )
+        }
+
+        Observable(exciseProduct.toList)
+      }
       .toFuture()
   }
 
@@ -214,14 +263,19 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
     codeListCode: CodeListCode,
     crdlEntries: List[CrdlCodeListEntry]
   ): Future[Unit] =
-    for {
-      _ <- deleteCodeListEntries(session, Some(codeListCode))
+    if (crdlEntries.isEmpty) {
+      logger.error(s"[CodeListsRepository][saveCodeListEntries] Codelist ${codeListCode.value} received from crdl-cache was empty")
+      Future.failed(MongoError.NoDataToInsert) }
+    else
 
-      entries = crdlEntries.map(CodeListEntry.fromCrdlEntry(codeListCode, _))
+      for {
+        _ <- deleteCodeListEntries(session, Some(codeListCode))
 
-      _ <- collection.insertMany(session, entries).toFuture().map { result =>
-        if (!result.wasAcknowledged())
-          throw MongoError.NotAcknowledged
-      }
-    } yield ()
+        entries = crdlEntries.map(CodeListEntry.fromCrdlEntry(codeListCode, _))
+
+        _ <- collection.insertMany(session, entries).toFuture().map { result =>
+          if (!result.wasAcknowledged())
+            throw MongoError.NotAcknowledged
+        }
+      } yield ()
 }

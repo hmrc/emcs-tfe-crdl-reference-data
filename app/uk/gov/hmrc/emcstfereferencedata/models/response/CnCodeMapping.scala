@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.models.errors
+package uk.gov.hmrc.emcstfereferencedata.models.response
 
-enum MongoError(val message: String, val cause: Throwable = null)
-  extends Exception(message, cause) {
-  case NotAcknowledged extends MongoError("Mongo write was not acknowledged")
-  case NoDataToInsert extends MongoError("No data was retrieved from crdl-cache")
+import play.api.libs.json.OFormat
+import play.api.libs.json.Json
+
+case class CnCodeMapping(
+  cnCode: String,
+  cnCodeDescription: Option[String],
+  exciseProductCode: String,
+  exciseProductCodeDescription: Option[String],
+  unitOfMeasureCode: Option[Int]
+)
+
+object CnCodeMapping {
+  given mongoFormat: OFormat[CnCodeMapping] = Json.format[CnCodeMapping]
 }

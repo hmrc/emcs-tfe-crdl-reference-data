@@ -18,9 +18,11 @@ package uk.gov.hmrc.emcstfereferencedata.controllers
 
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.emcstfereferencedata.connector.RetrieveAllEPCCodesConnector
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.{AuthAction, AuthActionHelper}
 import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse
+import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.NoDataReturnedFromDatabaseError
+import uk.gov.hmrc.emcstfereferencedata.repositories.ExciseProductsRepository
+import uk.gov.hmrc.emcstfereferencedata.utils.Logging
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
@@ -28,20 +30,23 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class RetrieveAllEPCCodesController @Inject()(cc: ControllerComponents,
-                                              service: RetrieveAllEPCCodesConnector,
+                                              repository: ExciseProductsRepository,
                                               override val auth: AuthAction
-                                                   )(implicit ec: ExecutionContext) extends BackendController(cc) with AuthActionHelper {
+                                             )(implicit ec: ExecutionContext) extends BackendController(cc) with AuthActionHelper with Logging {
 
 
   def get: Action[AnyContent] = authorisedUserGetRequest {
     implicit request =>
-      service.retrieveAllEPCCodes().map {
-        case Right(response) =>
+      repository.fetchAllEPCCodes().map { response =>
+        if (response.nonEmpty) {
           Ok(Json.toJson(response))
-        case Left(error@ErrorResponse.NoDataReturnedFromDatabaseError) =>
-          NotFound(Json.toJson(error))
-        case Left(error) =>
-          InternalServerError(Json.toJson(error))
+        }
+        else {
+          logger.warn(
+            "[RetrieveAllEPCCodesController][get] No data returned RetrieveAllEPCCodes"
+          )
+          NotFound(Json.toJson(NoDataReturnedFromDatabaseError))
+        }
       }
   }
 

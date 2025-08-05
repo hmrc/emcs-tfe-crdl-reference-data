@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emcstfereferencedata.connector.crdl
+package uk.gov.hmrc.emcstfereferencedata.connector
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.stubbing.Scenario
@@ -27,12 +27,11 @@ import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.emcstfereferencedata.config.AppConfig
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListEntry}
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.http.test.{HttpClientV2Support, WireMockSupport}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.http.HeaderCarrier
 
 class CrdlConnectorSpec
   extends AsyncWordSpec

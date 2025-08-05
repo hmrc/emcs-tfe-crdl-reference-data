@@ -21,6 +21,7 @@ import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Filters.*
 import org.mongodb.scala.model.Sorts.*
 import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, Indexes}
+import play.api.Logger
 import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
 import uk.gov.hmrc.emcstfereferencedata.models.request.CnInformationRequest
 import uk.gov.hmrc.emcstfereferencedata.models.response.CnCodeInformation
@@ -51,6 +52,7 @@ class CnCodesRepository @Inject() (val mongoComponent: MongoComponent)(using
 
   // This collection's entries are cleared every time new codelists are imported
   override lazy val requiresTtlIndex: Boolean = false
+  lazy val logger: Logger                     = Logger(this.getClass)
 
   def deleteCnCodes(session: ClientSession): Future[Unit] =
     collection
@@ -65,14 +67,21 @@ class CnCodesRepository @Inject() (val mongoComponent: MongoComponent)(using
     session: ClientSession,
     cnCodes: Seq[CnCodeInformation]
   ): Future[Unit] =
-    for {
-      _ <- deleteCnCodes(session)
+    if (cnCodes.isEmpty) {
+      logger.error(
+        "[CnCodesRepository][saveCnCodes] CnCodes List received from CRDL-Cache was empty"
+      )
+      Future.failed(MongoError.NoDataToInsert)
+    } else
 
-      _ <- collection.insertMany(session, cnCodes).toFuture().map { result =>
-        if (!result.wasAcknowledged())
-          throw MongoError.NotAcknowledged
-      }
-    } yield ()
+      for {
+        _ <- deleteCnCodes(session)
+
+        _ <- collection.insertMany(session, cnCodes).toFuture().map { result =>
+          if (!result.wasAcknowledged())
+            throw MongoError.NotAcknowledged
+        }
+      } yield ()
 
   def fetchCnCodesForProduct(exciseProductCode: String): Future[Seq[CnCodeInformation]] =
     collection

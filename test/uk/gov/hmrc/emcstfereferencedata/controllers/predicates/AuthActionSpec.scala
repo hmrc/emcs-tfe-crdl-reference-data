@@ -17,12 +17,11 @@
 package uk.gov.hmrc.emcstfereferencedata.controllers.predicates
 
 import com.google.inject.Inject
-import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, AnyContent, AnyContentAsEmpty, BodyParsers, Results}
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.mvc.{Action, AnyContent, AnyContentAsEmpty, Results}
+import play.api.test.Helpers.*
+import play.api.test.{FakeRequest, Helpers}
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Organisation}
-import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Retrieval, ~}
 import uk.gov.hmrc.emcstfereferencedata.config.EnrolmentKeys
@@ -34,9 +33,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthActionSpec extends UnitSpec with BaseFixtures {
 
-  lazy val bodyParsers: BodyParsers.Default = app.injector.instanceOf[BodyParsers.Default]
-  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-
   type AuthRetrieval = ~[~[~[Option[AffinityGroup], Enrolments], Option[String]], Option[Credentials]]
 
   implicit val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -44,7 +40,7 @@ class AuthActionSpec extends UnitSpec with BaseFixtures {
   trait Harness {
 
     val authConnector: AuthConnector
-    lazy val authAction = new AuthActionImpl(authConnector, bodyParsers)
+    lazy val authAction = new AuthActionImpl(authConnector, Helpers.stubControllerComponents())
 
     def onPageLoad(): Action[AnyContent] = authAction(Some(testErn)) { _ => Results.Ok }
 

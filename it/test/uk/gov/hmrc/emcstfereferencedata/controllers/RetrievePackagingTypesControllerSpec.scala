@@ -25,13 +25,9 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import uk.gov.hmrc.emcstfereferencedata.controllers.predicates.AuthAction
 import uk.gov.hmrc.emcstfereferencedata.fixtures.PackagingTypeFixtures
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.{
-  NoDataReturnedFromDatabaseError,
-  UnexpectedDownstreamResponseError
-}
 import uk.gov.hmrc.emcstfereferencedata.services.RetrievePackagingTypesService
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.{HttpResponse, StringContextOps, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
@@ -39,19 +35,19 @@ class RetrievePackagingTypesControllerSpec
   extends ControllerIntegrationSpec
   with PackagingTypeFixtures {
 
-  private val authAction            = mock[AuthAction]
-  private val packagingTypesService = mock[RetrievePackagingTypesService]
+  private val authAction = mock[AuthAction]
+  private val connector  = mock[RetrievePackagingTypesService]
 
   override def beforeEach(): Unit = {
     reset(authAction)
-    reset(packagingTypesService)
+    reset(connector)
   }
 
   override def fakeApplication(): Application =
     GuiceApplicationBuilder()
       .overrides(
         bind[AuthAction].toInstance(authAction),
-        bind[RetrievePackagingTypesService].toInstance(packagingTypesService),
+        bind[RetrievePackagingTypesService].toInstance(connector),
         bind[HttpClientV2].toInstance(httpClientV2)
       )
       .build()
@@ -62,11 +58,11 @@ class RetrievePackagingTypesControllerSpec
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
         when(
-          packagingTypesService.retrievePackagingTypes(
+          connector.retrievePackagingTypes(
             packagingTypeCodes = equalTo(None),
             isCountable = equalTo(Some(true))
           )(using any(), any())
-        ).thenReturn(Future.successful(Right(testPackagingTypesServiceResult)))
+        ).thenReturn(Future.successful(testPackagingTypesServiceResult))
 
         val response =
           httpClientV2
@@ -82,11 +78,11 @@ class RetrievePackagingTypesControllerSpec
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
         when(
-          packagingTypesService.retrievePackagingTypes(
+          connector.retrievePackagingTypes(
             packagingTypeCodes = equalTo(None),
             isCountable = equalTo(Some(false))
           )(using any(), any())
-        ).thenReturn(Future.successful(Right(testPackagingTypesServiceResult)))
+        ).thenReturn(Future.successful(testPackagingTypesServiceResult))
 
         val response =
           httpClientV2
@@ -102,11 +98,11 @@ class RetrievePackagingTypesControllerSpec
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
         when(
-          packagingTypesService.retrievePackagingTypes(
+          connector.retrievePackagingTypes(
             packagingTypeCodes = equalTo(None),
             isCountable = equalTo(None)
           )(using any(), any())
-        ).thenReturn(Future.successful(Right(testPackagingTypesServiceResult)))
+        ).thenReturn(Future.successful(testPackagingTypesServiceResult))
 
         val response =
           httpClientV2
@@ -133,15 +129,16 @@ class RetrievePackagingTypesControllerSpec
       }
     }
 
-    "return 500 Internal Service Error" when {
-      "the connector returns a NoDataReturnedFromDatabaseError" in {
+    "return the `reportAs` status code" when {
+      "the connector throws an UpstreamErrorResponse" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
+
         when(
-          packagingTypesService.retrievePackagingTypes(
+          connector.retrievePackagingTypes(
             packagingTypeCodes = equalTo(None),
             isCountable = equalTo(None)
           )(using any(), any())
-        ).thenReturn(Future.successful(Left(NoDataReturnedFromDatabaseError)))
+        ).thenReturn(Future.failed(UpstreamErrorResponse("Internal Server Error", 500, 502)))
 
         val response =
           httpClientV2
@@ -149,17 +146,18 @@ class RetrievePackagingTypesControllerSpec
             .execute[HttpResponse]
             .futureValue
 
-        response.status shouldBe Status.INTERNAL_SERVER_ERROR
+        response.status shouldBe Status.BAD_GATEWAY
       }
+    }
 
-      "the connector returns an UnexpectedDownstreamResponseError" in {
+    "return 500 Internal Service Error" when {
+      "the connector returns no data" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-        when(
-          packagingTypesService.retrievePackagingTypes(
-            packagingTypeCodes = equalTo(None),
-            isCountable = equalTo(None)
-          )(using any(), any())
-        ).thenReturn(Future.successful(Left(UnexpectedDownstreamResponseError)))
+        when(connector.retrievePackagingTypes(
+          packagingTypeCodes = equalTo(None),
+          isCountable = equalTo(None)
+        )(using any(), any()))
+          .thenReturn(Future.successful(Map.empty))
 
         val response =
           httpClientV2
@@ -173,7 +171,7 @@ class RetrievePackagingTypesControllerSpec
       "the connector throws an error" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
         when(
-          packagingTypesService.retrievePackagingTypes(
+          connector.retrievePackagingTypes(
             packagingTypeCodes = equalTo(None),
             isCountable = equalTo(None)
           )(using any(), any())
@@ -196,11 +194,11 @@ class RetrievePackagingTypesControllerSpec
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
         when(
-          packagingTypesService.retrievePackagingTypes(
+          connector.retrievePackagingTypes(
             packagingTypeCodes = equalTo(Some(testPackagingTypes)),
             isCountable = equalTo(None)
           )(using any(), any())
-        ).thenReturn(Future.successful(Right(testPackagingTypesServiceResult)))
+        ).thenReturn(Future.successful(testPackagingTypesServiceResult))
 
         val response =
           httpClientV2
@@ -230,16 +228,16 @@ class RetrievePackagingTypesControllerSpec
       }
     }
 
-    "return 500 Internal Service Error" when {
-      "the connector returns a NoDataReturnedFromDatabaseError" in {
+    "return the `reportAs` status code" when {
+      "the connector throws an UpstreamErrorResponse" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
         when(
-          packagingTypesService.retrievePackagingTypes(
+          connector.retrievePackagingTypes(
             packagingTypeCodes = equalTo(Some(testPackagingTypes)),
             isCountable = equalTo(None)
           )(using any(), any())
-        ).thenReturn(Future.successful(Left(NoDataReturnedFromDatabaseError)))
+        ).thenReturn(Future.failed(UpstreamErrorResponse("Internal Server Error", 500, 502)))
 
         val response =
           httpClientV2
@@ -248,18 +246,18 @@ class RetrievePackagingTypesControllerSpec
             .execute[HttpResponse]
             .futureValue
 
-        response.status shouldBe Status.INTERNAL_SERVER_ERROR
+        response.status shouldBe Status.BAD_GATEWAY
       }
+    }
 
-      "the connector returns an UnexpectedDownstreamResponseError" in {
+    "return 500 Internal Service Error" when {
+      "the connector returns no data" in {
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
-
-        when(
-          packagingTypesService.retrievePackagingTypes(
-            packagingTypeCodes = equalTo(Some(testPackagingTypes)),
-            isCountable = equalTo(None)
-          )(using any(), any())
-        ).thenReturn(Future.successful(Left(UnexpectedDownstreamResponseError)))
+        when(connector.retrievePackagingTypes(
+          packagingTypeCodes = equalTo(Some(testPackagingTypes)),
+          isCountable = equalTo(None)
+        )(using any(), any()))
+          .thenReturn(Future.successful(Map.empty))
 
         val response =
           httpClientV2
@@ -275,7 +273,7 @@ class RetrievePackagingTypesControllerSpec
         when(authAction(any())).thenReturn(FakeSuccessAuthAction(None))
 
         when(
-          packagingTypesService.retrievePackagingTypes(
+          connector.retrievePackagingTypes(
             packagingTypeCodes = equalTo(Some(testPackagingTypes)),
             isCountable = equalTo(None)
           )(using any(), any())

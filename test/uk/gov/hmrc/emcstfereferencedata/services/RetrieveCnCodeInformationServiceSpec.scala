@@ -16,39 +16,56 @@
 
 package uk.gov.hmrc.emcstfereferencedata.services
 
+import org.mockito.Mockito
+import org.mockito.Mockito.{reset, when}
+import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
-import uk.gov.hmrc.emcstfereferencedata.mocks.connectors.{MockRetrieveCnCodeInformationConnector, MockRetrieveProductCodesConnector}
-import uk.gov.hmrc.emcstfereferencedata.models.response.ErrorResponse.NoDataReturnedFromDatabaseError
+import uk.gov.hmrc.emcstfereferencedata.repositories.{CnCodesRepository, ExciseProductsRepository}
 import uk.gov.hmrc.emcstfereferencedata.support.UnitSpec
 
 import scala.concurrent.Future
 
 class RetrieveCnCodeInformationServiceSpec
   extends UnitSpec
-    with MockRetrieveCnCodeInformationConnector
-    with MockRetrieveProductCodesConnector
-    with BaseFixtures {
+    with BaseFixtures
+    with BeforeAndAfterEach {
 
-  object TestService extends RetrieveCnCodeInformationService(mockCnCodeInformationConnector, mockProductCodesConnector)
+  private val cnCodesRepository = Mockito.mock(classOf[CnCodesRepository])
+  private val exciseProductsRepository = Mockito.mock(classOf[ExciseProductsRepository])
+  private val service = new RetrieveCnCodeInformationService(cnCodesRepository, exciseProductsRepository)
+
+  override def beforeEach(): Unit = {
+    reset(cnCodesRepository)
+    reset(exciseProductsRepository)
+  }
 
   "The RetrieveCnCodeInformationService" should {
     "return a successful response containing the CnCodeInformation" when {
       "retrieveCnCodeInformation method is called" in {
-        val testResponse1 = Right(Map(testCnCode1 -> testCnCodeInformation1))
-        val testResponse2 = Right(Map(testCnCode2 -> testCnCodeInformation2))
-        MockCnCodeInformationConnector.retrieveCnCodeInformation(testCnCodeInformationRequest)(Future.successful(testResponse1))
-        MockProductCodesConnector.retrieveProductCodes(testCnCodeInformationRequest.copy(items = Seq(testCnCodeInformationItem2)))(Future.successful(testResponse2))
+        val testResponse1 = Map(testCnCode1 -> testCnCodeInformation1)
+        val testResponse2 = Map(testCnCode2 -> testCnCodeInformation2)
+        when(cnCodesRepository.fetchCnCodeInformation(testCnCodeInformationRequest)).thenReturn(Future.successful(testResponse1))
+        when(exciseProductsRepository.fetchProductCodesInformation(testCnCodeInformationRequest.copy(items = Seq(testCnCodeInformationItem2)))).thenReturn(Future.successful(testResponse2))
 
-        await(TestService.retrieveCnCodeInformation(testCnCodeInformationRequest)) shouldBe Right(Map(testCnCode1 -> testCnCodeInformation1, testCnCode2 -> testCnCodeInformation2))
+        await(service.retrieveCnCodeInformation(testCnCodeInformationRequest)) shouldBe Map(testCnCode1 -> testCnCodeInformation1, testCnCode2 -> testCnCodeInformation2)
       }
     }
 
-    "return an Error Response" when {
-      "there is no data available" in {
-        MockCnCodeInformationConnector.retrieveCnCodeInformation(testCnCodeInformationRequest)(Future.successful(Left(NoDataReturnedFromDatabaseError)))
-        MockProductCodesConnector.retrieveProductCodes(testCnCodeInformationRequest.copy(items = Seq(testCnCodeInformationItem2)))(Future.successful(Left(NoDataReturnedFromDatabaseError)))
+    "rethrow errors" when {
+      "when the cnCodesRepository returns an error" in {
+        when(cnCodesRepository.fetchCnCodeInformation(testCnCodeInformationRequest)).thenReturn(Future.failed(RuntimeException("Boom!!")))
+        when(exciseProductsRepository.fetchProductCodesInformation(testCnCodeInformationRequest.copy(items = Seq(testCnCodeInformationItem2)))).thenReturn(Future.successful(Map.empty))
+        assertThrows[RuntimeException] {
+          await(service.retrieveCnCodeInformation(testCnCodeInformationRequest))
+        }
+      }
 
-        await(TestService.retrieveCnCodeInformation(testCnCodeInformationRequest)) shouldBe Left(NoDataReturnedFromDatabaseError)
+      "when the exciseProductsRepository returns an error" in {
+        when(cnCodesRepository.fetchCnCodeInformation(testCnCodeInformationRequest)).thenReturn(Future.successful(Map.empty))
+        when(exciseProductsRepository.fetchProductCodesInformation(testCnCodeInformationRequest.copy(items = Seq(testCnCodeInformationItem2)))).thenReturn(Future.failed(RuntimeException("Boom!!")))
+        assertThrows[RuntimeException] {
+          await(service.retrieveCnCodeInformation(testCnCodeInformationRequest))
+        }
       }
     }
   }
