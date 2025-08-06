@@ -20,10 +20,10 @@ import org.quartz.JobBuilder.newJob
 import org.quartz.TriggerBuilder.newTrigger
 import org.quartz.impl.StdSchedulerFactory
 import org.quartz.{CronScheduleBuilder, Scheduler, SchedulerFactory, Trigger}
-import play.api.Logging
 import play.api.inject.ApplicationLifecycle
 import uk.gov.hmrc.emcstfereferencedata.config.AppConfig
 import uk.gov.hmrc.emcstfereferencedata.scheduler.jobs.ImportReferenceDataJob
+import uk.gov.hmrc.emcstfereferencedata.utils.Logging
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}

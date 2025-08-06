@@ -23,28 +23,33 @@ trait Logging {
 
   private lazy val loggerName: String = this.getClass.getName.stripSuffix("$")
   private lazy val className: String = this.getClass.getSimpleName.stripSuffix("$")
-
-  val logger: LoggerLike = new LoggerLike {
-
-    private lazy val prefixLog: String => String = msg =>
-      s"[$className]${if (msg.startsWith("[")) msg else " " + msg}"
-
+  private val baseLogger: LoggerLike = new LoggerLike {
     override val logger: Logger = LoggerFactory.getLogger(loggerName)
-
-    override def debug(message: => String)(implicit mc: MarkerContext): Unit = super.debug(prefixLog(message))
-
-    override def info(message: => String)(implicit mc: MarkerContext): Unit = super.info(prefixLog(message))
-
-    override def warn(message: => String)(implicit mc: MarkerContext): Unit = super.warn(prefixLog(message))
-
-    override def error(message: => String)(implicit mc: MarkerContext): Unit = super.error(prefixLog(message))
-
-    override def debug(message: => String, e: => Throwable)(implicit mc: MarkerContext): Unit = super.debug(prefixLog(message), e)
-
-    override def info(message: => String, e: => Throwable)(implicit mc: MarkerContext): Unit = super.info(prefixLog(message), e)
-
-    override def warn(message: => String, e: => Throwable)(implicit mc: MarkerContext): Unit = super.warn(prefixLog(message), e)
-
-    override def error(message: => String, e: => Throwable)(implicit mc: MarkerContext): Unit = super.error(prefixLog(message), e)
   }
+
+  val logger: EnhancedLogger = new EnhancedLogger(baseLogger, className)
+}
+
+class EnhancedLogger(base: LoggerLike, className: String) extends LoggerLike {
+    override val logger: Logger = base.logger
+    private def prefixLog(msg: String, name: sourcecode.Name, line: sourcecode.Line): String = {
+      s"[$className][${name.value}]:[${line.value}]${if (msg.startsWith("[")) msg else " " + msg}"
+    }
+
+    def debug(message: => String)(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit = base.debug(prefixLog(message, method, line))
+
+    def info(message: => String)(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit = base.info(prefixLog(message, method, line))
+
+    def warn(message: => String)(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit = base.warn(prefixLog(message, method, line))
+
+    def error(message: => String)(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit = base.error(prefixLog(message, method, line))
+
+    def debug(message: => String, e: => Throwable)(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit = base.debug(prefixLog(message, method, line), e)
+
+    def info(message: => String, e: => Throwable)(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit = base.info(prefixLog(message, method, line), e)
+
+    def warn(message: => String, e: => Throwable)(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit = base.warn(prefixLog(message, method, line), e)
+
+    def error(message: => String, e: => Throwable)(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit = base.error(prefixLog(message, method, line), e)
+
 }

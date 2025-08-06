@@ -43,7 +43,7 @@ class RetrieveCnCodeInformationController @Inject()(cc: ControllerComponents,
         }
         else {
           logger.warn(
-            s"[RetrieveCnCodeInformationController][show] No data returned for CnCodeInformation"
+            "No data returned for CnCodeInformation"
           )
           InternalServerError(Json.toJson(NoDataReturnedFromDatabaseError))
         }

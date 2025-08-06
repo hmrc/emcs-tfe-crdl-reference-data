@@ -264,7 +264,7 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
     crdlEntries: List[CrdlCodeListEntry]
   ): Future[Unit] =
     if (crdlEntries.isEmpty) {
-      logger.error(s"[CodeListsRepository][saveCodeListEntries] Codelist ${codeListCode.value} received from crdl-cache was empty")
+      logger.error(s"Codelist ${codeListCode.value} received from crdl-cache was empty")
       Future.failed(MongoError.NoDataToInsert) }
     else
 

@@ -69,7 +69,7 @@ class CnCodesRepository @Inject() (val mongoComponent: MongoComponent)(using
   ): Future[Unit] =
     if (cnCodes.isEmpty) {
       logger.error(
-        "[CnCodesRepository][saveCnCodes] CnCodes List received from CRDL-Cache was empty"
+        "CnCodes List received from CRDL-Cache was empty"
       )
       Future.failed(MongoError.NoDataToInsert)
     } else
