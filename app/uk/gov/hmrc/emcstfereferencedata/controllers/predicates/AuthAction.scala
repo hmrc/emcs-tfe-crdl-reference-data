@@ -55,31 +55,31 @@ class AuthActionImpl @Inject()(override val authConnector: AuthConnector,
         authorised().retrieve(Retrievals.affinityGroup and Retrievals.allEnrolments and Retrievals.internalId and Retrievals.credentials) {
 
           case Some(Organisation) ~ enrolments ~ Some(internalId) ~ Some(credentials) =>
-            logger.debug("[invokeBlock] Checking for EMCS Enrolment")
+            logger.debug("Checking for EMCS Enrolment")
             checkOrganisationEMCSEnrolment(ern, enrolments, internalId, credentials.providerId)(block)
 
           case Some(Organisation) ~ _ ~ None ~ _ =>
-            logger.warn("[invokeBlock] InternalId could not be retrieved from Auth")
+            logger.warn("InternalId could not be retrieved from Auth")
             Future.successful(Unauthorized)
 
           case Some(Organisation) ~ _ ~ _ ~ None =>
-            logger.warn("[invokeBlock] Credentials could not be retrieved from Auth")
+            logger.warn("Credentials could not be retrieved from Auth")
             Future.successful(Unauthorized)
 
           case Some(affinityGroup) ~ _ ~ _ ~ _ =>
-            logger.warn(s"[invokeBlock] User has incompatible AffinityGroup of '$affinityGroup'")
+            logger.warn(s"User has incompatible AffinityGroup of '$affinityGroup'")
             Future.successful(Unauthorized)
 
           case _ =>
-            logger.warn(s"[invokeBlock] User has no AffinityGroup")
+            logger.warn(s"User has no AffinityGroup")
             Future.successful(Unauthorized)
 
         } recover {
           case x: NoActiveSession =>
-            logger.debug(s"[invokeBlock] NoActiveSession Exception with reason: ${x.reason}")
+            logger.debug(s"NoActiveSession Exception with reason: ${x.reason}")
             Unauthorized
           case x: AuthorisationException =>
-            logger.debug(s"[invokeBlock] Authorisation Exception ${x.reason}")
+            logger.debug(s"Authorisation Exception ${x.reason}")
             Forbidden
         }
       }
@@ -93,7 +93,7 @@ class AuthActionImpl @Inject()(override val authConnector: AuthConnector,
                                                (implicit request: Request[A]): Future[Result] =
     enrolments.enrolments.filter(enrolment => enrolment.key == EnrolmentKeys.EMCS_ENROLMENT) match {
       case emcsEnrolments if emcsEnrolments.isEmpty =>
-        logger.debug(s"[checkOrganisationEMCSEnrolment] No ${EnrolmentKeys.EMCS_ENROLMENT} enrolment found")
+        logger.debug(s"No ${EnrolmentKeys.EMCS_ENROLMENT} enrolment found")
         Future.successful(Forbidden)
       case emcsEnrolments =>
         if (emcsEnrolments.exists(_.isActivated)) {
@@ -107,13 +107,13 @@ class AuthActionImpl @Inject()(override val authConnector: AuthConnector,
                 case Some(_) =>
                   block(UserRequest(request, internalId, credId))
                 case None =>
-                  logger.warn(s"[checkOrganisationEMCSEnrolment] User attempted to access ern: '$ernFromUrl' which they are not authorised to view")
+                  logger.warn(s"User attempted to access ern: '$ernFromUrl' which they are not authorised to view")
                   Future.successful(Forbidden)
               }
           }
 
         } else {
-          logger.debug(s"[checkOrganisationEMCSEnrolment] ${EnrolmentKeys.EMCS_ENROLMENT} enrolment found but not activated")
+          logger.debug(s"${EnrolmentKeys.EMCS_ENROLMENT} enrolment found but not activated")
           Future.successful(Forbidden)
         }
     }

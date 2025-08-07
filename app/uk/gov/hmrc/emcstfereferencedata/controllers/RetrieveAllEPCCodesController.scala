@@ -43,7 +43,7 @@ class RetrieveAllEPCCodesController @Inject()(cc: ControllerComponents,
         }
         else {
           logger.warn(
-            "[RetrieveAllEPCCodesController][get] No data returned RetrieveAllEPCCodes"
+            "No data returned RetrieveAllEPCCodes"
           )
           NotFound(Json.toJson(NoDataReturnedFromDatabaseError))
         }

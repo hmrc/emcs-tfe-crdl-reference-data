@@ -67,7 +67,7 @@ class ExciseProductsRepository @Inject() (val mongoComponent: MongoComponent)(us
   ): Future[Unit] =
     if (exciseProducts.isEmpty) {
       logger.error(
-        "[ExciseProductsRepository][saveExciseProducts] exciseProducts List received from CRDL-Cache was empty"
+        "ExciseProducts list received from CRDL-Cache was empty"
       )
       Future.failed(MongoError.NoDataToInsert)
     } else

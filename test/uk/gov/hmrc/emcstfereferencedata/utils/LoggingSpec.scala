@@ -18,6 +18,7 @@ package uk.gov.hmrc.emcstfereferencedata.utils
 
 import ch.qos.logback.classic.Level
 import org.scalatestplus.play.PlaySpec
+import play.api.MarkerContext
 import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 
 class LoggingSpec extends PlaySpec with LogCapturing {
@@ -40,14 +41,14 @@ class LoggingSpec extends PlaySpec with LogCapturing {
           logMsg(Level.INFO, optEx),
           logMsg(Level.WARN, optEx),
           logMsg(Level.ERROR, optEx)
-        ) foreach { level =>
+        ) foreach { case (level,method, line) =>
 
           s"at level $level" + optEx.fold("")(s" with exception of " + _) must {
 
             s"output the correct message and level (prefixing with the class/object name)" in {
 
               logs.find(_.getLevel == level) match {
-                case Some(value) => value.getMessage mustBe s"[TestLogging] $level Message"
+                case Some(value) => value.getMessage mustBe s"[TestLogging][$method]:[$line] $level Message"
                 case None => fail(s"Could not find $level message")
               }
             }
@@ -57,7 +58,7 @@ class LoggingSpec extends PlaySpec with LogCapturing {
     }
   }
 
-  private def logMsg(level: Level, ex: Option[Exception]): Level = {
+  private def logMsg(level: Level, ex: Option[Exception])(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): (Level, String, Int) = {
     import TestLogging.logger
     val msg = s"$level Message"
     level match {
@@ -66,6 +67,6 @@ class LoggingSpec extends PlaySpec with LogCapturing {
       case Level.WARN => ex.fold(logger.warn(msg))(logger.warn(msg, _))
       case _ => ex.fold(logger.error(msg))(logger.error(msg, _))
     }
-    level
+    (level, method.value, line.value)
   }
 }
