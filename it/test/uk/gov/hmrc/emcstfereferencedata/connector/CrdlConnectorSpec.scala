@@ -49,7 +49,8 @@ class CrdlConnectorSpec
     "microservice.services.crdl-cache.host" -> "localhost",
     "microservice.services.crdl-cache.path" -> "crdl-cache/lists",
     "microservice.services.crdl-cache.port" -> wireMockPort,
-    "http-verbs.retries.intervals"          -> List("1.millis")
+    "http-verbs.retries.intervals"          -> List("1.millis"),
+    "internal-auth.token"                   -> "crdl-connector-spec-token"
   )
 
   private val appConfig = AppConfig(config, ServicesConfig(config))
@@ -93,6 +94,7 @@ class CrdlConnectorSpec
     "return codelist entries when given the code for a codelist" in {
       stubFor(
         get(urlPathEqualTo("/crdl-cache/lists/BC66"))
+          .withHeader(HeaderNames.AUTHORIZATION, equalTo("crdl-connector-spec-token"))
           .willReturn(
             ok()
               .withHeader(HeaderNames.CONTENT_TYPE, ContentTypes.JSON)
@@ -109,6 +111,7 @@ class CrdlConnectorSpec
       stubFor(
         get(urlPathEqualTo("/crdl-cache/lists/BC66"))
           .withQueryParam("keys", equalTo("E,I,S"))
+          .withHeader(HeaderNames.AUTHORIZATION, equalTo("crdl-connector-spec-token"))
           .willReturn(
             ok()
               .withHeader(HeaderNames.CONTENT_TYPE, ContentTypes.JSON)
@@ -117,7 +120,11 @@ class CrdlConnectorSpec
       )
 
       connector
-        .fetchCodeList(CodeListCode.BC66, filterKeys = Some(Set("E", "I", "S")), filterProperties = None)
+        .fetchCodeList(
+          CodeListCode.BC66,
+          filterKeys = Some(Set("E", "I", "S")),
+          filterProperties = None
+        )
         .map(_ shouldBe exciseProductCategories)
     }
 
@@ -125,6 +132,7 @@ class CrdlConnectorSpec
       stubFor(
         get(urlPathEqualTo("/crdl-cache/lists/BC66"))
           .withQueryParam("countableFlag", equalTo("true"))
+          .withHeader(HeaderNames.AUTHORIZATION, equalTo("crdl-connector-spec-token"))
           .willReturn(
             ok()
               .withHeader(HeaderNames.CONTENT_TYPE, ContentTypes.JSON)
@@ -133,7 +141,11 @@ class CrdlConnectorSpec
       )
 
       connector
-        .fetchCodeList(CodeListCode.BC66, filterKeys = None, filterProperties = Some(Map("countableFlag"->true)))
+        .fetchCodeList(
+          CodeListCode.BC66,
+          filterKeys = None,
+          filterProperties = Some(Map("countableFlag" -> true))
+        )
         .map(_ shouldBe exciseProductCategories)
     }
 
@@ -142,6 +154,7 @@ class CrdlConnectorSpec
         get(urlPathEqualTo("/crdl-cache/lists/BC66"))
           .withQueryParam("keys", equalTo("E,I,S"))
           .withQueryParam("countableFlag", equalTo("true"))
+          .withHeader(HeaderNames.AUTHORIZATION, equalTo("crdl-connector-spec-token"))
           .willReturn(
             ok()
               .withHeader(HeaderNames.CONTENT_TYPE, ContentTypes.JSON)
@@ -150,7 +163,11 @@ class CrdlConnectorSpec
       )
 
       connector
-        .fetchCodeList(CodeListCode.BC66, filterKeys = Some(Set("E", "I", "S")), filterProperties = Some(Map("countableFlag" -> true)))
+        .fetchCodeList(
+          CodeListCode.BC66,
+          filterKeys = Some(Set("E", "I", "S")),
+          filterProperties = Some(Map("countableFlag" -> true))
+        )
         .map(_ shouldBe exciseProductCategories)
     }
 
