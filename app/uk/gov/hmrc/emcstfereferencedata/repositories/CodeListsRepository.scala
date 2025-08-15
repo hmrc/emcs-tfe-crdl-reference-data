@@ -177,7 +177,7 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
 
         cnCodeInfo.getOrElse {
           logger.warn(
-            s"Unable to retrieve all of the required CN code information for CN code ${cnCodeMapping.cnCode} and excise product ${cnCodeMapping.exciseProductCode}: ${cnCodeMapping}"
+            s"Unable to retrieve all of the required CN code information for CN code ${cnCodeMapping.cnCode} and excise product ${cnCodeMapping.exciseProductCode}: $cnCodeMapping"
           )
         }
 
@@ -232,7 +232,7 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
 
         exciseProduct.getOrElse {
           logger.warn(
-            s"Unable to retrieve excise product category information for excise product ${exciseProductMapping.code}: ${exciseProductMapping}"
+            s"Unable to retrieve excise product category information for excise product ${exciseProductMapping.code}: $exciseProductMapping"
           )
         }
 
