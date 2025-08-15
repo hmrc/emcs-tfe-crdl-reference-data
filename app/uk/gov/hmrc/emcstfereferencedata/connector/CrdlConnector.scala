@@ -18,9 +18,9 @@ package uk.gov.hmrc.emcstfereferencedata.connector
 
 import com.typesafe.config.Config
 import org.apache.pekko.actor.ActorSystem
-import play.api.Logging
 import uk.gov.hmrc.emcstfereferencedata.config.AppConfig
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListEntry}
+import uk.gov.hmrc.emcstfereferencedata.utils.Logging
 import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.UpstreamErrorResponse.{Upstream4xxResponse, Upstream5xxResponse}
@@ -64,7 +64,7 @@ class CrdlConnector @Inject() (config: AppConfig, httpClient: HttpClientV2)(usin
   )(using hc: HeaderCarrier, ec: ExecutionContext): Future[List[CrdlCodeListEntry]] = {
     // Use the internal-auth token to call the crdl-cache service
     val hcWithInternalAuth = hc.copy(authorization = Some(Authorization(config.internalAuthToken)))
-    logger.info(s"Fetching ${code.value} codelist")
+    logger.info(s"Fetching ${code.value} codelist from crdl-cache")
     val fetchResult = retryFor(s"fetch of codelist entries for ${code.value}") {
       // No point in retrying if our request is wrong
       case Upstream4xxResponse(_) => false

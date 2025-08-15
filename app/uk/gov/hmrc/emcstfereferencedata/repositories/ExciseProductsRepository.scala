@@ -20,10 +20,10 @@ import org.mongodb.scala.*
 import org.mongodb.scala.model.Filters.*
 import org.mongodb.scala.model.Sorts.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions, Indexes}
-import play.api.Logger
 import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
 import uk.gov.hmrc.emcstfereferencedata.models.request.CnInformationRequest
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ExciseProductCode}
+import uk.gov.hmrc.emcstfereferencedata.utils.Logging
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.transaction.Transactions
@@ -46,11 +46,10 @@ class ExciseProductsRepository @Inject() (val mongoComponent: MongoComponent)(us
       IndexModel(Indexes.ascending("category"))
     )
   )
-  with Transactions {
+  with Transactions with Logging {
 
   // This collection's entries are cleared every time new codelists are imported
   override lazy val requiresTtlIndex: Boolean = false
-  lazy val logger: Logger                     = Logger(this.getClass)
 
   def deleteExciseProducts(session: ClientSession): Future[Unit] =
     collection
