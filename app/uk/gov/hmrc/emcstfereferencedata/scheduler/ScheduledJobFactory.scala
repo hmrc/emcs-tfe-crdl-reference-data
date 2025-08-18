@@ -24,7 +24,7 @@ import play.api.inject.Injector
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class ScheduledJobFactory @Inject()(injector: Injector) extends JobFactory {
+class ScheduledJobFactory @Inject() (injector: Injector) extends JobFactory {
   override def newJob(bundle: TriggerFiredBundle, scheduler: quartz.Scheduler): Job =
     injector.instanceOf(bundle.getJobDetail.getJobClass)
 }

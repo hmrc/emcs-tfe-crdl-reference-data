@@ -18,6 +18,5 @@ package uk.gov.hmrc.emcstfereferencedata.models.auth
 
 import play.api.mvc.{Request, WrappedRequest}
 
-case class UserRequest[A](request: Request[A],
-                          internalId: String,
-                          credId: String) extends WrappedRequest[A](request)
+case class UserRequest[A](request: Request[A], internalId: String, credId: String)
+  extends WrappedRequest[A](request)

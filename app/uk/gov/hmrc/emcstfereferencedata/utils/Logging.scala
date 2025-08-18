@@ -22,7 +22,7 @@ import play.api.{LoggerLike, MarkerContext}
 trait Logging {
 
   private lazy val loggerName: String = this.getClass.getName.stripSuffix("$")
-  private lazy val className: String = this.getClass.getSimpleName.stripSuffix("$")
+  private lazy val className: String  = this.getClass.getSimpleName.stripSuffix("$")
   private val baseLogger: LoggerLike = new LoggerLike {
     override val logger: Logger = LoggerFactory.getLogger(loggerName)
   }
@@ -31,25 +31,53 @@ trait Logging {
 }
 
 class EnhancedLogger(base: LoggerLike, className: String) extends LoggerLike {
-    override val logger: Logger = base.logger
-    private def prefixLog(msg: String, name: sourcecode.Name, line: sourcecode.Line): String = {
-      s"[$className][${name.value}]:[${line.value}]${if (msg.startsWith("[")) msg else " " + msg}"
-    }
+  override val logger: Logger = base.logger
+  private def prefixLog(msg: String, name: sourcecode.Name, line: sourcecode.Line): String = {
+    s"[$className][${name.value}]:[${line.value}]${if (msg.startsWith("[")) msg else " " + msg}"
+  }
 
-    def debug(message: => String)(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit = base.debug(prefixLog(message, method, line))
+  def debug(
+    message: => String
+  )(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit =
+    base.debug(prefixLog(message, method, line))
 
-    def info(message: => String)(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit = base.info(prefixLog(message, method, line))
+  def info(
+    message: => String
+  )(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit =
+    base.info(prefixLog(message, method, line))
 
-    def warn(message: => String)(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit = base.warn(prefixLog(message, method, line))
+  def warn(
+    message: => String
+  )(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit =
+    base.warn(prefixLog(message, method, line))
 
-    def error(message: => String)(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit = base.error(prefixLog(message, method, line))
+  def error(
+    message: => String
+  )(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit =
+    base.error(prefixLog(message, method, line))
 
-    def debug(message: => String, e: => Throwable)(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit = base.debug(prefixLog(message, method, line), e)
+  def debug(message: => String, e: => Throwable)(implicit
+    mc: MarkerContext,
+    method: sourcecode.Name,
+    line: sourcecode.Line
+  ): Unit = base.debug(prefixLog(message, method, line), e)
 
-    def info(message: => String, e: => Throwable)(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit = base.info(prefixLog(message, method, line), e)
+  def info(message: => String, e: => Throwable)(implicit
+    mc: MarkerContext,
+    method: sourcecode.Name,
+    line: sourcecode.Line
+  ): Unit = base.info(prefixLog(message, method, line), e)
 
-    def warn(message: => String, e: => Throwable)(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit = base.warn(prefixLog(message, method, line), e)
+  def warn(message: => String, e: => Throwable)(implicit
+    mc: MarkerContext,
+    method: sourcecode.Name,
+    line: sourcecode.Line
+  ): Unit = base.warn(prefixLog(message, method, line), e)
 
-    def error(message: => String, e: => Throwable)(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): Unit = base.error(prefixLog(message, method, line), e)
+  def error(message: => String, e: => Throwable)(implicit
+    mc: MarkerContext,
+    method: sourcecode.Name,
+    line: sourcecode.Line
+  ): Unit = base.error(prefixLog(message, method, line), e)
 
 }

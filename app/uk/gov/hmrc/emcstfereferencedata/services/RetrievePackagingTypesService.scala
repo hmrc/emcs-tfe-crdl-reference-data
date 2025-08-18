@@ -25,7 +25,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RetrievePackagingTypesService @Inject()(crdlConnector: CrdlConnector) {
+class RetrievePackagingTypesService @Inject() (crdlConnector: CrdlConnector) {
 
   def retrievePackagingTypes(
     packagingTypeCodes: Option[Set[String]],

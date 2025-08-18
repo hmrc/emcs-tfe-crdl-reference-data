@@ -29,19 +29,21 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class RetrieveCnCodeInformationController @Inject()(cc: ControllerComponents,
-                                                    service: RetrieveCnCodeInformationService,
-                                                    override val auth: AuthAction
-                                                   )(implicit ec: ExecutionContext) extends BackendController(cc) with AuthActionHelper with Logging {
-
+class RetrieveCnCodeInformationController @Inject() (
+  cc: ControllerComponents,
+  service: RetrieveCnCodeInformationService,
+  override val auth: AuthAction
+)(implicit ec: ExecutionContext)
+  extends BackendController(cc)
+  with AuthActionHelper
+  with Logging {
 
   def show: Action[CnInformationRequest] = authorisedUserPostRequest(CnInformationRequest.reads) {
     implicit request =>
       service.retrieveCnCodeInformation(request.body).map { response =>
         if (response.nonEmpty) {
           Ok(Json.toJson(response))
-        }
-        else {
+        } else {
           logger.warn(
             "No data returned for CnCodeInformation"
           )

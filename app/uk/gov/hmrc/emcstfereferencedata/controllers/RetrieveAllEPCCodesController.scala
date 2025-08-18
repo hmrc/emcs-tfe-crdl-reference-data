@@ -29,25 +29,26 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class RetrieveAllEPCCodesController @Inject()(cc: ControllerComponents,
-                                              repository: ExciseProductsRepository,
-                                              override val auth: AuthAction
-                                             )(implicit ec: ExecutionContext) extends BackendController(cc) with AuthActionHelper with Logging {
+class RetrieveAllEPCCodesController @Inject() (
+  cc: ControllerComponents,
+  repository: ExciseProductsRepository,
+  override val auth: AuthAction
+)(implicit ec: ExecutionContext)
+  extends BackendController(cc)
+  with AuthActionHelper
+  with Logging {
 
-
-  def get: Action[AnyContent] = authorisedUserGetRequest {
-    implicit request =>
-      repository.fetchAllEPCCodes().map { response =>
-        if (response.nonEmpty) {
-          Ok(Json.toJson(response))
-        }
-        else {
-          logger.warn(
-            "No data returned RetrieveAllEPCCodes"
-          )
-          NotFound(Json.toJson(NoDataReturnedFromDatabaseError))
-        }
+  def get: Action[AnyContent] = authorisedUserGetRequest { implicit request =>
+    repository.fetchAllEPCCodes().map { response =>
+      if (response.nonEmpty) {
+        Ok(Json.toJson(response))
+      } else {
+        logger.warn(
+          "No data returned RetrieveAllEPCCodes"
+        )
+        NotFound(Json.toJson(NoDataReturnedFromDatabaseError))
       }
+    }
   }
 
 }

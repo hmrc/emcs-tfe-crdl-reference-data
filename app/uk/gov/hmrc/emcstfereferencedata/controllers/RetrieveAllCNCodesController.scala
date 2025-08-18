@@ -26,16 +26,18 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class RetrieveAllCNCodesController @Inject()(cc: ControllerComponents,
-                                             repository: CnCodesRepository,
-                                             override val auth: AuthAction
-                                                   )(implicit ec: ExecutionContext) extends BackendController(cc) with AuthActionHelper {
-
+class RetrieveAllCNCodesController @Inject() (
+  cc: ControllerComponents,
+  repository: CnCodesRepository,
+  override val auth: AuthAction
+)(implicit ec: ExecutionContext)
+  extends BackendController(cc)
+  with AuthActionHelper {
 
   def get(exciseProductCode: String): Action[AnyContent] = authorisedUserGetRequest {
     implicit request =>
       repository.fetchCnCodesForProduct(exciseProductCode).map { response =>
-          Ok(Json.toJson(response))
+        Ok(Json.toJson(response))
       }
   }
 

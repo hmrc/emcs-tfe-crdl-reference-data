@@ -44,11 +44,12 @@ class RetrieveCnCodeInformationService @Inject() (
       )
     )
 
-    val fetchCnCodes      = cnCodesRepository.fetchCnCodeInformation(cnInformationRequest)
-    val fetchProductCodes = exciseProductsRepository.fetchProductCodesInformation(productCodesConnectorRequest)
+    val fetchCnCodes = cnCodesRepository.fetchCnCodeInformation(cnInformationRequest)
+    val fetchProductCodes =
+      exciseProductsRepository.fetchProductCodesInformation(productCodesConnectorRequest)
 
-    fetchCnCodes.zip(fetchProductCodes).map {
-      case (cnCodes, productCodes) => cnCodes ++ productCodes
+    fetchCnCodes.zip(fetchProductCodes).map { case (cnCodes, productCodes) =>
+      cnCodes ++ productCodes
     }
   }
 

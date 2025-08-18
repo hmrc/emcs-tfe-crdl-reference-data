@@ -29,18 +29,20 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class RetrieveMemberStatesController @Inject()(cc: ControllerComponents,
-                                               connector: RetrieveOtherReferenceDataService,
-                                               override val auth: AuthAction
-                                              )(implicit ec: ExecutionContext) extends BackendController(cc) with AuthActionHelper with Logging{
-
+class RetrieveMemberStatesController @Inject() (
+  cc: ControllerComponents,
+  connector: RetrieveOtherReferenceDataService,
+  override val auth: AuthAction
+)(implicit ec: ExecutionContext)
+  extends BackendController(cc)
+  with AuthActionHelper
+  with Logging {
 
   def show: Action[AnyContent] = authorisedUserGetRequest { implicit request =>
     connector.retrieveMemberStates().map { response =>
       if (response.nonEmpty) {
         Ok(Json.toJson(Country(response)))
-      }
-      else {
+      } else {
         logger.warn("No data returned for member states")
         InternalServerError(Json.toJson(NoDataReturnedFromDatabaseError))
       }

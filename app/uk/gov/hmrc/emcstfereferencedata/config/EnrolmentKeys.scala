@@ -19,8 +19,8 @@ package uk.gov.hmrc.emcstfereferencedata.config
 object EnrolmentKeys {
 
   val EMCS_ENROLMENT = "HMRC-EMCS-ORG"
-  val ERN = "ExciseNumber"
-  val ACTIVATED = "activated"
-  val INACTIVE = "inactive"
+  val ERN            = "ExciseNumber"
+  val ACTIVATED      = "activated"
+  val INACTIVE       = "inactive"
 
 }
