@@ -8,6 +8,31 @@ The purpose of this service is to act as an adapter for EMCS TFE services like [
 
 It translates the flat key-value codelists of the [crdl-cache](https://github.com/hmrc/crdl-cache/) service into the composite domain objects used by the TFE frontends.
 
+## Running the service
+
+1. Make sure you run all the dependant services through the service manager:
+
+```shell
+ sm2 --start EMCS_TFE_CRDL
+ ```
+
+2. Stop the EMCS-TFE microservice from the service manager and run it locally:
+
+```shell 
+sm2 --stop EMCS_TFE_CRDL_REFERENCE_DATA
+```
+
+```shell 
+sbt run
+```
+The service runs on port 8321 by default.
+
+You will need a bearer token to invoke some of the API endpoints in this service. In order to generate a token:
+1. Go to the auth-login-stub `http://localhost:9949/auth-login-stub/gg-sign-in` on the browser.
+2. Set up the following: redirect url as `http://localhost:9949/auth-login-stub/gg-sign-in`, affinity group as `Organization` with the enrolment `HMRC-EMCS-ORG` provide a valid excise number and submit.
+3. You will be able to copy the Bearer Token from the authToken section on the redirected page.
+
+
 ## API endpoints
 
 <details>
@@ -260,3 +285,8 @@ Retrieve member states list
 **Body**: [ErrorResponse Model](app/uk/gov/hmrc/emcstfereferencedata/models/response/ErrorResponse.scala)
 
 </details>
+
+### All tests and checks
+This is an sbt command alias specific to this project. It will run a scala format
+check, run unit tests, run integration tests and produce a coverage report:
+> `sbt runAllChecks`
