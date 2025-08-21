@@ -21,10 +21,10 @@ import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Filters.*
 import org.mongodb.scala.model.Sorts.*
 import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, Indexes}
-import play.api.Logger
 import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
 import uk.gov.hmrc.emcstfereferencedata.models.request.CnInformationRequest
 import uk.gov.hmrc.emcstfereferencedata.models.response.CnCodeInformation
+import uk.gov.hmrc.emcstfereferencedata.utils.Logging
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.transaction.Transactions
@@ -48,11 +48,10 @@ class CnCodesRepository @Inject() (val mongoComponent: MongoComponent)(using
       )
     )
   )
-  with Transactions {
+  with Transactions with Logging {
 
   // This collection's entries are cleared every time new codelists are imported
   override lazy val requiresTtlIndex: Boolean = false
-  lazy val logger: Logger                     = Logger(this.getClass)
 
   def deleteCnCodes(session: ClientSession): Future[Unit] =
     collection

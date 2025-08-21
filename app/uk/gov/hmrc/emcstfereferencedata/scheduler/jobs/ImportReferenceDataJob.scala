@@ -99,8 +99,8 @@ class ImportReferenceDataJob @Inject()(
       } yield ()
     }
 
-    importRefData.foreach(_ => logger.info(s"${jobName} job completed successfully"))
-    importRefData.failed.foreach(err => logger.error(s"${jobName} job failed", err))
+    importRefData.foreach(_ => logger.info(s"$jobName job completed successfully"))
+    importRefData.failed.foreach(err => logger.error(s"$jobName job failed", err))
 
     importRefData
   }
@@ -109,7 +109,7 @@ class ImportReferenceDataJob @Inject()(
     Await.result(
       withLock(importReferenceData()).map {
         _.getOrElse {
-          logger.info(s"${jobName} job lock could not be obtained")
+          logger.info(s"$jobName job lock could not be obtained")
         }
       },
       Duration.Inf

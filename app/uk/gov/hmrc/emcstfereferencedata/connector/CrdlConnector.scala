@@ -20,6 +20,7 @@ import com.typesafe.config.Config
 import org.apache.pekko.actor.ActorSystem
 import uk.gov.hmrc.emcstfereferencedata.config.AppConfig
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListEntry}
+import uk.gov.hmrc.emcstfereferencedata.utils.Logging
 import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.UpstreamErrorResponse.{Upstream4xxResponse, Upstream5xxResponse}
@@ -32,7 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class CrdlConnector @Inject() (config: AppConfig, httpClient: HttpClientV2)(using
   system: ActorSystem
-) extends Retries {
+) extends Retries with Logging {
   override protected def actorSystem: ActorSystem = system
 
   override protected def configuration: Config = config.config.underlying
@@ -63,7 +64,8 @@ class CrdlConnector @Inject() (config: AppConfig, httpClient: HttpClientV2)(usin
   )(using hc: HeaderCarrier, ec: ExecutionContext): Future[List[CrdlCodeListEntry]] = {
     // Use the internal-auth token to call the crdl-cache service
     val hcWithInternalAuth = hc.copy(authorization = Some(Authorization(config.internalAuthToken)))
-    retryFor(s"fetch of codelist entries for ${code.value}") {
+    logger.info(s"Fetching ${code.value} codelist from crdl-cache")
+    val fetchResult = retryFor(s"fetch of codelist entries for ${code.value}") {
       // No point in retrying if our request is wrong
       case Upstream4xxResponse(_) => false
       // Attempt to recover from intermittent connectivity issues
@@ -73,5 +75,7 @@ class CrdlConnector @Inject() (config: AppConfig, httpClient: HttpClientV2)(usin
         .get(urlFor(code, filterKeys, filterProperties))(using hcWithInternalAuth)
         .execute[List[CrdlCodeListEntry]](using throwOnFailureReads)
     }
+    fetchResult.failed.foreach(err => logger.error(s"Retries exceeded while fetching ${code.value} ", err))
+    fetchResult
   }
 }
