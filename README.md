@@ -32,6 +32,8 @@ You will need a bearer token to invoke some of the API endpoints in this service
 2. Set up the following: redirect url as `http://localhost:9949/auth-login-stub/gg-sign-in`, affinity group as `Organization` with the enrolment `HMRC-EMCS-ORG` provide a valid excise number and submit.
 3. You will be able to copy the Bearer Token from the authToken section on the redirected page.
 
+### Sample Bruno Requests
+To test out APIs from this service using Bruno, open the [TFE-CRDL(LOCAL)](./bruno/TFE-CRDL(LOCAL)) collection on your bruno application, the file that can be found in the .bruno folder.
 
 ## API endpoints
 
