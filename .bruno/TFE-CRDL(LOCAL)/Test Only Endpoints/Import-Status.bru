@@ -1,0 +1,15 @@
+meta {
+  name: Import-Status
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8321/emcs-tfe-reference-data/test-only/reference-data
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

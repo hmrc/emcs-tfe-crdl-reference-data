@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "TFE-CRDL(LOCAL)",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
