@@ -8,6 +8,9 @@ The purpose of this service is to act as an adapter for EMCS TFE services like [
 
 It translates the flat key-value codelists of the [crdl-cache](https://github.com/hmrc/crdl-cache/) service into the composite domain objects used by the TFE frontends.
 
+### Sample Bruno Requests
+To test out APIs from this service using Bruno, open the [TFE-CRDL(LOCAL)](./bruno/TFE-CRDL(LOCAL)) collection on your bruno application, the file that can be found in the .bruno folder.
+
 ## API endpoints
 
 <details>
