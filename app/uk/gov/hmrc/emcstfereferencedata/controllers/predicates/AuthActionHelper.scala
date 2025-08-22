@@ -28,6 +28,8 @@ trait AuthActionHelper { self: BaseControllerHelpers =>
   def authorisedUserGetRequest(block: UserRequest[_] => Future[Result]): Action[AnyContent] =
     auth(None).async(block)
 
-  def authorisedUserPostRequest[T](reads: Reads[T])(block: UserRequest[T] => Future[Result]): Action[T] =
+  def authorisedUserPostRequest[T](reads: Reads[T])(
+    block: UserRequest[T] => Future[Result]
+  ): Action[T] =
     auth(None).async(parse.json[T](reads))(block)
 }

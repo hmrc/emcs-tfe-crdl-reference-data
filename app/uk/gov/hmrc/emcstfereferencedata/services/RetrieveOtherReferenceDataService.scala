@@ -27,7 +27,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RetrieveOtherReferenceDataService @Inject()(connector: CrdlConnector) {
+class RetrieveOtherReferenceDataService @Inject() (connector: CrdlConnector) {
 
   def retrieveWineOperations(filterKeys: Option[Set[String]])(implicit
     hc: HeaderCarrier,
@@ -60,11 +60,11 @@ class RetrieveOtherReferenceDataService @Inject()(connector: CrdlConnector) {
     retrieveOtherReferenceData(BC106, filterKeys = None)
 
   def retrieveMemberStatesAndCountries()(implicit
-            hc: HeaderCarrier,
-            ec: ExecutionContext
+    hc: HeaderCarrier,
+    ec: ExecutionContext
   ): Future[Seq[Country]] = {
     val fetchMemberStates = retrieveMemberStates()
-    val fetchCountries = retrieveCountries()
+    val fetchCountries    = retrieveCountries()
 
     val memberStatesAndCountriesResult: Future[Map[String, String]] =
       fetchMemberStates.zip(fetchCountries).map { case (memberStates, countries) =>
@@ -88,7 +88,7 @@ class RetrieveOtherReferenceDataService @Inject()(connector: CrdlConnector) {
     connector
       .fetchCodeList(codeListCode, filterKeys, filterProperties = None)
       .map { codeListEntries =>
-          codeListEntries.map(entry => entry.key -> entry.value).toMap
+        codeListEntries.map(entry => entry.key -> entry.value).toMap
       }
 
 }

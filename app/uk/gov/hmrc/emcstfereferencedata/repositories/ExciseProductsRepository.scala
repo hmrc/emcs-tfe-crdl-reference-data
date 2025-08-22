@@ -46,7 +46,8 @@ class ExciseProductsRepository @Inject() (val mongoComponent: MongoComponent)(us
       IndexModel(Indexes.ascending("category"))
     )
   )
-  with Transactions with Logging {
+  with Transactions
+  with Logging {
 
   // This collection's entries are cleared every time new codelists are imported
   override lazy val requiresTtlIndex: Boolean = false

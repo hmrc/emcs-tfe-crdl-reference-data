@@ -2,6 +2,7 @@
 
 !.gitignore
 !.scalafmt.conf
+!.git-blame-ignore-revs
 bin
 .bloop/
 .cache

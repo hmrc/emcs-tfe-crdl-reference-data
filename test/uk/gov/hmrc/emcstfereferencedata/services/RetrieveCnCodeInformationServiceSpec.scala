@@ -27,12 +27,13 @@ import scala.concurrent.Future
 
 class RetrieveCnCodeInformationServiceSpec
   extends UnitSpec
-    with BaseFixtures
-    with BeforeAndAfterEach {
+  with BaseFixtures
+  with BeforeAndAfterEach {
 
-  private val cnCodesRepository = Mockito.mock(classOf[CnCodesRepository])
+  private val cnCodesRepository        = Mockito.mock(classOf[CnCodesRepository])
   private val exciseProductsRepository = Mockito.mock(classOf[ExciseProductsRepository])
-  private val service = new RetrieveCnCodeInformationService(cnCodesRepository, exciseProductsRepository)
+  private val service =
+    new RetrieveCnCodeInformationService(cnCodesRepository, exciseProductsRepository)
 
   override def beforeEach(): Unit = {
     reset(cnCodesRepository)
@@ -44,25 +45,43 @@ class RetrieveCnCodeInformationServiceSpec
       "retrieveCnCodeInformation method is called" in {
         val testResponse1 = Map(testCnCode1 -> testCnCodeInformation1)
         val testResponse2 = Map(testCnCode2 -> testCnCodeInformation2)
-        when(cnCodesRepository.fetchCnCodeInformation(testCnCodeInformationRequest)).thenReturn(Future.successful(testResponse1))
-        when(exciseProductsRepository.fetchProductCodesInformation(testCnCodeInformationRequest.copy(items = Seq(testCnCodeInformationItem2)))).thenReturn(Future.successful(testResponse2))
+        when(cnCodesRepository.fetchCnCodeInformation(testCnCodeInformationRequest))
+          .thenReturn(Future.successful(testResponse1))
+        when(
+          exciseProductsRepository.fetchProductCodesInformation(
+            testCnCodeInformationRequest.copy(items = Seq(testCnCodeInformationItem2))
+          )
+        ).thenReturn(Future.successful(testResponse2))
 
-        await(service.retrieveCnCodeInformation(testCnCodeInformationRequest)) shouldBe Map(testCnCode1 -> testCnCodeInformation1, testCnCode2 -> testCnCodeInformation2)
+        await(service.retrieveCnCodeInformation(testCnCodeInformationRequest)) shouldBe Map(
+          testCnCode1 -> testCnCodeInformation1,
+          testCnCode2 -> testCnCodeInformation2
+        )
       }
     }
 
     "rethrow errors" when {
       "when the cnCodesRepository returns an error" in {
-        when(cnCodesRepository.fetchCnCodeInformation(testCnCodeInformationRequest)).thenReturn(Future.failed(RuntimeException("Boom!!")))
-        when(exciseProductsRepository.fetchProductCodesInformation(testCnCodeInformationRequest.copy(items = Seq(testCnCodeInformationItem2)))).thenReturn(Future.successful(Map.empty))
+        when(cnCodesRepository.fetchCnCodeInformation(testCnCodeInformationRequest))
+          .thenReturn(Future.failed(RuntimeException("Boom!!")))
+        when(
+          exciseProductsRepository.fetchProductCodesInformation(
+            testCnCodeInformationRequest.copy(items = Seq(testCnCodeInformationItem2))
+          )
+        ).thenReturn(Future.successful(Map.empty))
         assertThrows[RuntimeException] {
           await(service.retrieveCnCodeInformation(testCnCodeInformationRequest))
         }
       }
 
       "when the exciseProductsRepository returns an error" in {
-        when(cnCodesRepository.fetchCnCodeInformation(testCnCodeInformationRequest)).thenReturn(Future.successful(Map.empty))
-        when(exciseProductsRepository.fetchProductCodesInformation(testCnCodeInformationRequest.copy(items = Seq(testCnCodeInformationItem2)))).thenReturn(Future.failed(RuntimeException("Boom!!")))
+        when(cnCodesRepository.fetchCnCodeInformation(testCnCodeInformationRequest))
+          .thenReturn(Future.successful(Map.empty))
+        when(
+          exciseProductsRepository.fetchProductCodesInformation(
+            testCnCodeInformationRequest.copy(items = Seq(testCnCodeInformationItem2))
+          )
+        ).thenReturn(Future.failed(RuntimeException("Boom!!")))
         assertThrows[RuntimeException] {
           await(service.retrieveCnCodeInformation(testCnCodeInformationRequest))
         }

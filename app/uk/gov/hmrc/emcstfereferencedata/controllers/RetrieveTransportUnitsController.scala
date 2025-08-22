@@ -28,16 +28,17 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class RetrieveTransportUnitsController @Inject()(
-                                                  cc: ControllerComponents,
-                                                  connector: RetrieveOtherReferenceDataService
-                                                )(implicit ec: ExecutionContext) extends BackendController(cc) with Logging {
+class RetrieveTransportUnitsController @Inject() (
+  cc: ControllerComponents,
+  connector: RetrieveOtherReferenceDataService
+)(implicit ec: ExecutionContext)
+  extends BackendController(cc)
+  with Logging {
   def show: Action[AnyContent] = Action.async { implicit request =>
-    connector.retrieveTransportUnits().map {response =>
-      if(response.nonEmpty) {
+    connector.retrieveTransportUnits().map { response =>
+      if (response.nonEmpty) {
         Ok(Json.toJson(TransportUnit(response)))
-      }
-      else {
+      } else {
         logger.warn("No data returned for transport units")
         InternalServerError(Json.toJson(NoDataReturnedFromDatabaseError))
       }

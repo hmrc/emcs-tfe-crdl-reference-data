@@ -29,20 +29,20 @@ import uk.gov.hmrc.emcstfereferencedata.services.RetrieveOtherReferenceDataServi
 import uk.gov.hmrc.emcstfereferencedata.utils.Logging
 
 @Singleton
-class RetrieveWineOperationsController @Inject()(
-                                                  cc: ControllerComponents,
-                                                  connector: RetrieveOtherReferenceDataService,
-                                                  override val auth: AuthAction
-                                                )(implicit ec: ExecutionContext)
+class RetrieveWineOperationsController @Inject() (
+  cc: ControllerComponents,
+  connector: RetrieveOtherReferenceDataService,
+  override val auth: AuthAction
+)(implicit ec: ExecutionContext)
   extends BackendController(cc)
-    with AuthActionHelper with Logging {
+  with AuthActionHelper
+  with Logging {
 
   def showAllWineOperations: Action[AnyContent] = authorisedUserGetRequest { implicit request =>
     connector.retrieveWineOperations(filterKeys = None).map { response =>
       if (response.nonEmpty) {
         Ok(Json.toJson(response))
-      }
-      else {
+      } else {
         logger.warn("No data returned for all wine operations")
         InternalServerError(Json.toJson(NoDataReturnedFromDatabaseError))
       }
@@ -54,8 +54,7 @@ class RetrieveWineOperationsController @Inject()(
       connector.retrieveWineOperations(filterKeys = Some(request.body)).map { response =>
         if (response.nonEmpty) {
           Ok(Json.toJson(response))
-        }
-        else {
+        } else {
           logger.warn(
             s"No data returned for input wine operations: ${request.body.mkString(",")}"
           )

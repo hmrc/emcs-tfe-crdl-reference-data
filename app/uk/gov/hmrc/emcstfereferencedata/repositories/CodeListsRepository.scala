@@ -75,8 +75,6 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
   private val ProductCategories                 = "BC66"
   private val CnCodeExciseProductCorrespondence = "E200"
 
-
-
   private def lookupIn(
     codeListCode: String,
     localField: String,
@@ -265,8 +263,8 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
   ): Future[Unit] =
     if (crdlEntries.isEmpty) {
       logger.error(s"Codelist ${codeListCode.value} received from crdl-cache was empty")
-      Future.failed(MongoError.NoDataToInsert) }
-    else
+      Future.failed(MongoError.NoDataToInsert)
+    } else
 
       for {
         _ <- deleteCodeListEntries(session, Some(codeListCode))

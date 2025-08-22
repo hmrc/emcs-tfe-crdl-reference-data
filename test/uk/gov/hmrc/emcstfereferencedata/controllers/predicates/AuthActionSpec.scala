@@ -33,7 +33,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthActionSpec extends UnitSpec with BaseFixtures {
 
-  type AuthRetrieval = ~[~[~[Option[AffinityGroup], Enrolments], Option[String]], Option[Credentials]]
+  type AuthRetrieval =
+    ~[~[~[Option[AffinityGroup], Enrolments], Option[String]], Option[Credentials]]
 
   implicit val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
@@ -47,10 +48,12 @@ class AuthActionSpec extends UnitSpec with BaseFixtures {
     lazy val result = onPageLoad()(fakeRequest)
   }
 
-  def authResponse(affinityGroup: Option[AffinityGroup] = Some(Organisation),
-                   enrolments: Enrolments = Enrolments(Set.empty),
-                   internalId: Option[String] = Some(testInternalId),
-                   credId: Option[Credentials] = Some(Credentials(testCredId, "gg"))): AuthRetrieval =
+  def authResponse(
+    affinityGroup: Option[AffinityGroup] = Some(Organisation),
+    enrolments: Enrolments = Enrolments(Set.empty),
+    internalId: Option[String] = Some(testInternalId),
+    credId: Option[Credentials] = Some(Credentials(testCredId, "gg"))
+  ): AuthRetrieval =
     new ~(new ~(new ~(affinityGroup, enrolments), internalId), credId)
 
   "AuthAction" when {
@@ -83,7 +86,8 @@ class AuthActionSpec extends UnitSpec with BaseFixtures {
 
           "redirect to unauthorised" in new Harness {
 
-            override val authConnector = new FakeSuccessAuthConnector(authResponse(affinityGroup = None))
+            override val authConnector =
+              new FakeSuccessAuthConnector(authResponse(affinityGroup = None))
 
             status(result) shouldBe UNAUTHORIZED
           }
@@ -93,7 +97,8 @@ class AuthActionSpec extends UnitSpec with BaseFixtures {
 
           "redirect to unauthorised" in new Harness {
 
-            override val authConnector = new FakeSuccessAuthConnector(authResponse(affinityGroup = Some(Agent)))
+            override val authConnector =
+              new FakeSuccessAuthConnector(authResponse(affinityGroup = Some(Agent)))
 
             status(result) shouldBe UNAUTHORIZED
           }
@@ -105,7 +110,8 @@ class AuthActionSpec extends UnitSpec with BaseFixtures {
 
             "redirect to unauthorised" in new Harness {
 
-              override val authConnector = new FakeSuccessAuthConnector(authResponse(internalId = None))
+              override val authConnector =
+                new FakeSuccessAuthConnector(authResponse(internalId = None))
 
               status(result) shouldBe UNAUTHORIZED
             }
@@ -117,7 +123,8 @@ class AuthActionSpec extends UnitSpec with BaseFixtures {
 
               "redirect to unauthorised" in new Harness {
 
-                override val authConnector = new FakeSuccessAuthConnector(authResponse(credId = None))
+                override val authConnector =
+                  new FakeSuccessAuthConnector(authResponse(credId = None))
 
                 status(result) shouldBe UNAUTHORIZED
               }
@@ -139,13 +146,19 @@ class AuthActionSpec extends UnitSpec with BaseFixtures {
 
                 "redirect to unauthorised" in new Harness {
 
-                  override val authConnector = new FakeSuccessAuthConnector(authResponse(enrolments = Enrolments(Set(
-                    Enrolment(
-                      key = EnrolmentKeys.EMCS_ENROLMENT,
-                      identifiers = Seq(EnrolmentIdentifier(EnrolmentKeys.ERN, testErn)),
-                      state = EnrolmentKeys.INACTIVE
+                  override val authConnector = new FakeSuccessAuthConnector(
+                    authResponse(enrolments =
+                      Enrolments(
+                        Set(
+                          Enrolment(
+                            key = EnrolmentKeys.EMCS_ENROLMENT,
+                            identifiers = Seq(EnrolmentIdentifier(EnrolmentKeys.ERN, testErn)),
+                            state = EnrolmentKeys.INACTIVE
+                          )
+                        )
+                      )
                     )
-                  ))))
+                  )
 
                   status(result) shouldBe FORBIDDEN
                 }
@@ -157,13 +170,19 @@ class AuthActionSpec extends UnitSpec with BaseFixtures {
 
                   "redirect to unauthorised" in new Harness {
 
-                    override val authConnector = new FakeSuccessAuthConnector(authResponse(enrolments = Enrolments(Set(
-                      Enrolment(
-                        key = EnrolmentKeys.EMCS_ENROLMENT,
-                        identifiers = Seq(),
-                        state = EnrolmentKeys.ACTIVATED
+                    override val authConnector = new FakeSuccessAuthConnector(
+                      authResponse(enrolments =
+                        Enrolments(
+                          Set(
+                            Enrolment(
+                              key = EnrolmentKeys.EMCS_ENROLMENT,
+                              identifiers = Seq(),
+                              state = EnrolmentKeys.ACTIVATED
+                            )
+                          )
+                        )
                       )
-                    ))))
+                    )
 
                     status(result) shouldBe FORBIDDEN
                   }
@@ -173,13 +192,19 @@ class AuthActionSpec extends UnitSpec with BaseFixtures {
 
                   "allow the User through, returning a 200 (OK)" in new Harness {
 
-                    override val authConnector = new FakeSuccessAuthConnector(authResponse(enrolments = Enrolments(Set(
-                      Enrolment(
-                        key = EnrolmentKeys.EMCS_ENROLMENT,
-                        identifiers = Seq(EnrolmentIdentifier(EnrolmentKeys.ERN, testErn)),
-                        state = EnrolmentKeys.ACTIVATED
+                    override val authConnector = new FakeSuccessAuthConnector(
+                      authResponse(enrolments =
+                        Enrolments(
+                          Set(
+                            Enrolment(
+                              key = EnrolmentKeys.EMCS_ENROLMENT,
+                              identifiers = Seq(EnrolmentIdentifier(EnrolmentKeys.ERN, testErn)),
+                              state = EnrolmentKeys.ACTIVATED
+                            )
+                          )
+                        )
                       )
-                    ))))
+                    )
 
                     status(result) shouldBe OK
                   }
@@ -189,13 +214,19 @@ class AuthActionSpec extends UnitSpec with BaseFixtures {
 
                   "return Forbidden" in new Harness {
 
-                    override val authConnector = new FakeSuccessAuthConnector(authResponse(enrolments = Enrolments(Set(
-                      Enrolment(
-                        key = EnrolmentKeys.EMCS_ENROLMENT,
-                        identifiers = Seq(EnrolmentIdentifier(EnrolmentKeys.ERN, "other")),
-                        state = EnrolmentKeys.ACTIVATED
+                    override val authConnector = new FakeSuccessAuthConnector(
+                      authResponse(enrolments =
+                        Enrolments(
+                          Set(
+                            Enrolment(
+                              key = EnrolmentKeys.EMCS_ENROLMENT,
+                              identifiers = Seq(EnrolmentIdentifier(EnrolmentKeys.ERN, "other")),
+                              state = EnrolmentKeys.ACTIVATED
+                            )
+                          )
+                        )
                       )
-                    ))))
+                    )
 
                     status(result) shouldBe FORBIDDEN
                   }
@@ -205,23 +236,29 @@ class AuthActionSpec extends UnitSpec with BaseFixtures {
 
                   "allow the User through, returning a 200 (OK)" in new Harness {
 
-                    override val authConnector = new FakeSuccessAuthConnector(authResponse(enrolments = Enrolments(Set(
-                      Enrolment(
-                        key = EnrolmentKeys.EMCS_ENROLMENT,
-                        identifiers = Seq(EnrolmentIdentifier(EnrolmentKeys.ERN, "OTHER_1")),
-                        state = EnrolmentKeys.INACTIVE
-                      ),
-                      Enrolment(
-                        key = EnrolmentKeys.EMCS_ENROLMENT,
-                        identifiers = Seq(EnrolmentIdentifier(EnrolmentKeys.ERN, testErn)),
-                        state = EnrolmentKeys.ACTIVATED
-                      ),
-                      Enrolment(
-                        key = EnrolmentKeys.EMCS_ENROLMENT,
-                        identifiers = Seq(EnrolmentIdentifier(EnrolmentKeys.ERN, "OTHER_2")),
-                        state = EnrolmentKeys.ACTIVATED
+                    override val authConnector = new FakeSuccessAuthConnector(
+                      authResponse(enrolments =
+                        Enrolments(
+                          Set(
+                            Enrolment(
+                              key = EnrolmentKeys.EMCS_ENROLMENT,
+                              identifiers = Seq(EnrolmentIdentifier(EnrolmentKeys.ERN, "OTHER_1")),
+                              state = EnrolmentKeys.INACTIVE
+                            ),
+                            Enrolment(
+                              key = EnrolmentKeys.EMCS_ENROLMENT,
+                              identifiers = Seq(EnrolmentIdentifier(EnrolmentKeys.ERN, testErn)),
+                              state = EnrolmentKeys.ACTIVATED
+                            ),
+                            Enrolment(
+                              key = EnrolmentKeys.EMCS_ENROLMENT,
+                              identifiers = Seq(EnrolmentIdentifier(EnrolmentKeys.ERN, "OTHER_2")),
+                              state = EnrolmentKeys.ACTIVATED
+                            )
+                          )
+                        )
                       )
-                    ))))
+                    )
 
                     status(result) shouldBe OK
                   }
@@ -235,12 +272,18 @@ class AuthActionSpec extends UnitSpec with BaseFixtures {
   }
 }
 
-class FakeSuccessAuthConnector[B] @Inject()(response: B) extends AuthConnector {
-  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
+class FakeSuccessAuthConnector[B] @Inject() (response: B) extends AuthConnector {
+  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[A] =
     Future.successful(response.asInstanceOf[A])
 }
 
-class FakeFailingAuthConnector @Inject()(exceptionToReturn: Throwable) extends AuthConnector {
-  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
+class FakeFailingAuthConnector @Inject() (exceptionToReturn: Throwable) extends AuthConnector {
+  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[A] =
     Future.failed(exceptionToReturn)
 }

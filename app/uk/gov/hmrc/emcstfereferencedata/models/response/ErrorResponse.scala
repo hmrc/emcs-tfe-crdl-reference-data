@@ -24,7 +24,8 @@ sealed trait ErrorResponse {
 
 object ErrorResponse {
 
-  implicit val writes: OWrites[ErrorResponse] = (o: ErrorResponse) => Json.obj("message" -> o.message)
+  implicit val writes: OWrites[ErrorResponse] = (o: ErrorResponse) =>
+    Json.obj("message" -> o.message)
 
   implicit def genericWrites[T <: ErrorResponse]: OWrites[T] =
     writes.contramap[T](c => c: ErrorResponse)

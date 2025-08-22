@@ -31,49 +31,55 @@ class CnCodeInformationSpec extends UnitSpec {
 
   "reads" should {
     "read JSON to a model" in {
-      Json.obj(
-        "cnCode" -> "24029000",
-        "cnCodeDescription" -> "Cigarettes containing tobacco / other",
-        "exciseProductCode" -> "T400",
-        "exciseProductCodeDescription" -> "Cigarettes",
-        "unitOfMeasureCode" -> 1
-      ).as[CnCodeInformation] shouldBe testCommodityCodeTobacco
+      Json
+        .obj(
+          "cnCode"                       -> "24029000",
+          "cnCodeDescription"            -> "Cigarettes containing tobacco / other",
+          "exciseProductCode"            -> "T400",
+          "exciseProductCodeDescription" -> "Cigarettes",
+          "unitOfMeasureCode"            -> 1
+        )
+        .as[CnCodeInformation] shouldBe testCommodityCodeTobacco
     }
 
     "read JSON to a model from a map structure" in {
-      Json.obj(
-        "24029000" -> Json.obj(
-          "cnCode" -> "24029000",
-          "cnCodeDescription" -> "Cigarettes containing tobacco / other",
-          "exciseProductCode" -> "T400",
-          "exciseProductCodeDescription" -> "Cigarettes",
-          "unitOfMeasureCode" -> 1
+      Json
+        .obj(
+          "24029000" -> Json.obj(
+            "cnCode"                       -> "24029000",
+            "cnCodeDescription"            -> "Cigarettes containing tobacco / other",
+            "exciseProductCode"            -> "T400",
+            "exciseProductCodeDescription" -> "Cigarettes",
+            "unitOfMeasureCode"            -> 1
+          )
         )
-      ).as[Map[String, CnCodeInformation]] shouldBe Map("24029000" -> testCommodityCodeTobacco)
+        .as[Map[String, CnCodeInformation]] shouldBe Map("24029000" -> testCommodityCodeTobacco)
     }
   }
 
   "writes" should {
     "write JSON to a model" in {
       Json.toJson(testCommodityCodeTobacco) shouldBe Json.obj(
-        "cnCode" -> "24029000",
-        "cnCodeDescription" -> "Cigarettes containing tobacco / other",
-        "exciseProductCode" -> "T400",
+        "cnCode"                       -> "24029000",
+        "cnCodeDescription"            -> "Cigarettes containing tobacco / other",
+        "exciseProductCode"            -> "T400",
         "exciseProductCodeDescription" -> "Cigarettes",
-        "unitOfMeasureCode" -> 1
+        "unitOfMeasureCode"            -> 1
       )
     }
 
     "replace ' with smart quotes" in {
-      Json.toJson(testCommodityCodeTobacco.copy(
-        exciseProductCodeDescription = "bacon & eggs",
-        cnCodeDescription = "This is a 'test', it's a good 'test' and it will be 'tested'"
-      )) shouldBe Json.obj(
-        "cnCode" -> "24029000",
+      Json.toJson(
+        testCommodityCodeTobacco.copy(
+          exciseProductCodeDescription = "bacon & eggs",
+          cnCodeDescription = "This is a 'test', it's a good 'test' and it will be 'tested'"
+        )
+      ) shouldBe Json.obj(
+        "cnCode"            -> "24029000",
         "cnCodeDescription" -> "This is a ‘test’, it’s a good ‘test’ and it will be ‘tested’",
         "exciseProductCode" -> "T400",
         "exciseProductCodeDescription" -> "bacon & eggs",
-        "unitOfMeasureCode" -> 1
+        "unitOfMeasureCode"            -> 1
       )
     }
   }

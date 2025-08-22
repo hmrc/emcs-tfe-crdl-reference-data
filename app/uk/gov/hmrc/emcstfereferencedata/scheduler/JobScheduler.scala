@@ -29,7 +29,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class JobScheduler @Inject()(
+class JobScheduler @Inject() (
   lifecycle: ApplicationLifecycle,
   schedulerFactory: SchedulerFactory,
   jobFactory: ScheduledJobFactory,

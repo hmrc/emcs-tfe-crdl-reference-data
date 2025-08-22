@@ -29,9 +29,9 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class RetrievePackagingTypesController @Inject() (
-                                                   cc: ControllerComponents,
-                                                   connector: RetrievePackagingTypesService,
-                                                   override val auth: AuthAction
+  cc: ControllerComponents,
+  connector: RetrievePackagingTypesService,
+  override val auth: AuthAction
 )(implicit ec: ExecutionContext)
   extends BackendController(cc)
   with AuthActionHelper
