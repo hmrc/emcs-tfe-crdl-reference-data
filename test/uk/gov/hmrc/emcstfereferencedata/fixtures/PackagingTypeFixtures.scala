@@ -36,8 +36,7 @@ trait PackagingTypeFixtures {
     "NE" -> "Unpacked or unpackaged",
     "VP" -> "Vacuum-packed"
   )
-  val allPackagingTypesServiceResultOrderedJson: JsValue = Json.parse(
-    """
+  val allPackagingTypesServiceResultOrderedJson: JsValue = Json.parse("""
       |{
       |    "AE": "Aerosol",
       |    "AM": "Ampoule, non protected",

@@ -28,15 +28,18 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class RetrieveMemberStatesAndCountriesController @Inject()(cc: ControllerComponents,
-                                                           service: RetrieveOtherReferenceDataService,
-                                                           override val auth: AuthAction
-                                              )(implicit ec: ExecutionContext) extends BackendController(cc) with AuthActionHelper with Logging {
-
+class RetrieveMemberStatesAndCountriesController @Inject() (
+  cc: ControllerComponents,
+  service: RetrieveOtherReferenceDataService,
+  override val auth: AuthAction
+)(implicit ec: ExecutionContext)
+  extends BackendController(cc)
+  with AuthActionHelper
+  with Logging {
 
   def show: Action[AnyContent] = authorisedUserGetRequest { implicit request =>
     service.retrieveMemberStatesAndCountries().map { response =>
-      if(response.nonEmpty) {
+      if (response.nonEmpty) {
         Ok(Json.toJson(response))
       } else {
         logger.warn("No data returned for member states or countries")

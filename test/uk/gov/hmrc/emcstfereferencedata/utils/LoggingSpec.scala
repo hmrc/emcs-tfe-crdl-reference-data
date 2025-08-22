@@ -34,21 +34,21 @@ class LoggingSpec extends PlaySpec with LogCapturing {
   "when logging" must {
 
     Seq(None, Some(new Exception("fooBar"))) foreach { optEx =>
-
       withCaptureOfLoggingFrom(TestLogging.logger) { logs =>
         Seq(
           logMsg(Level.DEBUG, optEx),
           logMsg(Level.INFO, optEx),
           logMsg(Level.WARN, optEx),
           logMsg(Level.ERROR, optEx)
-        ) foreach { case (level,method, line) =>
+        ) foreach { case (level, method, line) =>
 
           s"at level $level" + optEx.fold("")(s" with exception of " + _) must {
 
             s"output the correct message and level (prefixing with the class/object name)" in {
 
               logs.find(_.getLevel == level) match {
-                case Some(value) => value.getMessage mustBe s"[TestLogging][$method]:[$line] $level Message"
+                case Some(value) =>
+                  value.getMessage mustBe s"[TestLogging][$method]:[$line] $level Message"
                 case None => fail(s"Could not find $level message")
               }
             }
@@ -58,14 +58,18 @@ class LoggingSpec extends PlaySpec with LogCapturing {
     }
   }
 
-  private def logMsg(level: Level, ex: Option[Exception])(implicit mc: MarkerContext, method: sourcecode.Name, line: sourcecode.Line): (Level, String, Int) = {
+  private def logMsg(level: Level, ex: Option[Exception])(implicit
+    mc: MarkerContext,
+    method: sourcecode.Name,
+    line: sourcecode.Line
+  ): (Level, String, Int) = {
     import TestLogging.logger
     val msg = s"$level Message"
     level match {
       case Level.DEBUG => ex.fold(logger.debug(msg))(logger.debug(msg, _))
-      case Level.INFO => ex.fold(logger.info(msg))(logger.info(msg, _))
-      case Level.WARN => ex.fold(logger.warn(msg))(logger.warn(msg, _))
-      case _ => ex.fold(logger.error(msg))(logger.error(msg, _))
+      case Level.INFO  => ex.fold(logger.info(msg))(logger.info(msg, _))
+      case Level.WARN  => ex.fold(logger.warn(msg))(logger.warn(msg, _))
+      case _           => ex.fold(logger.error(msg))(logger.error(msg, _))
     }
     (level, method.value, line.value)
   }

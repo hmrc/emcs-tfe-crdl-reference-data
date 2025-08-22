@@ -33,19 +33,19 @@ import scala.concurrent.Future
 
 class RetrieveOtherReferenceDataServiceSpec
   extends AsyncWordSpec
-    with Matchers
-    with MockitoSugar
-    with BaseFixtures
-    with BeforeAndAfterEach {
+  with Matchers
+  with MockitoSugar
+  with BaseFixtures
+  with BeforeAndAfterEach {
   private val crdlConnector = mock[CrdlConnector]
-  private val service = new RetrieveOtherReferenceDataService(crdlConnector)
-  private val codeListCode = BC35
+  private val service       = new RetrieveOtherReferenceDataService(crdlConnector)
+  private val codeListCode  = BC35
 
   given HeaderCarrier = HeaderCarrier()
 
   def convertToCrdlCodeListEntrySeq(
-                                     resultMap: Map[String, String]
-                                   ): Seq[CrdlCodeListEntry] = {
+    resultMap: Map[String, String]
+  ): Seq[CrdlCodeListEntry] = {
     resultMap.map { case (k, v) =>
       CrdlCodeListEntry(k, v, Json.obj())
     }.toSeq
@@ -144,7 +144,11 @@ class RetrieveOtherReferenceDataServiceSpec
       val codeListEntrySeq = convertToCrdlCodeListEntrySeq(transportUnitsResult)
 
       when(
-        crdlConnector.fetchCodeList(CodeListCode(equalTo("BC35")), equalTo(None), equalTo(None))(using any(), any())
+        crdlConnector.fetchCodeList(CodeListCode(equalTo("BC35")), equalTo(None), equalTo(None))(
+          using
+          any(),
+          any()
+        )
       )
         .thenReturn(Future.successful(codeListEntrySeq))
 
@@ -157,7 +161,8 @@ class RetrieveOtherReferenceDataServiceSpec
       val codeListEntrySeq = convertToCrdlCodeListEntrySeq(typesOfDocumentResult)
 
       when(
-        crdlConnector.fetchCodeList(CodeListCode(equalTo("BC106")), equalTo(None), equalTo(None))(using
+        crdlConnector.fetchCodeList(CodeListCode(equalTo("BC106")), equalTo(None), equalTo(None))(
+          using
           any(),
           any()
         )
@@ -190,7 +195,9 @@ class RetrieveOtherReferenceDataServiceSpec
           )
         )
           .thenReturn(Future.successful(List.empty))
-        service.retrieveMemberStatesAndCountries().map(_ shouldBe memberStatesAndCountriesResultNoCountries)
+        service
+          .retrieveMemberStatesAndCountries()
+          .map(_ shouldBe memberStatesAndCountriesResultNoCountries)
       }
 
       "retrieveMemberStates method returns no data and retrieveCountries method returns data" in {
@@ -212,7 +219,9 @@ class RetrieveOtherReferenceDataServiceSpec
           )
         )
           .thenReturn(Future.successful(codeListEntrySeq))
-        service.retrieveMemberStatesAndCountries().map(_ shouldBe memberStatesAndCountriesResultNoMemberStates)
+        service
+          .retrieveMemberStatesAndCountries()
+          .map(_ shouldBe memberStatesAndCountriesResultNoMemberStates)
       }
       "retrieveMemberStates method returns data and retrieveCountries method returns data" in {
         val memberStatesSeq = convertToCrdlCodeListEntrySeq(memberStatesResult)

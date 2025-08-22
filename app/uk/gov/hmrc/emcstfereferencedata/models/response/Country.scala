@@ -23,7 +23,10 @@ case class Country(countryCode: String, country: String)
 object Country {
   given OFormat[Country] = Json.format[Country]
 
-  def apply(countries: Map[String, String]): Seq[Country] = countries.map {
-    case (code, country) => Country(code, country)
-  }.toSeq.sortBy(_.countryCode)
+  def apply(countries: Map[String, String]): Seq[Country] = countries
+    .map { case (code, country) =>
+      Country(code, country)
+    }
+    .toSeq
+    .sortBy(_.countryCode)
 }

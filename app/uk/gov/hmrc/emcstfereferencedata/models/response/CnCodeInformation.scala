@@ -30,13 +30,14 @@ case class CnCodeInformation(
 object CnCodeInformation {
   given Reads[CnCodeInformation] = Json.reads[CnCodeInformation]
 
-  given OWrites[CnCodeInformation] = (o: CnCodeInformation) => Json.obj(
-    "cnCode" -> o.cnCode,
-    "cnCodeDescription" -> StringUtils.addSmartQuotes(o.cnCodeDescription),
-    "exciseProductCode" -> o.exciseProductCode,
-    "exciseProductCodeDescription" -> StringUtils.addSmartQuotes(o.exciseProductCodeDescription),
-    "unitOfMeasureCode" -> o.unitOfMeasureCode
-  )
+  given OWrites[CnCodeInformation] = (o: CnCodeInformation) =>
+    Json.obj(
+      "cnCode"                       -> o.cnCode,
+      "cnCodeDescription"            -> StringUtils.addSmartQuotes(o.cnCodeDescription),
+      "exciseProductCode"            -> o.exciseProductCode,
+      "exciseProductCodeDescription" -> StringUtils.addSmartQuotes(o.exciseProductCodeDescription),
+      "unitOfMeasureCode"            -> o.unitOfMeasureCode
+    )
 
   val mongoFormat: OFormat[CnCodeInformation] = Json.format[CnCodeInformation]
 }

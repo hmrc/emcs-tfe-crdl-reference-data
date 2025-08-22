@@ -37,18 +37,18 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 
 @DisallowConcurrentExecution
-class ImportReferenceDataJob @Inject()(
-                                        val mongoComponent: MongoComponent,
-                                        val lockRepository: MongoLockRepository,
-                                        crdlConnector: CrdlConnector,
-                                        codeListsRepository: CodeListsRepository,
-                                        cnCodesRepository: CnCodesRepository,
-                                        exciseProductsRepository: ExciseProductsRepository
-                                      )(using ec: ExecutionContext)
+class ImportReferenceDataJob @Inject() (
+  val mongoComponent: MongoComponent,
+  val lockRepository: MongoLockRepository,
+  crdlConnector: CrdlConnector,
+  codeListsRepository: CodeListsRepository,
+  cnCodesRepository: CnCodesRepository,
+  exciseProductsRepository: ExciseProductsRepository
+)(using ec: ExecutionContext)
   extends Job
-    with LockService
-    with Logging
-    with Transactions {
+  with LockService
+  with Logging
+  with Transactions {
 
   private val jobName = "import-reference-data"
 
@@ -57,14 +57,17 @@ class ImportReferenceDataJob @Inject()(
   given TransactionConfiguration = TransactionConfiguration.strict
 
   override val lockId: String = jobName
-  override val ttl: Duration = 1.hour
+  override val ttl: Duration  = 1.hour
 
   private def refreshCodeListEntries(session: ClientSession, codeListCode: CodeListCode) =
     for {
-      entries <- crdlConnector.fetchCodeList(codeListCode, filterKeys = None, filterProperties = None)
+      entries <- crdlConnector.fetchCodeList(
+        codeListCode,
+        filterKeys = None,
+        filterProperties = None
+      )
       _ <- codeListsRepository.saveCodeListEntries(session, codeListCode, entries)
     } yield ()
-
 
   private def rebuildExciseProducts(session: ClientSession): Future[Unit] = {
     for {
@@ -72,7 +75,7 @@ class ImportReferenceDataJob @Inject()(
       _ <- refreshCodeListEntries(session, BC66)
 
       exciseProducts <- codeListsRepository.buildExciseProducts(session)
-      _ <- exciseProductsRepository.saveExciseProducts(session, exciseProducts)
+      _              <- exciseProductsRepository.saveExciseProducts(session, exciseProducts)
 
     } yield ()
   }
@@ -84,7 +87,7 @@ class ImportReferenceDataJob @Inject()(
       _ <- refreshCodeListEntries(session, E200)
 
       cnCodeInfo <- codeListsRepository.buildCnCodes(session)
-      _ <- cnCodesRepository.saveCnCodes(session, cnCodeInfo)
+      _          <- cnCodesRepository.saveCnCodes(session, cnCodeInfo)
 
     } yield ()
   }

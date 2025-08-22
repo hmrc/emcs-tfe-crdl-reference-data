@@ -33,30 +33,45 @@ import javax.inject.Singleton
 import scala.concurrent.{ExecutionContext, Future}
 
 trait AuthAction {
-  def apply(ern: Option[String]): ActionBuilder[UserRequest, AnyContent] with ActionFunction[Request, UserRequest]
+  def apply(
+    ern: Option[String]
+  ): ActionBuilder[UserRequest, AnyContent] with ActionFunction[Request, UserRequest]
 }
 
 @Singleton
-class AuthActionImpl @Inject()(override val authConnector: AuthConnector,
-                               val cc: ControllerComponents
-                              )(implicit val ec: ExecutionContext) extends AuthAction with AuthorisedFunctions with Logging {
+class AuthActionImpl @Inject() (
+  override val authConnector: AuthConnector,
+  val cc: ControllerComponents
+)(implicit val ec: ExecutionContext)
+  extends AuthAction
+  with AuthorisedFunctions
+  with Logging {
 
-  override def apply(ern: Option[String]): ActionBuilder[UserRequest, AnyContent] with ActionFunction[Request, UserRequest] =
+  override def apply(
+    ern: Option[String]
+  ): ActionBuilder[UserRequest, AnyContent] with ActionFunction[Request, UserRequest] =
     new ActionBuilder[UserRequest, AnyContent] with ActionFunction[Request, UserRequest] {
-      override val parser = cc.parsers.defaultBodyParser
+      override val parser           = cc.parsers.defaultBodyParser
       override val executionContext = ec
 
-      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] = {
+      override def invokeBlock[A](
+        request: Request[A],
+        block: UserRequest[A] => Future[Result]
+      ): Future[Result] = {
 
         implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
 
         implicit val req = request
 
-        authorised().retrieve(Retrievals.affinityGroup and Retrievals.allEnrolments and Retrievals.internalId and Retrievals.credentials) {
+        authorised().retrieve(
+          Retrievals.affinityGroup and Retrievals.allEnrolments and Retrievals.internalId and Retrievals.credentials
+        ) {
 
           case Some(Organisation) ~ enrolments ~ Some(internalId) ~ Some(credentials) =>
             logger.debug("Checking for EMCS Enrolment")
-            checkOrganisationEMCSEnrolment(ern, enrolments, internalId, credentials.providerId)(block)
+            checkOrganisationEMCSEnrolment(ern, enrolments, internalId, credentials.providerId)(
+              block
+            )
 
           case Some(Organisation) ~ _ ~ None ~ _ =>
             logger.warn("InternalId could not be retrieved from Auth")
@@ -85,12 +100,12 @@ class AuthActionImpl @Inject()(override val authConnector: AuthConnector,
       }
     }
 
-  private def checkOrganisationEMCSEnrolment[A](ernFromUrl: Option[String],
-                                                enrolments: Enrolments,
-                                                internalId: String,
-                                                credId: String
-                                               )(block: UserRequest[A] => Future[Result])
-                                               (implicit request: Request[A]): Future[Result] =
+  private def checkOrganisationEMCSEnrolment[A](
+    ernFromUrl: Option[String],
+    enrolments: Enrolments,
+    internalId: String,
+    credId: String
+  )(block: UserRequest[A] => Future[Result])(implicit request: Request[A]): Future[Result] =
     enrolments.enrolments.filter(enrolment => enrolment.key == EnrolmentKeys.EMCS_ENROLMENT) match {
       case emcsEnrolments if emcsEnrolments.isEmpty =>
         logger.debug(s"No ${EnrolmentKeys.EMCS_ENROLMENT} enrolment found")
@@ -103,11 +118,15 @@ class AuthActionImpl @Inject()(override val authConnector: AuthConnector,
               block(UserRequest(request, internalId, credId))
             case Some(ern) =>
               // Accessing route which contains an ERN, e.g. GET /oracle/trader-known-facts
-              emcsEnrolments.find(_.identifiers.exists(ident => ident.key == EnrolmentKeys.ERN && ident.value == ern)) match {
+              emcsEnrolments.find(
+                _.identifiers.exists(ident => ident.key == EnrolmentKeys.ERN && ident.value == ern)
+              ) match {
                 case Some(_) =>
                   block(UserRequest(request, internalId, credId))
                 case None =>
-                  logger.warn(s"User attempted to access ern: '$ernFromUrl' which they are not authorised to view")
+                  logger.warn(
+                    s"User attempted to access ern: '$ernFromUrl' which they are not authorised to view"
+                  )
                   Future.successful(Forbidden)
               }
           }

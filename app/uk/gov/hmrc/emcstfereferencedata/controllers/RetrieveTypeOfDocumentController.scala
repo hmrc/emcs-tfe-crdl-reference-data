@@ -28,16 +28,17 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class RetrieveTypeOfDocumentController @Inject()(
-                                                  cc: ControllerComponents,
-                                                  connector: RetrieveOtherReferenceDataService
-                                                )(implicit ec: ExecutionContext) extends BackendController(cc) with Logging{
+class RetrieveTypeOfDocumentController @Inject() (
+  cc: ControllerComponents,
+  connector: RetrieveOtherReferenceDataService
+)(implicit ec: ExecutionContext)
+  extends BackendController(cc)
+  with Logging {
   def show: Action[AnyContent] = Action.async { implicit request =>
     connector.retrieveTypesOfDocument().map { response =>
-      if(response.nonEmpty) {
+      if (response.nonEmpty) {
         Ok(Json.toJson(TypeOfDocument(response)))
-      }
-      else{
+      } else {
         logger.warn("No data returned for TypeOfDocument")
         InternalServerError(Json.toJson(NoDataReturnedFromDatabaseError))
       }

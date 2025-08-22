@@ -22,7 +22,9 @@ class StringUtilsSpec extends UnitSpec {
   "removeHtmlEscapedCharactersAndAddSmartQuotes" should {
     "convert a String with single quotes" in {
       StringUtils.addSmartQuotes("it's time for 'beans'") shouldBe "it’s time for ‘beans’"
-      StringUtils.addSmartQuotes("This is a 'test', it's a good 'test' and it will be 'tested'") shouldBe
+      StringUtils.addSmartQuotes(
+        "This is a 'test', it's a good 'test' and it will be 'tested'"
+      ) shouldBe
         "This is a ‘test’, it’s a good ‘test’ and it will be ‘tested’"
     }
   }

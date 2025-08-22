@@ -34,5 +34,5 @@ trait UnitSpec
   with MockitoSugar {
   implicit lazy val hc: HeaderCarrier    = HeaderCarrier()
   implicit lazy val ec: ExecutionContext = ExecutionContext.global
-  
+
 }

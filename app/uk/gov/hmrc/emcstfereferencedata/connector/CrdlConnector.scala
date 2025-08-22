@@ -33,7 +33,8 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class CrdlConnector @Inject() (config: AppConfig, httpClient: HttpClientV2)(using
   system: ActorSystem
-) extends Retries with Logging {
+) extends Retries
+  with Logging {
   override protected def actorSystem: ActorSystem = system
 
   override protected def configuration: Config = config.config.underlying
@@ -75,7 +76,9 @@ class CrdlConnector @Inject() (config: AppConfig, httpClient: HttpClientV2)(usin
         .get(urlFor(code, filterKeys, filterProperties))(using hcWithInternalAuth)
         .execute[List[CrdlCodeListEntry]](using throwOnFailureReads)
     }
-    fetchResult.failed.foreach(err => logger.error(s"Retries exceeded while fetching ${code.value} ", err))
+    fetchResult.failed.foreach(err =>
+      logger.error(s"Retries exceeded while fetching ${code.value} ", err)
+    )
     fetchResult
   }
 }

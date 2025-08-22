@@ -201,13 +201,33 @@ class ImportReferenceDataJobSpec
 
   "ImportReferenceDataJob.importReferenceData" should "import the configured codelists and build the derived domain objects" in {
     // CRDL connector responses
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC36")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC36")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(BC36Entries))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC37")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC37")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(BC37Entries))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC66")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC66")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(BC66Entries))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("E200")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("E200")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(E200Entries))
 
     // Mongo collection manipulation
@@ -232,13 +252,33 @@ class ImportReferenceDataJobSpec
 
   it should "roll back and fail to build excise products when there is an issue fetching one of the required codelists" in {
     // CRDL connector responses
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC36")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC36")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(BC36Entries))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC37")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC37")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(BC37Entries))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC66")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC66")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.failed(UpstreamErrorResponse("Boom!", Status.INTERNAL_SERVER_ERROR)))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("E200")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("E200")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(E200Entries))
 
     // Mongo collection manipulation
@@ -254,7 +294,11 @@ class ImportReferenceDataJobSpec
 
     refDataJob.importReferenceData().failed.futureValue shouldBe an[UpstreamErrorResponse]
 
-    verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(equalTo(clientSession), any(), any())
+    verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(
+      equalTo(clientSession),
+      any(),
+      any()
+    )
     verify(cnCodesRepository, times(1)).saveCnCodes(equalTo(clientSession), any())
     verify(exciseProductsRepository, never()).saveExciseProducts(equalTo(clientSession), any())
 
@@ -263,13 +307,33 @@ class ImportReferenceDataJobSpec
 
   it should "roll back and fail to build CN codes when there is an issue fetching one of the required codelists" in {
     // CRDL connector responses
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC36")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC36")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(BC36Entries))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC37")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC37")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(BC37Entries))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC66")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC66")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(BC66Entries))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("E200")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("E200")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.failed(UpstreamErrorResponse("Boom!", Status.INTERNAL_SERVER_ERROR)))
 
     // Mongo collection manipulation
@@ -285,7 +349,11 @@ class ImportReferenceDataJobSpec
 
     refDataJob.importReferenceData().failed.futureValue shouldBe an[UpstreamErrorResponse]
 
-    verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(equalTo(clientSession), any(), any())
+    verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(
+      equalTo(clientSession),
+      any(),
+      any()
+    )
     verify(cnCodesRepository, never()).saveCnCodes(equalTo(clientSession), any())
     verify(exciseProductsRepository, never()).saveExciseProducts(equalTo(clientSession), any())
 
@@ -294,13 +362,33 @@ class ImportReferenceDataJobSpec
 
   it should "roll back and fail to build either domain object when there is an issue fetching the excise products codelist" in {
     // CRDL connector responses
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC36")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC36")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.failed(UpstreamErrorResponse("Boom!", Status.INTERNAL_SERVER_ERROR)))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC37")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC37")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(BC37Entries))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC66")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC66")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(BC66Entries))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("E200")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("E200")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(E200Entries))
 
     // Mongo collection manipulation
@@ -325,13 +413,33 @@ class ImportReferenceDataJobSpec
 
   it should "roll back when there is an issue saving the excise products" in {
     // CRDL connector responses
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC36")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC36")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(BC36Entries))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC37")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC37")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(BC37Entries))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC66")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC66")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(BC66Entries))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("E200")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("E200")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(E200Entries))
 
     // Mongo collection manipulation
@@ -347,7 +455,11 @@ class ImportReferenceDataJobSpec
 
     refDataJob.importReferenceData().failed.futureValue shouldBe a[MongoError]
 
-    verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(equalTo(clientSession), any(), any())
+    verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(
+      equalTo(clientSession),
+      any(),
+      any()
+    )
     verify(exciseProductsRepository, times(1)).saveExciseProducts(equalTo(clientSession), any())
 
     verify(clientSession, times(1)).abortTransaction()
@@ -355,13 +467,33 @@ class ImportReferenceDataJobSpec
 
   it should "roll back when there is an issue saving the CN codes" in {
     // CRDL connector responses
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC36")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC36")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(BC36Entries))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC37")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC37")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(BC37Entries))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("BC66")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("BC66")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(BC66Entries))
-    when(crdlConnector.fetchCodeList(CodeListCode(equalTo("E200")), equalTo(None), equalTo(None))(using any(), any()))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("E200")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
       .thenReturn(Future.successful(E200Entries))
 
     // Mongo collection manipulation
@@ -378,7 +510,11 @@ class ImportReferenceDataJobSpec
 
     refDataJob.importReferenceData().failed.futureValue shouldBe a[MongoError]
 
-    verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(equalTo(clientSession), any(), any())
+    verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(
+      equalTo(clientSession),
+      any(),
+      any()
+    )
     verify(cnCodesRepository, times(1)).saveCnCodes(equalTo(clientSession), any())
 
     verify(clientSession, times(1)).abortTransaction()
