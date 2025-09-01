@@ -1,6 +1,9 @@
 repoVisibility: public_0C3F0CE3E6E6448FAD341E7BFA50FCD333E06A20CFF05FCACE61154DDBBADF71
 digital-service: EMCS TFE
+description: Translates the flat key-value codelists of the crdl-cache service into the composite domain objects used by the TFE frontends.
 type: service
 service-type: backend
 test-repositories:
   - emcs-tfe-journey-tests
+  - emcs-tfe-crdl-ref-data-api-tests
+  - emcs-tfe-crdl-ref-data-performance-tests
