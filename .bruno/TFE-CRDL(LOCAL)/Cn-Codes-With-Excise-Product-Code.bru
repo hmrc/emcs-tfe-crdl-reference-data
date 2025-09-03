@@ -1,0 +1,35 @@
+meta {
+  name: Cn-Codes-With-Excise-Product-Code
+  type: http
+  seq: 11
+}
+
+get {
+  url: http://localhost:8321/emcs-tfe-reference-data/oracle/cn-codes/W200
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: {{bearerToken}}
+}
+
+body:json {
+  [
+    "4",
+    "11",
+    "9"
+  ]
+}
+
+body:text {
+  [
+    "VP",
+    "NE",
+    "TO"
+  ]
+}
+
+settings {
+  encodeUrl: true
+}

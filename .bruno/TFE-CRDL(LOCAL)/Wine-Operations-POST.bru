@@ -1,0 +1,35 @@
+meta {
+  name: Wine-Operations-POST
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8321/emcs-tfe-reference-data/oracle/wine-operations
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: {{bearerToken}}
+}
+
+body:json {
+  [
+    "4",
+    "11",
+    "9"
+  ]
+}
+
+body:text {
+  [
+    "VP",
+    "NE",
+    "TO"
+  ]
+}
+
+settings {
+  encodeUrl: true
+}

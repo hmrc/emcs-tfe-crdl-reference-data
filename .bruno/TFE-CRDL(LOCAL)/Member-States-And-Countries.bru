@@ -1,0 +1,35 @@
+meta {
+  name: Member-States-And-Countries
+  type: http
+  seq: 8
+}
+
+get {
+  url: http://localhost:8321/emcs-tfe-reference-data/oracle/member-states-and-countries
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: {{bearerToken}}
+}
+
+body:json {
+  [
+    "4",
+    "11",
+    "9"
+  ]
+}
+
+body:text {
+  [
+    "VP",
+    "NE",
+    "TO"
+  ]
+}
+
+settings {
+  encodeUrl: true
+}

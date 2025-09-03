@@ -1,0 +1,38 @@
+script:pre-request {
+  const axios = require("axios");
+  function randomCredId() {
+    let result = "";
+    const digits = "0123456789";
+    for (let i = 0; i < 16; i++) {
+      result += digits.charAt(Math.floor(Math.random() * digits.length));
+    }
+    return result;
+  }
+  const response = await axios.post(
+    "http://localhost:8585/government-gateway/session/login",
+    {
+      credId: randomCredId(),
+      affinityGroup: "Organisation",
+      credentialStrength: "strong",
+      enrolments: [
+        {
+          key: "HMRC-EMCS-ORG",
+          state: "Activated",
+          identifiers: [{ key: "ExciseNumber", value: "GBWK001234569" }]
+        }
+      ]
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+  bru.setEnvVar('bearerToken', response.headers.get('Authorization'));
+}
+
+script:post-response {
+  const bearerTokenKey = 'bearerToken';
+  
+  bru.setEnvVar(bearerTokenKey, '');
+}

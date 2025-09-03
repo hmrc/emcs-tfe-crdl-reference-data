@@ -3,6 +3,7 @@
 !.gitignore
 !.scalafmt.conf
 !.git-blame-ignore-revs
+!.bruno
 bin
 .bloop/
 .cache
