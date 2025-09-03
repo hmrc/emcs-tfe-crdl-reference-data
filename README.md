@@ -35,6 +35,12 @@ You will need a bearer token to invoke some of the API endpoints in this service
 ### Sample Bruno Requests
 To test out APIs from this service using Bruno, open the [TFE-CRDL(LOCAL)](./bruno/TFE-CRDL(LOCAL)) collection on your bruno application, the file that can be found in the .bruno folder.
 
+Furthermore, the `Local` environment in bruno should be used, as it enables a pre-script
+in the [collection](./.bruno/TFE-CRDL(LOCAL)/collection.bru)
+to run which automatically requests a bearer token from AUTH_LOGIN_API and stores it in
+the `bearerToken` environment variable, which is used by each authenticated request, without the need to add the bearer
+token in manually.
+
 ## API endpoints
 
 <details>
