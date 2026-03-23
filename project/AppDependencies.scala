@@ -5,8 +5,8 @@ object AppDependencies {
 
   val playSuffix = "-play-30"
 
-  val hmrcBootstrapVersion = "9.19.0"
-  val hmrcMongoVersion     = "2.7.0"
+  val hmrcBootstrapVersion = "10.7.0"
+  val hmrcMongoVersion     = "2.12.0"
   val quartzVersion        = "2.5.0"
 
   private val compile = Seq(
