@@ -19,14 +19,11 @@ package uk.gov.hmrc.emcstfereferencedata.scheduler.jobs
 import org.mongodb.scala.ClientSession
 import org.quartz.{DisallowConcurrentExecution, Job, JobExecutionContext}
 import uk.gov.hmrc.emcstfereferencedata.connector.CrdlConnector
-import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode
+import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CodeSet}
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode.{BC36, BC37, BC66, E200}
-import uk.gov.hmrc.emcstfereferencedata.repositories.{
-  CnCodesRepository,
-  CodeListsRepository,
-  ExciseProductsRepository
-}
+import uk.gov.hmrc.emcstfereferencedata.repositories.{CnCodesRepository, CodeListsRepository, ExciseProductsRepository}
 import uk.gov.hmrc.emcstfereferencedata.utils.Logging
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.lock.{LockService, MongoLockRepository}
 import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
@@ -34,7 +31,6 @@ import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
 import javax.inject.Inject
 import scala.concurrent.duration.*
 import scala.concurrent.{Await, ExecutionContext, Future}
-import uk.gov.hmrc.http.HeaderCarrier
 
 @DisallowConcurrentExecution
 class ImportReferenceDataJob @Inject() (
@@ -74,7 +70,7 @@ class ImportReferenceDataJob @Inject() (
       // We need both BC36 and BC66 data to build the excise-products collection
       _ <- refreshCodeListEntries(session, BC66)
 
-      exciseProducts <- codeListsRepository.buildExciseProducts(session)
+      exciseProducts <- codeListsRepository.buildExciseProducts(session, CodeSet.eu)
       _              <- exciseProductsRepository.saveExciseProducts(session, exciseProducts)
 
     } yield ()
@@ -86,7 +82,7 @@ class ImportReferenceDataJob @Inject() (
       _ <- refreshCodeListEntries(session, BC37)
       _ <- refreshCodeListEntries(session, E200)
 
-      cnCodeInfo <- codeListsRepository.buildCnCodes(session)
+      cnCodeInfo <- codeListsRepository.buildCnCodes(session, CodeSet.eu)
       _          <- cnCodesRepository.saveCnCodes(session, cnCodeInfo)
 
     } yield ()
@@ -96,9 +92,9 @@ class ImportReferenceDataJob @Inject() (
     val importRefData = withSessionAndTransaction { session =>
       // BC36 data is used by both of the derived collections
       for {
-        exciseProducts <- refreshCodeListEntries(session, BC36)
-        _              <- rebuildCnCodes(session)
-        _              <- rebuildExciseProducts(session)
+        _ <- refreshCodeListEntries(session, BC36)
+        _ <- rebuildCnCodes(session)
+        _ <- rebuildExciseProducts(session)
       } yield ()
     }
 

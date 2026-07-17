@@ -33,11 +33,7 @@ import uk.gov.hmrc.emcstfereferencedata.connector.CrdlConnector
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListEntry}
 import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ExciseProductCode}
-import uk.gov.hmrc.emcstfereferencedata.repositories.{
-  CnCodesRepository,
-  CodeListsRepository,
-  ExciseProductsRepository
-}
+import uk.gov.hmrc.emcstfereferencedata.repositories.{CnCodesRepository, CodeListsRepository, ExciseProductsRepository}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.lock.{Lock, MongoLockRepository}
@@ -233,9 +229,9 @@ class ImportReferenceDataJobSpec
     // Mongo collection manipulation
     when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
       .thenReturn(Future.unit)
-    when(codeListsRepository.buildCnCodes(equalTo(clientSession)))
+    when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
-    when(codeListsRepository.buildExciseProducts(equalTo(clientSession)))
+    when(codeListsRepository.buildExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.successful(ExciseProducts))
     when(exciseProductsRepository.saveExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
@@ -284,9 +280,9 @@ class ImportReferenceDataJobSpec
     // Mongo collection manipulation
     when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
       .thenReturn(Future.unit)
-    when(codeListsRepository.buildCnCodes(equalTo(clientSession)))
+    when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
-    when(codeListsRepository.buildExciseProducts(equalTo(clientSession)))
+    when(codeListsRepository.buildExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.successful(ExciseProducts))
     when(exciseProductsRepository.saveExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
@@ -339,9 +335,9 @@ class ImportReferenceDataJobSpec
     // Mongo collection manipulation
     when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
       .thenReturn(Future.unit)
-    when(codeListsRepository.buildCnCodes(equalTo(clientSession)))
+    when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
-    when(codeListsRepository.buildExciseProducts(equalTo(clientSession)))
+    when(codeListsRepository.buildExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.successful(ExciseProducts))
     when(exciseProductsRepository.saveExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
@@ -394,9 +390,9 @@ class ImportReferenceDataJobSpec
     // Mongo collection manipulation
     when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
       .thenReturn(Future.unit)
-    when(codeListsRepository.buildCnCodes(equalTo(clientSession)))
+    when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
-    when(codeListsRepository.buildExciseProducts(equalTo(clientSession)))
+    when(codeListsRepository.buildExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.successful(ExciseProducts))
     when(exciseProductsRepository.saveExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
@@ -445,9 +441,9 @@ class ImportReferenceDataJobSpec
     // Mongo collection manipulation
     when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
       .thenReturn(Future.unit)
-    when(codeListsRepository.buildCnCodes(equalTo(clientSession)))
+    when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
-    when(codeListsRepository.buildExciseProducts(equalTo(clientSession)))
+    when(codeListsRepository.buildExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.successful(ExciseProducts))
     when(exciseProductsRepository.saveExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.failed(MongoError.NotAcknowledged))
@@ -499,9 +495,9 @@ class ImportReferenceDataJobSpec
     // Mongo collection manipulation
     when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
       .thenReturn(Future.unit)
-    when(codeListsRepository.buildCnCodes(equalTo(clientSession)))
+    when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
-    when(codeListsRepository.buildExciseProducts(equalTo(clientSession)))
+    when(codeListsRepository.buildExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.successful(ExciseProducts))
     when(exciseProductsRepository.saveExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.unit)

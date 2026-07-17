@@ -24,22 +24,17 @@ import org.mongodb.scala.model.Filters.*
 import org.mongodb.scala.model.Projections.*
 import org.mongodb.scala.model.{IndexModel, IndexOptions, Indexes}
 import play.api.libs.json.*
-import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListEntry}
+import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CodeSet, CrdlCodeListEntry}
 import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
 import uk.gov.hmrc.emcstfereferencedata.models.mongo.CodeListEntry
-import uk.gov.hmrc.emcstfereferencedata.models.response.{
-  CnCodeInformation,
-  CnCodeMapping,
-  ExciseProductCode,
-  ExciseProductMapping
-}
+import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, CnCodeMapping, ExciseProductCode, ExciseProductMapping}
+import uk.gov.hmrc.emcstfereferencedata.utils.Logging
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.mongo.transaction.Transactions
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.emcstfereferencedata.utils.Logging
 
 @Singleton
 class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using ec: ExecutionContext)
@@ -70,13 +65,8 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
   // This collection's entries are cleared every time new codelists are imported
   override lazy val requiresTtlIndex: Boolean = false
 
-  private val ExciseProducts                    = "BC36"
-  private val CnCodes                           = "BC37"
-  private val ProductCategories                 = "BC66"
-  private val CnCodeExciseProductCorrespondence = "E200"
-
   private def lookupIn(
-    codeListCode: String,
+    codeListCode: CodeListCode,
     localField: String,
     foreignField: String,
     alias: String
@@ -91,7 +81,7 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
             BsonDocument(
               "$and" -> BsonArray(
                 // Match the codelist code
-                BsonDocument("$eq" -> BsonArray("$codeListCode", codeListCode)),
+                BsonDocument("$eq" -> BsonArray("$codeListCode", codeListCode.value)),
                 // Find the one where the foreign field is equal to the local field
                 BsonDocument("$eq" -> BsonArray("$" + foreignField, "$$" + alias))
               )
@@ -114,23 +104,23 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
     }
   }
 
-  def buildCnCodes(session: ClientSession): Future[Seq[CnCodeInformation]] = {
+  def buildCnCodes(session: ClientSession, codes: CodeSet): Future[Seq[CnCodeInformation]] = {
     collection
       .aggregate[CnCodeMapping](
         session,
         List(
           // Find the CN code <-> excise product mappings
-          filter(equal("codeListCode", CnCodeExciseProductCorrespondence)),
+          filter(equal("codeListCode", codes.cnCodeExciseProductCorrespondence.value)),
           // Look up the CN code for this mapping's key
           lookupIn(
-            codeListCode = CnCodes,
+            codeListCode = codes.cnCodes,
             localField = "key",
             foreignField = "key",
             alias = "cnCode"
           ),
           // Look up the excise product for this mapping's value
           lookupIn(
-            codeListCode = ExciseProducts,
+            codeListCode = codes.exciseProducts,
             localField = "value",
             foreignField = "key",
             alias = "exciseProduct"
@@ -184,15 +174,15 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
       .toFuture()
   }
 
-  def buildExciseProducts(session: ClientSession): Future[Seq[ExciseProductCode]] = {
+  def buildExciseProducts(session: ClientSession, codes: CodeSet): Future[Seq[ExciseProductCode]] = {
     collection
       .aggregate[ExciseProductMapping](
         session,
         List(
           // Find the excise products
-          filter(equal("codeListCode", ExciseProducts)),
+          filter(equal("codeListCode", codes.exciseProducts.value)),
           lookupIn(
-            codeListCode = ProductCategories,
+            codeListCode = codes.productCategories,
             localField = "properties.exciseProductsCategoryCode",
             foreignField = "key",
             alias = "productCategory"

@@ -23,7 +23,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 import play.api.test.Helpers.await
 import uk.gov.hmrc.emcstfereferencedata.fixtures.BaseFixtures
-import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListEntry}
+import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListEntry, CodeSet}
 import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
 import uk.gov.hmrc.emcstfereferencedata.models.mongo.CodeListEntry
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ExciseProductCode}
@@ -363,7 +363,7 @@ class CodeListsRepositorySpec
 
       repository.collection.insertMany(codeListEntries).toFuture().futureValue
 
-      val cnCodes = withClientSession(repository.buildCnCodes).futureValue
+      val cnCodes = withClientSession(repository.buildCnCodes(_, CodeSet.eu)).futureValue
 
       cnCodes should contain theSameElementsAs expectedCnCodes
     }
@@ -468,7 +468,7 @@ class CodeListsRepositorySpec
 
       repository.collection.insertMany(codeListEntries).toFuture().futureValue
 
-      val exciseProducts = withClientSession(repository.buildExciseProducts).futureValue
+      val exciseProducts = withClientSession(repository.buildExciseProducts(_, CodeSet.eu)).futureValue
 
       exciseProducts should contain theSameElementsAs expectedExciseProducts
     }
