@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.emcstfereferencedata.models.crdl
 
-import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode.{BC36, BC37, BC66, E200}
+import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode.{BC36, BC37, BC66, E200, HMRCBC36, HMRCBC37, HMRCBC66, HMRCE200}
 
 case class CodeSet(
   source: String,
@@ -34,4 +34,14 @@ object CodeSet {
     productCategories = BC66,
     cnCodeExciseProductCorrespondence = E200
   )
+
+  val uk = CodeSet(
+    source = "UK",
+    exciseProducts = HMRCBC36,
+    cnCodes = HMRCBC37,
+    productCategories = HMRCBC66,
+    cnCodeExciseProductCorrespondence = HMRCE200
+  )
+
+  val values: Seq[CodeSet] = Seq(eu, uk)
 }
