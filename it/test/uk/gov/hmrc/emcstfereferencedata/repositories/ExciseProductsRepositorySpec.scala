@@ -149,7 +149,7 @@ class ExciseProductsRepositorySpec
         )
       )
 
-      withSessionAndTransaction { repository.saveExciseProducts(_, exciseProducts) }.futureValue
+      withSessionAndTransaction { repository.replaceExciseProducts(_, exciseProducts) }.futureValue
 
       val insertedEntries = repository.collection.find().toFuture().futureValue
 
@@ -207,7 +207,7 @@ class ExciseProductsRepositorySpec
         )
       )
 
-      withSessionAndTransaction { repository.saveExciseProducts(_, newProducts) }.futureValue
+      withSessionAndTransaction { repository.replaceExciseProducts(_, newProducts) }.futureValue
 
       val insertedEntries = findAll().futureValue
 
@@ -244,7 +244,7 @@ class ExciseProductsRepositorySpec
 
     val emptyList = List.empty
     val result = withSessionAndTransaction {
-      repository.saveExciseProducts(_, emptyList)
+      repository.replaceExciseProducts(_, emptyList)
     }
 
     assertThrows[MongoError.NoDataToInsert.type] {

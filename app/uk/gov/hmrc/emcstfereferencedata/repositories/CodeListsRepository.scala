@@ -18,6 +18,7 @@ package uk.gov.hmrc.emcstfereferencedata.repositories
 
 import com.mongodb.client.model.Variable
 import org.mongodb.scala.*
+import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.bson.{BsonArray, BsonDocument, BsonTransformer}
 import org.mongodb.scala.model.Aggregates.*
 import org.mongodb.scala.model.Filters.*
@@ -231,14 +232,12 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
 
   def deleteCodeListEntries(
     session: ClientSession,
-    codeListCode: Option[CodeListCode]
+    codeListCodes: Seq[CodeListCode]
   ): Future[Unit] =
     collection
       .deleteMany(
         session,
-        codeListCode
-          .map(code => equal("codeListCode", code.value))
-          .getOrElse(empty())
+        in("codeListCode", codeListCodes.map(_.value)*)
       )
       .toFuture()
       .map { result =>
@@ -248,18 +247,20 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
 
   def saveCodeListEntries(
     session: ClientSession,
-    codeListCode: CodeListCode,
-    crdlEntries: List[CrdlCodeListEntry]
+    codeListCodes: Seq[CodeListCode],
+    crdlEntries: Seq[CrdlCodeListEntry]
   ): Future[Unit] =
     if (crdlEntries.isEmpty) {
-      logger.error(s"Codelist ${codeListCode.value} received from crdl-cache was empty")
+      logger.error(s"Codelists ${codeListCodes.map(_.value)} received from crdl-cache were empty")
       Future.failed(MongoError.NoDataToInsert)
     } else
 
       for {
-        _ <- deleteCodeListEntries(session, Some(codeListCode))
+        _ <- deleteCodeListEntries(session, codeListCodes)
 
-        entries = crdlEntries.map(CodeListEntry.fromCrdlEntry(codeListCode, _))
+        entries = codeListCodes.flatMap { codeListCode =>
+          crdlEntries.map(CodeListEntry.fromCrdlEntry(codeListCode, _))
+        }
 
         _ <- collection.insertMany(session, entries).toFuture().map { result =>
           if (!result.wasAcknowledged())

@@ -141,7 +141,7 @@ class CnCodesRepositorySpec
         ),
       )
 
-      withSessionAndTransaction { repository.saveCnCodes(_, cnCodes) }.futureValue
+      withSessionAndTransaction { repository.replaceCnCodes(_, cnCodes) }.futureValue
 
       val insertedEntries = repository.collection.find().toFuture().futureValue
 
@@ -185,7 +185,7 @@ class CnCodesRepositorySpec
         )
       )
 
-      withSessionAndTransaction { repository.saveCnCodes(_, newCnCodes) }.futureValue
+      withSessionAndTransaction { repository.replaceCnCodes(_, newCnCodes) }.futureValue
 
       val insertedEntries = findAll().futureValue
 
@@ -214,7 +214,7 @@ class CnCodesRepositorySpec
 
       val emptyList = List.empty
       val result = withSessionAndTransaction {
-        repository.saveCnCodes(_, emptyList)
+        repository.replaceCnCodes(_, emptyList)
       }
 
       assertThrows[MongoError] {

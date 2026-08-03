@@ -61,7 +61,7 @@ class ExciseProductsRepository @Inject() (val mongoComponent: MongoComponent)(us
           throw MongoError.NotAcknowledged
       }
 
-  def saveExciseProducts(
+  def replaceExciseProducts(
     session: ClientSession,
     exciseProducts: Seq[ExciseProductCode]
   ): Future[Unit] =
