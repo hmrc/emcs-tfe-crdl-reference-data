@@ -54,13 +54,17 @@ class ImportReferenceDataJob @Inject() (
   override val lockId: String = jobName
   override val ttl: Duration  = 1.hour
 
-  private def refreshCodeListEntries(session: ClientSession, codeListCodes: Seq[CodeListCode]) =
+  private def refreshCodeListEntries(session: ClientSession, codeListCodes: Seq[CodeListCode]) = {
+    def futureMap[A, B](keys: Seq[A])(func: A => Future[Seq[B]]): Future[Map[A, Seq[B]]] =
+      Future.traverse(keys)(key => func(key).map(values => (key, values))).map(_.toMap)
+
     for {
-      entries <- Future.sequence(
-        codeListCodes.map(crdlConnector.fetchCodeList(_, filterKeys = None, filterProperties = None))
-      )
-      _ <- codeListsRepository.saveCodeListEntries(session, codeListCodes, entries.toList.flatten)
+      codeToEntries <- futureMap(codeListCodes) {
+        crdlConnector.fetchCodeList(_, filterKeys = None, filterProperties = None)
+      }
+      _ <- codeListsRepository.saveCodeListEntries(session, codeToEntries)
     } yield ()
+  }
 
   private def rebuildExciseProducts(session: ClientSession, codeSets: Seq[CodeSet]): Future[Unit] = {
     for {

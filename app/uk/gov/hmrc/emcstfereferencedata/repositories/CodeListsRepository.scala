@@ -247,24 +247,25 @@ class CodeListsRepository @Inject() (val mongoComponent: MongoComponent)(using e
 
   def saveCodeListEntries(
     session: ClientSession,
-    codeListCodes: Seq[CodeListCode],
-    crdlEntries: Seq[CrdlCodeListEntry]
-  ): Future[Unit] =
-    if (crdlEntries.isEmpty) {
-      logger.error(s"Codelists ${codeListCodes.map(_.value)} received from crdl-cache were empty")
+    codeToCrdlEntries: Map[CodeListCode, Seq[CrdlCodeListEntry]]
+  ): Future[Unit] = {
+    val (emptyCodeToCrdlEntries, nonEmptyCodeToCrdlEntries) = codeToCrdlEntries.partition((_, v) => v.isEmpty)
+    if (emptyCodeToCrdlEntries.nonEmpty) {
+      logger.error(s"At least one codelist (${emptyCodeToCrdlEntries.keys.map(_.value)}) received from crdl-cache was empty")
       Future.failed(MongoError.NoDataToInsert)
     } else
 
       for {
-        _ <- deleteCodeListEntries(session, codeListCodes)
+        _ <- deleteCodeListEntries(session, nonEmptyCodeToCrdlEntries.keys.toSeq)
 
-        entries = codeListCodes.flatMap { codeListCode =>
-          crdlEntries.map(CodeListEntry.fromCrdlEntry(codeListCode, _))
-        }
+        entries = nonEmptyCodeToCrdlEntries.flatMap { (code, crdlEntries) =>
+          crdlEntries.map(CodeListEntry.fromCrdlEntry(code, _))
+        }.toSeq
 
         _ <- collection.insertMany(session, entries).toFuture().map { result =>
           if (!result.wasAcknowledged())
             throw MongoError.NotAcknowledged
         }
       } yield ()
+  }
 }

@@ -56,7 +56,7 @@ class CodeListsRepositorySpec
       }.toList
 
       withSessionAndTransaction {
-        repository.saveCodeListEntries(_, Seq(codeListCode), crdlEntries)
+        repository.saveCodeListEntries(_, Map(codeListCode -> crdlEntries))
       }.futureValue
 
       val expectedEntries = crdlEntries.map(CodeListEntry.fromCrdlEntry(codeListCode, _))
@@ -99,7 +99,7 @@ class CodeListsRepositorySpec
       )
 
       withSessionAndTransaction {
-        repository.saveCodeListEntries(_, Seq(codeListCode), newCrdlEntries)
+        repository.saveCodeListEntries(_, Map(codeListCode -> newCrdlEntries))
       }.futureValue
 
       val expectedEntries = newCrdlEntries.map(CodeListEntry.fromCrdlEntry(codeListCode, _))
@@ -534,7 +534,7 @@ class CodeListsRepositorySpec
 
       val emptyList = List.empty
       val result = withSessionAndTransaction {
-        repository.saveCodeListEntries(_, Seq(productsCode), emptyList)
+        repository.saveCodeListEntries(_, Map(productsCode -> emptyList))
       }
 
       assertThrows[MongoError] {

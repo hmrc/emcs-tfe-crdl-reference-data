@@ -30,7 +30,7 @@ import play.api.http.Status
 import play.api.libs.json.Json
 import uk.gov.hmrc.emcstfereferencedata.config.AppConfig
 import uk.gov.hmrc.emcstfereferencedata.connector.CrdlConnector
-import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CodeSet, CrdlCodeListEntry}
+import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListEntry}
 import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ExciseProductCode}
 import uk.gov.hmrc.emcstfereferencedata.repositories.{CnCodesRepository, CodeListsRepository, ExciseProductsRepository}
@@ -355,7 +355,7 @@ class ImportReferenceDataJobSpec
       .thenReturn(Future.successful(HMRCE200Entries))
 
     // Mongo collection manipulation
-    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
+    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
     when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
@@ -367,7 +367,7 @@ class ImportReferenceDataJobSpec
 
     refDataJob.importReferenceData().futureValue
 
-    verify(codeListsRepository, times(4)).saveCodeListEntries(equalTo(clientSession), any(), any())
+    verify(codeListsRepository, times(4)).saveCodeListEntries(equalTo(clientSession), any())
     verify(cnCodesRepository, times(1)).replaceCnCodes(equalTo(clientSession), any())
     verify(exciseProductsRepository, times(1)).replaceExciseProducts(equalTo(clientSession), any())
 
@@ -435,7 +435,7 @@ class ImportReferenceDataJobSpec
       .thenReturn(Future.successful(HMRCE200Entries))
 
     // Mongo collection manipulation
-    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
+    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
     when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
@@ -449,7 +449,6 @@ class ImportReferenceDataJobSpec
 
     verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(
       equalTo(clientSession),
-      any(),
       any()
     )
     verify(cnCodesRepository, times(1)).replaceCnCodes(equalTo(clientSession), any())
@@ -519,7 +518,7 @@ class ImportReferenceDataJobSpec
       .thenReturn(Future.successful(HMRCE200Entries))
 
     // Mongo collection manipulation
-    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
+    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
     when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
@@ -533,7 +532,6 @@ class ImportReferenceDataJobSpec
 
     verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(
       equalTo(clientSession),
-      any(),
       any()
     )
     verify(cnCodesRepository, never()).replaceCnCodes(equalTo(clientSession), any())
@@ -603,7 +601,7 @@ class ImportReferenceDataJobSpec
       .thenReturn(Future.successful(E200Entries))
 
     // Mongo collection manipulation
-    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
+    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
     when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
@@ -615,7 +613,7 @@ class ImportReferenceDataJobSpec
 
     refDataJob.importReferenceData().failed.futureValue shouldBe an[UpstreamErrorResponse]
 
-    verify(codeListsRepository, never()).saveCodeListEntries(equalTo(clientSession), any(), any())
+    verify(codeListsRepository, never()).saveCodeListEntries(equalTo(clientSession), any())
     verify(cnCodesRepository, never()).replaceCnCodes(equalTo(clientSession), any())
     verify(exciseProductsRepository, never()).replaceExciseProducts(equalTo(clientSession), any())
 
@@ -683,7 +681,7 @@ class ImportReferenceDataJobSpec
       .thenReturn(Future.successful(HMRCE200Entries))
 
     // Mongo collection manipulation
-    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
+    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
     when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
@@ -697,7 +695,6 @@ class ImportReferenceDataJobSpec
 
     verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(
       equalTo(clientSession),
-      any(),
       any()
     )
     verify(exciseProductsRepository, times(1)).replaceExciseProducts(equalTo(clientSession), any())
@@ -766,7 +763,7 @@ class ImportReferenceDataJobSpec
       .thenReturn(Future.successful(HMRCE200Entries))
 
     // Mongo collection manipulation
-    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
+    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
     when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
@@ -781,7 +778,6 @@ class ImportReferenceDataJobSpec
 
     verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(
       equalTo(clientSession),
-      any(),
       any()
     )
     verify(cnCodesRepository, times(1)).replaceCnCodes(equalTo(clientSession), any())
