@@ -28,7 +28,7 @@ script:pre-request {
       }
     }
   );
-  bru.setEnvVar('bearerToken', response.headers.get('Authorization'));
+  bru.setEnvVar('bearerToken', response.headers.authorization);
 }
 
 script:post-response {

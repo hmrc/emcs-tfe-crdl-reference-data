@@ -10,11 +10,11 @@ It translates the flat key-value codelists of the [crdl-cache](https://github.co
 
 ## Running the service
 
-1. Make sure you run all the dependant services through the service manager:
+1. Make sure you run all the dependent services through the service manager:
 
 ```shell
- sm2 --start EMCS_TFE_CRDL
- ```
+sm2 --start EMCS_TFE_CRDL
+```
 
 2. Stop the EMCS-TFE microservice from the service manager and run it locally:
 

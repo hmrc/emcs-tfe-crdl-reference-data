@@ -33,11 +33,7 @@ import uk.gov.hmrc.emcstfereferencedata.connector.CrdlConnector
 import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CrdlCodeListEntry}
 import uk.gov.hmrc.emcstfereferencedata.models.errors.MongoError
 import uk.gov.hmrc.emcstfereferencedata.models.response.{CnCodeInformation, ExciseProductCode}
-import uk.gov.hmrc.emcstfereferencedata.repositories.{
-  CnCodesRepository,
-  CodeListsRepository,
-  ExciseProductsRepository
-}
+import uk.gov.hmrc.emcstfereferencedata.repositories.{CnCodesRepository, CodeListsRepository, ExciseProductsRepository}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.lock.{Lock, MongoLockRepository}
@@ -136,6 +132,105 @@ class ImportReferenceDataJobSpec
     )
   )
 
+  private val HMRCBC36Entries = List(
+    CrdlCodeListEntry(
+      "V000",
+      "Vaping",
+      Json.obj(
+        "unitOfMeasureCode"                  -> "2",
+        "degreePlatoApplicabilityFlag"       -> false,
+        "actionIdentification"               -> "352",
+        "exciseProductsCategoryCode"         -> "V",
+        "alcoholicStrengthApplicabilityFlag" -> false,
+        "densityApplicabilityFlag"           -> true
+      )
+    )
+  )
+
+  private val HMRCBC37Entries = List(
+    CrdlCodeListEntry(
+      "15200000",
+      "Vegetable Glycerine with a purity of less than 95%",
+      Json.obj("actionIdentification" -> "17")
+    ),
+    CrdlCodeListEntry(
+      "24041200",
+      "Nicotine-containing vape liquids, including cartridges, refills, and standalone liquids (not containing tobacco)",
+      Json.obj("actionIdentification" -> "17")
+    ),
+    CrdlCodeListEntry(
+      "24041990",
+      "Zero nicotine liquid in any container size",
+      Json.obj("actionIdentification" -> "17")
+    ),
+    CrdlCodeListEntry(
+      "29053200",
+      "Propylene glycol (propane-1.2-diol)",
+      Json.obj("actionIdentification" -> "17")
+    ),
+    CrdlCodeListEntry(
+      "29054500",
+      "Vegetable Glycerine with a purity of 95% or more",
+      Json.obj("actionIdentification" -> "17")
+    ),
+    CrdlCodeListEntry(
+      "29397910",
+      "Nicotine intended for vaping",
+      Json.obj("actionIdentification" -> "17")
+    ),
+    CrdlCodeListEntry(
+      "85434000",
+      "Electronic device for vaping",
+      Json.obj("actionIdentification" -> "17")
+    )
+  )
+
+  private val HMRCBC66Entries = List(
+    CrdlCodeListEntry(
+      "V",
+      "Vaping Products",
+      Json.obj("actionIdentification" -> "1081")
+    )
+  )
+
+  private val HMRCE200Entries = Seq(
+    CrdlCodeListEntry(
+      "15200000",
+      "V000",
+      Json.obj("actionIdentification" -> "632")
+    ),
+    CrdlCodeListEntry(
+      "24041200",
+      "V000",
+      Json.obj("actionIdentification" -> "632")
+    ),
+    CrdlCodeListEntry(
+      "24041990",
+      "V000",
+      Json.obj("actionIdentification" -> "632")
+    ),
+    CrdlCodeListEntry(
+      "29053200",
+      "V000",
+      Json.obj("actionIdentification" -> "632")
+    ),
+    CrdlCodeListEntry(
+      "29054500",
+      "V000",
+      Json.obj("actionIdentification" -> "632")
+    ),
+    CrdlCodeListEntry(
+      "29397910",
+      "V000",
+      Json.obj("actionIdentification" -> "632")
+    ),
+    CrdlCodeListEntry(
+      "85434000",
+      "V000",
+      Json.obj("actionIdentification" -> "632")
+    )
+  )
+
   private val CnCodes = List(
     CnCodeInformation(
       "22060059",
@@ -230,22 +325,51 @@ class ImportReferenceDataJobSpec
     )
       .thenReturn(Future.successful(E200Entries))
 
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC36")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCBC36Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC37")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCBC37Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC66")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCBC66Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCE200")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCE200Entries))
+
     // Mongo collection manipulation
-    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
+    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
-    when(codeListsRepository.buildCnCodes(equalTo(clientSession)))
+    when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
-    when(codeListsRepository.buildExciseProducts(equalTo(clientSession)))
+    when(codeListsRepository.buildExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.successful(ExciseProducts))
-    when(exciseProductsRepository.saveExciseProducts(equalTo(clientSession), any()))
+    when(exciseProductsRepository.replaceExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
-    when(cnCodesRepository.saveCnCodes(equalTo(clientSession), any())).thenReturn(Future.unit)
+    when(cnCodesRepository.replaceCnCodes(equalTo(clientSession), any())).thenReturn(Future.unit)
 
     refDataJob.importReferenceData().futureValue
 
-    verify(codeListsRepository, times(4)).saveCodeListEntries(equalTo(clientSession), any(), any())
-    verify(cnCodesRepository, times(1)).saveCnCodes(equalTo(clientSession), any())
-    verify(exciseProductsRepository, times(1)).saveExciseProducts(equalTo(clientSession), any())
+    verify(codeListsRepository, times(4)).saveCodeListEntries(equalTo(clientSession), any())
+    verify(cnCodesRepository, times(1)).replaceCnCodes(equalTo(clientSession), any())
+    verify(exciseProductsRepository, times(1)).replaceExciseProducts(equalTo(clientSession), any())
 
     verify(clientSession, times(1)).commitTransaction()
   }
@@ -281,26 +405,54 @@ class ImportReferenceDataJobSpec
     )
       .thenReturn(Future.successful(E200Entries))
 
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC36")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCBC36Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC37")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCBC37Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC66")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCBC66Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCE200")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCE200Entries))
+
     // Mongo collection manipulation
-    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
+    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
-    when(codeListsRepository.buildCnCodes(equalTo(clientSession)))
+    when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
-    when(codeListsRepository.buildExciseProducts(equalTo(clientSession)))
+    when(codeListsRepository.buildExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.successful(ExciseProducts))
-    when(exciseProductsRepository.saveExciseProducts(equalTo(clientSession), any()))
+    when(exciseProductsRepository.replaceExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
-    when(cnCodesRepository.saveCnCodes(equalTo(clientSession), any())).thenReturn(Future.unit)
+    when(cnCodesRepository.replaceCnCodes(equalTo(clientSession), any())).thenReturn(Future.unit)
 
     refDataJob.importReferenceData().failed.futureValue shouldBe an[UpstreamErrorResponse]
 
     verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(
       equalTo(clientSession),
-      any(),
       any()
     )
-    verify(cnCodesRepository, times(1)).saveCnCodes(equalTo(clientSession), any())
-    verify(exciseProductsRepository, never()).saveExciseProducts(equalTo(clientSession), any())
+    verify(cnCodesRepository, times(1)).replaceCnCodes(equalTo(clientSession), any())
+    verify(exciseProductsRepository, never()).replaceExciseProducts(equalTo(clientSession), any())
 
     verify(clientSession, times(1)).abortTransaction()
   }
@@ -336,26 +488,54 @@ class ImportReferenceDataJobSpec
     )
       .thenReturn(Future.failed(UpstreamErrorResponse("Boom!", Status.INTERNAL_SERVER_ERROR)))
 
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC36")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCBC36Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC37")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCBC37Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC66")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCBC66Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCE200")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCE200Entries))
+
     // Mongo collection manipulation
-    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
+    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
-    when(codeListsRepository.buildCnCodes(equalTo(clientSession)))
+    when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
-    when(codeListsRepository.buildExciseProducts(equalTo(clientSession)))
+    when(codeListsRepository.buildExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.successful(ExciseProducts))
-    when(exciseProductsRepository.saveExciseProducts(equalTo(clientSession), any()))
+    when(exciseProductsRepository.replaceExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
-    when(cnCodesRepository.saveCnCodes(equalTo(clientSession), any())).thenReturn(Future.unit)
+    when(cnCodesRepository.replaceCnCodes(equalTo(clientSession), any())).thenReturn(Future.unit)
 
     refDataJob.importReferenceData().failed.futureValue shouldBe an[UpstreamErrorResponse]
 
     verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(
       equalTo(clientSession),
-      any(),
       any()
     )
-    verify(cnCodesRepository, never()).saveCnCodes(equalTo(clientSession), any())
-    verify(exciseProductsRepository, never()).saveExciseProducts(equalTo(clientSession), any())
+    verify(cnCodesRepository, never()).replaceCnCodes(equalTo(clientSession), any())
+    verify(exciseProductsRepository, never()).replaceExciseProducts(equalTo(clientSession), any())
 
     verify(clientSession, times(1)).abortTransaction()
   }
@@ -391,22 +571,51 @@ class ImportReferenceDataJobSpec
     )
       .thenReturn(Future.successful(E200Entries))
 
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC36")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(BC36Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC37")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(BC37Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC66")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(BC66Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCE200")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(E200Entries))
+
     // Mongo collection manipulation
-    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
+    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
-    when(codeListsRepository.buildCnCodes(equalTo(clientSession)))
+    when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
-    when(codeListsRepository.buildExciseProducts(equalTo(clientSession)))
+    when(codeListsRepository.buildExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.successful(ExciseProducts))
-    when(exciseProductsRepository.saveExciseProducts(equalTo(clientSession), any()))
+    when(exciseProductsRepository.replaceExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
-    when(cnCodesRepository.saveCnCodes(equalTo(clientSession), any())).thenReturn(Future.unit)
+    when(cnCodesRepository.replaceCnCodes(equalTo(clientSession), any())).thenReturn(Future.unit)
 
     refDataJob.importReferenceData().failed.futureValue shouldBe an[UpstreamErrorResponse]
 
-    verify(codeListsRepository, never()).saveCodeListEntries(equalTo(clientSession), any(), any())
-    verify(cnCodesRepository, never()).saveCnCodes(equalTo(clientSession), any())
-    verify(exciseProductsRepository, never()).saveExciseProducts(equalTo(clientSession), any())
+    verify(codeListsRepository, never()).saveCodeListEntries(equalTo(clientSession), any())
+    verify(cnCodesRepository, never()).replaceCnCodes(equalTo(clientSession), any())
+    verify(exciseProductsRepository, never()).replaceExciseProducts(equalTo(clientSession), any())
 
     verify(clientSession, times(1)).abortTransaction()
   }
@@ -442,25 +651,53 @@ class ImportReferenceDataJobSpec
     )
       .thenReturn(Future.successful(E200Entries))
 
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC36")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCBC36Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC37")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCBC37Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC66")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCBC66Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCE200")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCE200Entries))
+
     // Mongo collection manipulation
-    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
+    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
-    when(codeListsRepository.buildCnCodes(equalTo(clientSession)))
+    when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
-    when(codeListsRepository.buildExciseProducts(equalTo(clientSession)))
+    when(codeListsRepository.buildExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.successful(ExciseProducts))
-    when(exciseProductsRepository.saveExciseProducts(equalTo(clientSession), any()))
+    when(exciseProductsRepository.replaceExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.failed(MongoError.NotAcknowledged))
-    when(cnCodesRepository.saveCnCodes(equalTo(clientSession), any())).thenReturn(Future.unit)
+    when(cnCodesRepository.replaceCnCodes(equalTo(clientSession), any())).thenReturn(Future.unit)
 
     refDataJob.importReferenceData().failed.futureValue shouldBe a[MongoError]
 
     verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(
       equalTo(clientSession),
-      any(),
       any()
     )
-    verify(exciseProductsRepository, times(1)).saveExciseProducts(equalTo(clientSession), any())
+    verify(exciseProductsRepository, times(1)).replaceExciseProducts(equalTo(clientSession), any())
 
     verify(clientSession, times(1)).abortTransaction()
   }
@@ -496,26 +733,54 @@ class ImportReferenceDataJobSpec
     )
       .thenReturn(Future.successful(E200Entries))
 
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC36")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCBC36Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC37")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCBC37Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCBC66")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCBC66Entries))
+    when(
+      crdlConnector.fetchCodeList(CodeListCode(equalTo("HMRCE200")), equalTo(None), equalTo(None))(using
+        any(),
+        any()
+      )
+    )
+      .thenReturn(Future.successful(HMRCE200Entries))
+
     // Mongo collection manipulation
-    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any(), any()))
+    when(codeListsRepository.saveCodeListEntries(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
-    when(codeListsRepository.buildCnCodes(equalTo(clientSession)))
+    when(codeListsRepository.buildCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.successful(CnCodes))
-    when(codeListsRepository.buildExciseProducts(equalTo(clientSession)))
+    when(codeListsRepository.buildExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.successful(ExciseProducts))
-    when(exciseProductsRepository.saveExciseProducts(equalTo(clientSession), any()))
+    when(exciseProductsRepository.replaceExciseProducts(equalTo(clientSession), any()))
       .thenReturn(Future.unit)
-    when(cnCodesRepository.saveCnCodes(equalTo(clientSession), any()))
+    when(cnCodesRepository.replaceCnCodes(equalTo(clientSession), any()))
       .thenReturn(Future.failed(MongoError.NotAcknowledged))
 
     refDataJob.importReferenceData().failed.futureValue shouldBe a[MongoError]
 
     verify(codeListsRepository, atLeastOnce()).saveCodeListEntries(
       equalTo(clientSession),
-      any(),
       any()
     )
-    verify(cnCodesRepository, times(1)).saveCnCodes(equalTo(clientSession), any())
+    verify(cnCodesRepository, times(1)).replaceCnCodes(equalTo(clientSession), any())
 
     verify(clientSession, times(1)).abortTransaction()
   }

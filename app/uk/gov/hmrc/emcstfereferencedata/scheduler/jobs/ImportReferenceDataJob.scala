@@ -19,14 +19,10 @@ package uk.gov.hmrc.emcstfereferencedata.scheduler.jobs
 import org.mongodb.scala.ClientSession
 import org.quartz.{DisallowConcurrentExecution, Job, JobExecutionContext}
 import uk.gov.hmrc.emcstfereferencedata.connector.CrdlConnector
-import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode
-import uk.gov.hmrc.emcstfereferencedata.models.crdl.CodeListCode.{BC36, BC37, BC66, E200}
-import uk.gov.hmrc.emcstfereferencedata.repositories.{
-  CnCodesRepository,
-  CodeListsRepository,
-  ExciseProductsRepository
-}
+import uk.gov.hmrc.emcstfereferencedata.models.crdl.{CodeListCode, CodeSet}
+import uk.gov.hmrc.emcstfereferencedata.repositories.{CnCodesRepository, CodeListsRepository, ExciseProductsRepository}
 import uk.gov.hmrc.emcstfereferencedata.utils.Logging
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.lock.{LockService, MongoLockRepository}
 import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
@@ -34,7 +30,6 @@ import uk.gov.hmrc.mongo.transaction.{TransactionConfiguration, Transactions}
 import javax.inject.Inject
 import scala.concurrent.duration.*
 import scala.concurrent.{Await, ExecutionContext, Future}
-import uk.gov.hmrc.http.HeaderCarrier
 
 @DisallowConcurrentExecution
 class ImportReferenceDataJob @Inject() (
@@ -59,46 +54,46 @@ class ImportReferenceDataJob @Inject() (
   override val lockId: String = jobName
   override val ttl: Duration  = 1.hour
 
-  private def refreshCodeListEntries(session: ClientSession, codeListCode: CodeListCode) =
+  private def refreshCodeListEntries(session: ClientSession, codeListCodes: Seq[CodeListCode]) = {
+    def futureMap[A, B](keys: Seq[A])(func: A => Future[Seq[B]]): Future[Map[A, Seq[B]]] =
+      Future.traverse(keys)(key => func(key).map(values => (key, values))).map(_.toMap)
+
     for {
-      entries <- crdlConnector.fetchCodeList(
-        codeListCode,
-        filterKeys = None,
-        filterProperties = None
-      )
-      _ <- codeListsRepository.saveCodeListEntries(session, codeListCode, entries)
-    } yield ()
-
-  private def rebuildExciseProducts(session: ClientSession): Future[Unit] = {
-    for {
-      // We need both BC36 and BC66 data to build the excise-products collection
-      _ <- refreshCodeListEntries(session, BC66)
-
-      exciseProducts <- codeListsRepository.buildExciseProducts(session)
-      _              <- exciseProductsRepository.saveExciseProducts(session, exciseProducts)
-
+      codeToEntries <- futureMap(codeListCodes) {
+        crdlConnector.fetchCodeList(_, filterKeys = None, filterProperties = None)
+      }
+      _ <- codeListsRepository.saveCodeListEntries(session, codeToEntries)
     } yield ()
   }
 
-  private def rebuildCnCodes(session: ClientSession): Future[Unit] = {
+  private def rebuildExciseProducts(session: ClientSession, codeSets: Seq[CodeSet]): Future[Unit] = {
     for {
-      // We need E200, BC36 and BC37 data to build the cn-codes collection
-      _ <- refreshCodeListEntries(session, BC37)
-      _ <- refreshCodeListEntries(session, E200)
+      // We need both BC36 and BC66 data (and their HMC prefixed counterparts) to build the excise-products collection
+      _ <- refreshCodeListEntries(session, codeSets.map(_.productCategories))
 
-      cnCodeInfo <- codeListsRepository.buildCnCodes(session)
-      _          <- cnCodesRepository.saveCnCodes(session, cnCodeInfo)
+      exciseProducts <- Future.sequence(codeSets.map(codeListsRepository.buildExciseProducts(session, _)))
+      _              <- exciseProductsRepository.replaceExciseProducts(session, exciseProducts.flatten)
+    } yield ()
+  }
 
+  private def rebuildCnCodes(session: ClientSession, codeSets: Seq[CodeSet]): Future[Unit] = {
+    for {
+      // We need E200, BC36 and BC37 data (and their HMRC prefixed counterparts) to build the cn-codes collection
+      _ <- refreshCodeListEntries(session, codeSets.map(_.cnCodes))
+      _ <- refreshCodeListEntries(session, codeSets.map(_.cnCodeExciseProductCorrespondence))
+
+      cnCodeInfo <- Future.sequence(codeSets.map(codeListsRepository.buildCnCodes(session, _)))
+      _          <- cnCodesRepository.replaceCnCodes(session, cnCodeInfo.flatten)
     } yield ()
   }
 
   private[jobs] def importReferenceData(): Future[Unit] = {
     val importRefData = withSessionAndTransaction { session =>
-      // BC36 data is used by both of the derived collections
+      // excise products data (BC36/HMRCBC36) is used by both of the derived collections
       for {
-        exciseProducts <- refreshCodeListEntries(session, BC36)
-        _              <- rebuildCnCodes(session)
-        _              <- rebuildExciseProducts(session)
+        _ <- refreshCodeListEntries(session, CodeSet.values.map(_.exciseProducts))
+        _ <- rebuildCnCodes(session, CodeSet.values)
+        _ <- rebuildExciseProducts(session, CodeSet.values)
       } yield ()
     }
 

@@ -30,6 +30,10 @@ object CodeListCode {
   val BC37                   = CodeListCode("BC37")
   val BC41                   = CodeListCode("BC41")
   val BC66                   = CodeListCode("BC66")
-  val E200                   = CodeListCode("E200")
   val BC106                  = CodeListCode("BC106")
+  val E200                   = CodeListCode("E200")
+  val HMRCBC36               = CodeListCode("HMRCBC36")
+  val HMRCBC37               = CodeListCode("HMRCBC37")
+  val HMRCBC66               = CodeListCode("HMRCBC66")
+  val HMRCE200               = CodeListCode("HMRCE200")
 }

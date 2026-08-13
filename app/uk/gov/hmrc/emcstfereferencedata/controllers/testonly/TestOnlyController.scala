@@ -58,7 +58,7 @@ class TestOnlyController @Inject() (
   def deleteCodeLists(): Action[AnyContent] = Action.async {
     withClientSession { session =>
       codeListsRepository
-        .deleteCodeListEntries(session, None)
+        .deleteCodeListEntries(session, Seq.empty)
         .map { _ =>
           Ok
         }

@@ -63,7 +63,7 @@ class CnCodesRepository @Inject() (val mongoComponent: MongoComponent)(using
           throw MongoError.NotAcknowledged
       }
 
-  def saveCnCodes(
+  def replaceCnCodes(
     session: ClientSession,
     cnCodes: Seq[CnCodeInformation]
   ): Future[Unit] =
